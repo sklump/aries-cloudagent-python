@@ -83,12 +83,11 @@ class V10CredentialProposalRequestSchemaBase(Schema):
         description="Credential issuer DID", required=False, **INDY_DID
     )
     auto_remove = fields.Bool(
-        description=("Whether to remove the credential exchange record on completion"),
-        required=False,
-        default=True,
-    )
-    revoc_reg_id = fields.Str(
-        description="Revocation Registry ID", required=False, **INDY_REV_REG_ID
+        description=(
+            "Whether to remove the credential exchange record on completion "
+            "(overrides --preserve-exchange-records configuration setting)"
+        ),
+        required=False
     )
     comment = fields.Str(description="Human-readable comment", required=False)
 
@@ -127,12 +126,12 @@ class V10CredentialOfferRequestSchema(Schema):
         default=False,
     )
     auto_remove = fields.Bool(
-        description=("Whether to remove the credential exchange record on completion"),
+        description=(
+            "Whether to remove the credential exchange record on completion "
+            "(overrides --preserve-exchange-records configuration setting)"
+        ),
         required=False,
         default=True,
-    )
-    revoc_reg_id = fields.Str(
-        description="Revocation Registry ID", required=False, **INDY_REV_REG_ID
     )
     comment = fields.Str(description="Human-readable comment", required=False)
     credential_preview = fields.Nested(CredentialPreviewSchema, required=True)
@@ -263,8 +262,7 @@ async def credential_exchange_send(request: web.BaseRequest):
     preview_spec = body.get("credential_proposal")
     if not preview_spec:
         raise web.HTTPBadRequest(reason="credential_proposal must be provided.")
-    auto_remove = body.get("auto_remove", True)
-    revoc_reg_id = body.get("revoc_reg_id")
+    auto_remove = body.get("auto_remove")
     preview = CredentialPreview.deserialize(preview_spec)
 
     try:
@@ -292,7 +290,6 @@ async def credential_exchange_send(request: web.BaseRequest):
         connection_id,
         credential_proposal=credential_proposal,
         auto_remove=auto_remove,
-        revoc_reg_id=revoc_reg_id,
     )
     await outbound_handler(
         credential_offer_message, connection_id=credential_exchange_record.connection_id
@@ -324,8 +321,7 @@ async def credential_exchange_send_proposal(request: web.BaseRequest):
     comment = body.get("comment")
     preview_spec = body.get("credential_proposal")
     preview = CredentialPreview.deserialize(preview_spec) if preview_spec else None
-    auto_remove = body.get("auto_remove", True)
-    revoc_reg_id = body.get("revoc_reg_id")
+    auto_remove = body.get("auto_remove")
 
     try:
         connection_record = await ConnectionRecord.retrieve_by_id(
@@ -344,7 +340,6 @@ async def credential_exchange_send_proposal(request: web.BaseRequest):
         comment=comment,
         credential_preview=preview,
         auto_remove=auto_remove,
-        revoc_reg_id=revoc_reg_id,
         **{t: body.get(t) for t in CRED_DEF_TAGS if body.get(t)},
     )
 
@@ -389,8 +384,10 @@ async def credential_exchange_send_free_offer(request: web.BaseRequest):
     auto_issue = body.get(
         "auto_issue", context.settings.get("debug.auto_respond_credential_request")
     )
-    auto_remove = body.get("auto_remove", True)
-    revoc_reg_id = body.get("revoc_reg_id")
+    auto_remove = body.get(
+        "auto_remove",
+        context.settings.get("preserve_exchange_records")
+    )
     comment = body.get("comment")
     preview_spec = body.get("credential_preview")
 
@@ -431,7 +428,6 @@ async def credential_exchange_send_free_offer(request: web.BaseRequest):
         credential_proposal_dict=credential_proposal_dict,
         auto_issue=auto_issue,
         auto_remove=auto_remove,
-        revoc_reg_id=revoc_reg_id,
     )
 
     credential_manager = CredentialManager(context)

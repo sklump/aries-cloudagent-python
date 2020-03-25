@@ -117,7 +117,7 @@ class TestRevocationRegistry(AsyncTestCase):
         rev_reg = RevocationRegistry.from_definition(REV_REG_DEF, public_def=False)
         with self.assertRaises(RevocationError) as x_retrieve:
             await rev_reg.retrieve_tails(self.context)
-            assert x_retrieve.message.contains("Tails file public URI is empty")
+            assert "Tails file public URI is empty" in x_retrieve.message
 
         rr_def_public = deepcopy(REV_REG_DEF)
         rr_def_public["value"]["tailsLocation"] = "http://sample.ca:8088/path"
@@ -136,7 +136,7 @@ class TestRevocationRegistry(AsyncTestCase):
 
             with self.assertRaises(RevocationError) as x_retrieve:
                 await rev_reg.retrieve_tails(self.context)
-                assert x_retrieve.message.contains("Error retrieving tails file")
+                assert "Error retrieving tails file" in x_retrieve.message
 
             rmtree(TAILS_DIR, ignore_errors=True)
 
@@ -157,9 +157,9 @@ class TestRevocationRegistry(AsyncTestCase):
 
             with self.assertRaises(RevocationError) as x_retrieve:
                 await rev_reg.retrieve_tails(self.context)
-                assert x_retrieve.message.contains(
+                assert (
                     "The hash of the downloaded tails file does not match."
-                )
+                ) in x_retrieve.message
 
             rmtree(TAILS_DIR, ignore_errors=True)
 

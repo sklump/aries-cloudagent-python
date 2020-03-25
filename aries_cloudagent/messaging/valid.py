@@ -120,6 +120,20 @@ class IndyRevRegId(Regexp):
         )
 
 
+class IndyCredRevId(Regexp):
+    """Validate indy credential revocation identifier value."""
+
+    EXAMPLE = f"12"
+
+    def __init__(self):
+        """Initializer."""
+
+        super().__init__(
+            r"[1-9][0-9]*",
+            error="Value {input} is not an indy credential revocation identifier."
+        )
+
+
 class IndyPredicate(OneOf):
     """Validate value against indy predicate."""
 
@@ -247,6 +261,10 @@ INDY_CRED_DEF_ID = {
 INDY_REV_REG_ID = {
     "validate": IndyRevRegId(),
     "example": IndyRevRegId.EXAMPLE
+}
+INDY_CRED_REV_ID = {
+    "validate": IndyCredRevId(),
+    "example": IndyCredRevId.EXAMPLE
 }
 INDY_VERSION = {
     "validate": IndyVersion(),

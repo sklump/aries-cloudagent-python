@@ -76,7 +76,6 @@ class CredentialManager:
         self,
         connection_id: str,
         credential_proposal: CredentialProposal,
-        revoc_reg_id: str = None,
         auto_remove: bool = None,
     ) -> Tuple[V10CredentialExchange, CredentialOffer]:
         """
@@ -86,7 +85,6 @@ class CredentialManager:
             connection_id: Connection to create offer for
             credential_proposal: The credential proposal with preview on
                 attribute values to use if auto_issue is enabled
-            revoc_reg_id: ID of the revocation registry to use
             auto_remove: Flag to automatically remove the record on completion
 
         Returns:
@@ -102,7 +100,6 @@ class CredentialManager:
             initiator=V10CredentialExchange.INITIATOR_SELF,
             role=V10CredentialExchange.ROLE_ISSUER,
             credential_proposal_dict=credential_proposal.serialize(),
-            revoc_reg_id=revoc_reg_id,
         )
         (credential_exchange, credential_offer) = await self.create_offer(
             credential_exchange_record=credential_exchange,
@@ -124,7 +121,6 @@ class CredentialManager:
         schema_version: str = None,
         cred_def_id: str = None,
         issuer_did: str = None,
-        revoc_reg_id: str = None,
     ) -> V10CredentialExchange:
         """
         Create a credential proposal.
@@ -143,7 +139,6 @@ class CredentialManager:
             schema_version: Schema version for credential proposal
             cred_def_id: Credential definition id for credential proposal
             issuer_did: Issuer DID for credential proposal
-            revoc_reg_id: ID of the revocation registry to use
 
         Returns:
             Resulting credential exchange record including credential proposal
@@ -171,7 +166,6 @@ class CredentialManager:
             credential_proposal_dict=credential_proposal_message.serialize(),
             auto_offer=auto_offer,
             auto_remove=auto_remove,
-            revoc_reg_id=revoc_reg_id,
         )
         await credential_exchange_record.save(
             self.context, reason="create credential proposal"
@@ -490,7 +484,7 @@ class CredentialManager:
                     credential_exchange_record.credential_definition_id
                 )
 
-            if credential_definition["value"]["revocation"]:
+            if credential_definition["value"].get("revocation"):
                 issuer_rev_regs = await IssuerRevRegRecord.query_by_cred_def_id(
                     self.context,
                     credential_exchange_record.credential_definition_id,
@@ -503,7 +497,7 @@ class CredentialManager:
                         )
                     )
 
-                registry = await issuer_rev_regs[0].get_registry()
+                registry = await issuer_rev_regs[0].get_registry()  # any active rev reg
                 credential_exchange_record.revoc_reg_id = (
                     issuer_rev_regs[0].revoc_reg_id
                 )
@@ -688,6 +682,7 @@ class CredentialManager:
 
         return credential_exchange_record
 
+    # TODO make this take rr_id, cr_id instead
     async def revoke_credential(
         self, credential_exchange_record: V10CredentialExchange, publish: bool = False
     ):
@@ -738,7 +733,14 @@ class CredentialManager:
             )
 
         credential_exchange_record.state = V10CredentialExchange.STATE_REVOKED
-        await credential_exchange_record.save(self.context, reason="Revoked credential")
+        await credential_exchange_record.save(
+            self.context,
+            reason="Revoked credential {} ({}) on revocation registry {}".format(
+                credential_exchange_record.revocation_id,
+                "published" if publish else "marked pending",
+                credential_exchange_record.revoc_reg_id
+            )
+        )
 
     async def publish_pending_revocations(self) -> Mapping[Text, Sequence[Text]]:
         """

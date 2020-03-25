@@ -215,7 +215,6 @@ class FaberAgent(BaseAgent):
                 "credential_proposal": cred_preview,
                 "comment": comment,
                 "auto_remove": auto_remove,
-                "revoc_reg_id": self.revocation_registry_id,
             },
         )
 

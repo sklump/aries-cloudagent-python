@@ -720,7 +720,6 @@ class TestCredentialManager(AsyncTestCase):
             credential_request=indy_cred_req,
             initiator=V10CredentialExchange.INITIATOR_SELF,
             role=V10CredentialExchange.ROLE_ISSUER,
-            revoc_reg_id=REV_REG_ID,
             thread_id=thread_id,
         )
 
@@ -797,7 +796,6 @@ class TestCredentialManager(AsyncTestCase):
             credential_request=indy_cred_req,
             initiator=V10CredentialExchange.INITIATOR_SELF,
             role=V10CredentialExchange.ROLE_ISSUER,
-            revoc_reg_id=None,
             thread_id=thread_id,
         )
 
@@ -860,7 +858,6 @@ class TestCredentialManager(AsyncTestCase):
             credential_request=indy_cred_req,
             initiator=V10CredentialExchange.INITIATOR_SELF,
             role=V10CredentialExchange.ROLE_ISSUER,
-            revoc_reg_id=REV_REG_ID,
             thread_id=thread_id,
         )
 
@@ -884,9 +881,9 @@ class TestCredentialManager(AsyncTestCase):
                 await self.manager.issue_credential(
                     stored_exchange, comment=comment, credential_values=cred_values
                 )
-                assert x_cred_mgr.message.contains(
+                assert (
                     "has no active revocation registry"
-                )
+                ) in x_cred_mgr.message
 
     async def test_issue_credential_rr_full(self):
         connection_id = "test_conn_id"
@@ -903,7 +900,6 @@ class TestCredentialManager(AsyncTestCase):
             credential_request=indy_cred_req,
             initiator=V10CredentialExchange.INITIATOR_SELF,
             role=V10CredentialExchange.ROLE_ISSUER,
-            revoc_reg_id=REV_REG_ID,
             thread_id=thread_id,
         )
 
