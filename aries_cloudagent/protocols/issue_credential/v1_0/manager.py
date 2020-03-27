@@ -497,10 +497,10 @@ class CredentialManager:
                         )
                     )
 
-                registry = await issuer_rev_regs[0].get_registry()  # any active rev reg
-                credential_exchange_record.revoc_reg_id = (
-                    issuer_rev_regs[0].revoc_reg_id
-                )
+                registry = await issuer_rev_regs[0].get_registry()
+                credential_exchange_record.revoc_reg_id = issuer_rev_regs[
+                    0
+                ].revoc_reg_id
                 tails_path = registry.tails_local_path
             else:
                 tails_path = None
@@ -682,9 +682,30 @@ class CredentialManager:
 
         return credential_exchange_record
 
-    # TODO make this take rr_id, cr_id instead
+    async def query_revocable(
+        self,
+        cred_def_id: str,
+        credential_values: Mapping[str, str]
+    ):
+        """
+        Query revocable credentials by attribute values.
+
+        Args:
+            cred_def_id: credential definition identifier
+            credential_values: credential values to match
+
+        """
+        issuer: BaseIssuer = await self.context.inject(BaseIssuer)
+        return await issuer.query_revocable(
+            cred_def_id,
+            credential_values
+        )
+
     async def revoke_credential(
-        self, credential_exchange_record: V10CredentialExchange, publish: bool = False
+        self,
+        rev_reg_id: str,
+        cred_rev_id: str,
+        publish: bool = False
     ):
         """
         Revoke a previously-issued credential.
@@ -692,34 +713,27 @@ class CredentialManager:
         Optionally, publish the corresponding revocation registry delta to the ledger.
 
         Args:
-            credential_exchange_record: the active credential exchange
+            rev_reg_id: revocation registry id
+            cred_rev_id: credential revocation id
             publish: whether to publish the resulting revocation registry delta
 
         """
-        assert (
-            credential_exchange_record.revocation_id
-            and credential_exchange_record.revoc_reg_id
-        )
         issuer: BaseIssuer = await self.context.inject(BaseIssuer)
 
         revoc = IndyRevocation(self.context)
-        registry_record = await revoc.get_issuer_rev_reg_record(
-            credential_exchange_record.revoc_reg_id
-        )
+        registry_record = await revoc.get_issuer_rev_reg_record(rev_reg_id)
         if not registry_record:
             raise CredentialManagerError(
-                "No revocation registry record found for id {}".format(
-                    credential_exchange_record.revoc_reg_id
-                )
+                f"No revocation registry record found for id {rev_reg_id}"
             )
 
         if publish:
             # create entry and send to ledger
             delta = json.loads(
                 await issuer.revoke_credential(
-                    registry_record.revoc_reg_id,
+                    rev_reg_id,
                     registry_record.tails_local_path,
-                    credential_exchange_record.revocation_id,
+                    cred_rev_id
                 )
             )
 
@@ -729,18 +743,8 @@ class CredentialManager:
         else:
             await registry_record.mark_pending(
                 self.context,
-                credential_exchange_record.revocation_id
+                cred_rev_id
             )
-
-        credential_exchange_record.state = V10CredentialExchange.STATE_REVOKED
-        await credential_exchange_record.save(
-            self.context,
-            reason="Revoked credential {} ({}) on revocation registry {}".format(
-                credential_exchange_record.revocation_id,
-                "published" if publish else "marked pending",
-                credential_exchange_record.revoc_reg_id
-            )
-        )
 
     async def publish_pending_revocations(self) -> Mapping[Text, Sequence[Text]]:
         """
