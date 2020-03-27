@@ -1078,6 +1078,175 @@ class TestCredentialRoutes(AsyncTestCase):
             with self.assertRaises(test_module.web.HTTPForbidden):
                 await test_module.credential_exchange_store(mock)
 
+    async def test_credential_exchange_remove(self):
+        mock = async_mock.MagicMock()
+        mock.match_info = {"cred_ex_id": "dummy"}
+
+        mock.app = {
+            "outbound_message_router": async_mock.CoroutineMock(),
+            "request_context": "context",
+        }
+
+        with async_mock.patch.object(
+            test_module, "V10CredentialExchange", autospec=True
+        ) as mock_cred_ex, async_mock.patch.object(
+            test_module.web, "json_response"
+        ) as mock_response:
+            mock_cred_ex.retrieve_by_id = async_mock.CoroutineMock()
+            mock_cred_ex.retrieve_by_id.return_value = mock_cred_ex
+
+            mock_cred_ex.delete_record = async_mock.CoroutineMock()
+
+            await test_module.credential_exchange_remove(mock)
+
+            mock_response.assert_called_once_with({})
+
+    async def test_credential_exchange_remove_not_found(self):
+        mock = async_mock.MagicMock()
+
+        mock_outbound = async_mock.CoroutineMock()
+
+        with async_mock.patch.object(
+            test_module, "V10CredentialExchange", autospec=True
+        ) as mock_cred_ex:
+            # Emulate storage not found (bad cred ex id)
+            mock_cred_ex.retrieve_by_id = async_mock.CoroutineMock(
+                side_effect=StorageNotFoundError()
+            )
+
+            with self.assertRaises(test_module.web.HTTPNotFound):
+                await test_module.credential_exchange_remove(mock)
+
+    async def test_credential_exchange_revoke(self):
+        mock = async_mock.MagicMock(
+            query={"publish": "false"}
+        )
+        mock.app = {
+            "request_context": "context",
+        }
+        mock.match_info = {
+            "rev_reg_id": "rr_id",
+            "cred_rev_id": "23",
+            "publish": True
+        }
+
+        with async_mock.patch.object(
+            test_module, "CredentialManager", autospec=True
+        ) as mock_cred_mgr, async_mock.patch.object(
+            test_module.web, "json_response"
+        ) as mock_response:
+            mock_cred_mgr.return_value.revoke_credential = async_mock.CoroutineMock()
+
+            await test_module.credential_exchange_revoke(mock)
+
+            mock_response.assert_called_once_with({})
+
+    async def test_credential_exchange_publish_revocations(self):
+        mock = async_mock.MagicMock()
+        mock.app = {
+            "request_context": "context",
+        }
+
+        with async_mock.patch.object(
+            test_module, "CredentialManager", autospec=True
+        ) as mock_cred_mgr, async_mock.patch.object(
+            test_module.web, "json_response"
+        ) as mock_response:
+            mock_cred_mgr.return_value.publish_pending_revocations = (
+                async_mock.CoroutineMock()
+            )
+
+            await test_module.credential_exchange_publish_revocations(mock)
+
+            mock_response.assert_called_once_with(
+                mock_cred_mgr.return_value.publish_pending_revocations.return_value
+            )
+
+    async def test_credential_exchange_query_revocable(self):
+        mock = async_mock.MagicMock()
+        mock.json = async_mock.CoroutineMock()
+
+        mock.app = {
+            "request_context": "context",
+            "cred_def_id": "cred-def-id",
+            "credential_values": {"sample": "value"},
+        }
+
+        with async_mock.patch.object(
+            test_module, "IssuerCredentialRecord", autospec=True
+        ) as mock_issuer_cred_record, async_mock.patch.object(
+            test_module, "CredentialManager", autospec=True
+        ) as mock_credential_manager, async_mock.patch.object(
+            test_module.CredentialPreview, "deserialize", autospec=True
+        ) as mock_cred_preview_deserialize, async_mock.patch.object(
+            test_module.web, "json_response"
+        ) as mock_response:
+            mock_credential_manager.return_value.query_revocable = (
+                async_mock.CoroutineMock(
+                    return_value=[
+                        async_mock.MagicMock(),
+                        async_mock.MagicMock()
+                    ]
+                )
+            )
+
+            result = await test_module.credential_exchange_query_revocable(mock)
+            assert result == mock_response.return_value
+
+    async def test_credential_exchange_query_revocable_bad_request_no_cred_def_id(self):
+        mock = async_mock.MagicMock()
+        mock.json = async_mock.CoroutineMock(
+            return_value={
+                "credential_values": {"sample": "value"}
+            }
+        )
+
+        mock.app = {
+            "request_context": "context",
+        }
+
+        with async_mock.patch.object(
+            test_module, "CredentialManager", autospec=True
+        ) as mock_credential_manager:
+            mock_credential_manager.return_value.query_revocable = (
+                async_mock.CoroutineMock(
+                    return_value=[
+                        async_mock.MagicMock(),
+                        async_mock.MagicMock()
+                    ]
+                )
+            )
+
+            with self.assertRaises(test_module.web.HTTPBadRequest):
+                await test_module.credential_exchange_query_revocable(mock)
+
+    async def test_credential_exchange_query_revocable_bad_request_no_cred_values(self):
+        mock = async_mock.MagicMock()
+        mock.json = async_mock.CoroutineMock(
+            return_value={
+                "cred_def_id": "cred-def-id"
+            }
+        )
+
+        mock.app = {
+            "request_context": "context",
+        }
+
+        with async_mock.patch.object(
+            test_module, "CredentialManager", autospec=True
+        ) as mock_credential_manager:
+            mock_credential_manager.return_value.query_revocable = (
+                async_mock.CoroutineMock(
+                    return_value=[
+                        async_mock.MagicMock(),
+                        async_mock.MagicMock()
+                    ]
+                )
+            )
+
+            with self.assertRaises(test_module.web.HTTPBadRequest):
+                await test_module.credential_exchange_query_revocable(mock)
+
     async def test_credential_exchange_problem_report(self):
         mock = async_mock.MagicMock()
         mock.json = async_mock.CoroutineMock()
@@ -1139,153 +1308,6 @@ class TestCredentialRoutes(AsyncTestCase):
 
             with self.assertRaises(test_module.web.HTTPNotFound):
                 await test_module.credential_exchange_problem_report(mock)
-
-    async def test_credential_exchange_remove(self):
-        mock = async_mock.MagicMock()
-        mock.match_info = {"cred_ex_id": "dummy"}
-
-        mock.app = {
-            "outbound_message_router": async_mock.CoroutineMock(),
-            "request_context": "context",
-        }
-
-        with async_mock.patch.object(
-            test_module, "V10CredentialExchange", autospec=True
-        ) as mock_cred_ex, async_mock.patch.object(
-            test_module.web, "json_response"
-        ) as mock_response:
-            mock_cred_ex.retrieve_by_id = async_mock.CoroutineMock()
-            mock_cred_ex.retrieve_by_id.return_value = mock_cred_ex
-
-            mock_cred_ex.delete_record = async_mock.CoroutineMock()
-
-            await test_module.credential_exchange_remove(mock)
-
-            mock_response.assert_called_once_with({})
-
-    async def test_credential_exchange_remove_not_found(self):
-        mock = async_mock.MagicMock()
-
-        mock_outbound = async_mock.CoroutineMock()
-
-        with async_mock.patch.object(
-            test_module, "V10CredentialExchange", autospec=True
-        ) as mock_cred_ex:
-            # Emulate storage not found (bad cred ex id)
-            mock_cred_ex.retrieve_by_id = async_mock.CoroutineMock(
-                side_effect=StorageNotFoundError()
-            )
-
-            with self.assertRaises(test_module.web.HTTPNotFound):
-                await test_module.credential_exchange_remove(mock)
-
-    async def test_credential_exchange_revoke(self):
-        mock = async_mock.MagicMock(
-            query={"publish": "false"}
-        )
-
-        mock.app = {
-            "request_context": "context",
-        }
-
-        with async_mock.patch.object(
-            test_module, "V10CredentialExchange", autospec=True
-        ) as mock_cred_ex, async_mock.patch.object(
-            test_module, "CredentialManager", autospec=True
-        ) as mock_cred_mgr, async_mock.patch.object(
-            test_module.web, "json_response"
-        ) as mock_response:
-            more_magic = async_mock.MagicMock(
-                state=mock_cred_ex.STATE_ACKED,
-                revocation_id="1",
-                revoc_reg_id="dummy",
-                serialize=async_mock.MagicMock()
-            )
-            mock_cred_ex.retrieve_by_id = async_mock.CoroutineMock(
-                return_value=more_magic
-            )
-
-            mock_cred_mgr.return_value.revoke_credential = async_mock.CoroutineMock()
-
-            await test_module.credential_exchange_revoke(mock)
-
-            mock_response.assert_called_once_with(
-                more_magic.serialize.return_value
-            )
-
-    async def test_credential_exchange_revoke_not_found(self):
-        mock = async_mock.MagicMock(
-            query={"publish": "false"}
-        )
-
-        mock.app = {
-            "request_context": "context",
-        }
-
-        with async_mock.patch.object(
-            test_module, "V10CredentialExchange", autospec=True
-        ) as mock_cred_ex, async_mock.patch.object(
-            test_module, "CredentialManager", autospec=True
-        ) as mock_cred_mgr, async_mock.patch.object(
-            test_module.web, "json_response"
-        ) as mock_response:
-            # Emulate storage not found (bad cred ex id)
-            mock_cred_ex.retrieve_by_id = async_mock.CoroutineMock(
-                side_effect=StorageNotFoundError()
-            )
-
-            with self.assertRaises(test_module.web.HTTPNotFound):
-                await test_module.credential_exchange_revoke(mock)
-
-    async def test_credential_exchange_revoke_bad_state(self):
-        mock = async_mock.MagicMock(
-            query={"publish": "false"}
-        )
-
-        mock.app = {
-            "request_context": "context",
-        }
-
-        with async_mock.patch.object(
-            test_module, "V10CredentialExchange", autospec=True
-        ) as mock_cred_ex, async_mock.patch.object(
-            test_module, "CredentialManager", autospec=True
-        ) as mock_cred_mgr, async_mock.patch.object(
-            test_module.web, "json_response"
-        ) as mock_response:
-            more_magic = async_mock.MagicMock(
-                state=mock_cred_ex.STATE_PROPOSAL_RECEIVED,
-                revocation_id="1",
-                revoc_reg_id="dummy",
-                serialize=async_mock.MagicMock()
-            )
-            mock_cred_ex.retrieve_by_id = async_mock.CoroutineMock(
-                return_value=more_magic
-            )
-
-            with self.assertRaises(test_module.web.HTTPBadRequest):
-                await test_module.credential_exchange_revoke(mock)
-
-    async def test_credential_exchange_publish_revocations(self):
-        mock = async_mock.MagicMock()
-        mock.app = {
-            "request_context": "context",
-        }
-
-        with async_mock.patch.object(
-            test_module, "CredentialManager", autospec=True
-        ) as mock_cred_mgr, async_mock.patch.object(
-            test_module.web, "json_response"
-        ) as mock_response:
-            mock_cred_mgr.return_value.publish_pending_revocations = (
-                async_mock.CoroutineMock()
-            )
-
-            await test_module.credential_exchange_publish_revocations(mock)
-
-            mock_response.assert_called_once_with(
-                mock_cred_mgr.return_value.publish_pending_revocations.return_value
-            )
 
     async def test_register(self):
         mock_app = async_mock.MagicMock()

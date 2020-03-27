@@ -19,6 +19,7 @@ from ....messaging.valid import (
     INDY_VERSION,
     UUIDFour,
 )
+from ....revocation.models.issuer_cred_record import IssuerCredentialRecord
 from ....storage.error import StorageNotFoundError
 
 from ...problem_report.message import ProblemReport
@@ -159,6 +160,33 @@ class V10PublishRevocationsResultSchema(Schema):
             fields.Str(description="Credential revocation identifier", example="23")
         ),
         description="Credential revocation ids published by revocation registry id",
+    )
+
+
+class RevocableRequestSchema(Schema):
+    """Request schema for request for revocable credential query."""
+
+    cred_def_id = fields.Str(
+        description="Credential definition identifier",
+        required=True,
+        **INDY_CRED_DEF_ID,
+    )
+    credential_values = fields.Dict(
+        keys=fields.Str(example="favouriteDrink"),
+        values=fields.Str(example="martini"),
+        description="Mapping of attribute names to values to match",
+        required=True,
+    )
+
+
+class RevocableResultSchema(Schema):
+    """Result schema for request for revocable credential query."""
+
+    results = fields.Nested(
+        IssuerCredentialRecord,
+        required=True,
+        many=True,
+        description="List of candidates for revocation matching input values"
     )
 
 
@@ -666,37 +694,43 @@ async def credential_exchange_store(request: web.BaseRequest):
 
 
 @docs(
-    tags=["issue-credential"], summary="Send a problem report for credential exchange"
+    tags=["issue-credential"],
+    summary="Query credentials revocable by attribute values"
 )
-@request_schema(V10CredentialProblemReportRequestSchema())
-async def credential_exchange_problem_report(request: web.BaseRequest):
+@request_schema(RevocableRequestSchema())
+@response_schema(RevocableResultSchema(), 200)
+async def credential_exchange_query_revocable(request: web.BaseRequest):
     """
-    Request handler for sending problem report.
+    Query credentials revocable by attribute values.
 
     Args:
         request: aiohttp request object
 
+    Returns:
+        List of revocable issuer credential records, in ascending last-modified order
+
     """
     context = request.app["request_context"]
-    outbound_handler = request.app["outbound_message_router"]
-
-    credential_exchange_id = request.match_info["cred_ex_id"]
     body = await request.json()
 
-    try:
-        credential_exchange_record = await V10CredentialExchange.retrieve_by_id(
-            context, credential_exchange_id
-        )
-    except StorageNotFoundError:
-        raise web.HTTPNotFound()
+    cred_def_id = body.get("cred_def_id")
+    if not cred_def_id:
+        raise web.HTTPBadRequest()
 
-    error_result = ProblemReport(explain_ltxt=body["explain_ltxt"])
-    error_result.assign_thread_id(credential_exchange_record.thread_id)
+    credential_values = body.get("credential_values")
+    print('CRED VALUES: {}'.format(credential_values))
+    if not credential_values:
+        raise web.HTTPBadRequest()
 
-    await outbound_handler(
-        error_result, connection_id=credential_exchange_record.connection_id
+    credential_manager = CredentialManager(context)
+
+    records = await credential_manager.query_revocable(
+        cred_def_id,
+        credential_values
     )
-    return web.json_response({})
+
+    # TODO outbound handler for audit trail?
+    return web.json_response([rec.serialize() for rec in records])
 
 
 @docs(
@@ -704,11 +738,23 @@ async def credential_exchange_problem_report(request: web.BaseRequest):
     parameters=[
         {
             "in": "path",
+            "name": "rev_reg_id",
+            "description": "revocation registry id",
+            "required": True
+        },
+        {
+            "in": "path",
+            "name": "cred_rev_id",
+            "description": "credential revocation id",
+            "required": True
+        },
+        {
+            "in": "path",
             "name": "publish",
-            "description": "Whether to publish revocation to ledger immediately.",
+            "description": "whether to publish revocation to ledger immediately",
             "schema": {"type": "boolean"},
             "required": False
-        }
+        },
     ],
     summary="Revoke an issued credential"
 )
@@ -726,28 +772,15 @@ async def credential_exchange_revoke(request: web.BaseRequest):
     """
 
     context = request.app["request_context"]
-    try:
-        credential_exchange_id = request.match_info["cred_ex_id"]
-        publish = bool(json.loads(request.query.get("publish", json.dumps(False))))
-        credential_exchange_record = await V10CredentialExchange.retrieve_by_id(
-            context, credential_exchange_id
-        )
-    except StorageNotFoundError:
-        raise web.HTTPNotFound()
-
-    if (
-        credential_exchange_record.state
-        not in (V10CredentialExchange.STATE_ISSUED, V10CredentialExchange.STATE_ACKED)
-        or not credential_exchange_record.revocation_id
-        or not credential_exchange_record.revoc_reg_id
-    ):
-        raise web.HTTPBadRequest()
+    rev_reg_id = request.match_info["rev_reg_id"]
+    cred_rev_id = request.match_info["cred_rev_id"]
+    publish = bool(json.loads(request.query.get("publish", json.dumps(False))))
 
     credential_manager = CredentialManager(context)
 
-    await credential_manager.revoke_credential(credential_exchange_record, publish)
+    await credential_manager.revoke_credential(rev_reg_id, cred_rev_id, publish)
 
-    return web.json_response(credential_exchange_record.serialize())
+    return web.json_response({})
 
 
 @docs(tags=["issue-credential"], summary="Publish pending revocations to ledger")
@@ -794,6 +827,40 @@ async def credential_exchange_remove(request: web.BaseRequest):
     return web.json_response({})
 
 
+@docs(
+    tags=["issue-credential"], summary="Send a problem report for credential exchange"
+)
+@request_schema(V10CredentialProblemReportRequestSchema())
+async def credential_exchange_problem_report(request: web.BaseRequest):
+    """
+    Request handler for sending problem report.
+
+    Args:
+        request: aiohttp request object
+
+    """
+    context = request.app["request_context"]
+    outbound_handler = request.app["outbound_message_router"]
+
+    credential_exchange_id = request.match_info["cred_ex_id"]
+    body = await request.json()
+
+    try:
+        credential_exchange_record = await V10CredentialExchange.retrieve_by_id(
+            context, credential_exchange_id
+        )
+    except StorageNotFoundError:
+        raise web.HTTPNotFound()
+
+    error_result = ProblemReport(explain_ltxt=body["explain_ltxt"])
+    error_result.assign_thread_id(credential_exchange_record.thread_id)
+
+    await outbound_handler(
+        error_result, connection_id=credential_exchange_record.connection_id
+    )
+    return web.json_response({})
+
+
 async def register(app: web.Application):
     """Register routes."""
 
@@ -830,7 +897,11 @@ async def register(app: web.Application):
                 credential_exchange_store,
             ),
             web.post(
-                "/issue-credential/records/{cred_ex_id}/revoke",
+                "/issue-credential/query-revocable",
+                credential_exchange_query_revocable,
+            ),
+            web.post(
+                "/issue-credential/revoke",
                 credential_exchange_revoke,
             ),
             web.post(
@@ -838,12 +909,12 @@ async def register(app: web.Application):
                 credential_exchange_publish_revocations,
             ),
             web.post(
-                "/issue-credential/records/{cred_ex_id}/problem-report",
-                credential_exchange_problem_report,
-            ),
-            web.post(
                 "/issue-credential/records/{cred_ex_id}/remove",
                 credential_exchange_remove,
+            ),
+            web.post(
+                "/issue-credential/records/{cred_ex_id}/problem-report",
+                credential_exchange_problem_report,
             ),
         ]
     )

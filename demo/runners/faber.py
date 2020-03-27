@@ -317,10 +317,27 @@ async def main(
                 publish = json.dumps(
                     await prompt("Publish now? [Y/N]: ", default="N") in ('yY')
                 )
-                await agent.admin_POST(
-                    f"/issue-credential/records/{revoking_cred_id}"
-                    f"/revoke?publish={publish}"
+                revocables = await agent.admin_POST(
+                    f"/issue-credential/query-revocable",
+                    {
+                        "cred_def_id": credential_definition_id,
+                        "credential_values": {
+                            "name": "Alice Smith",
+                            "date": "2018-05-28",
+                            "degree": "Maths",
+                        }
+                    }
                 )
+                if revocables:
+                    revocable = revocables[-1]  # admin API orders ascending in time
+                    await agent.admin_POST(
+                        f"/issue-credential/revoke"
+                        f"?rev_reg_id={revocable.rev_reg_id}"
+                        f"&cred_rev_id={revocable.cred_rev_id}"
+                        f"&publish={publish}"
+                    )
+                else:
+                    self.log("No revocable credential found")
             elif option == "5" and revocation:
                 resp = await agent.admin_POST("/issue-credential/publish-revocations")
                 agent.log(

@@ -8,7 +8,13 @@ import indy.anoncreds
 import indy.blob_storage
 from indy.error import AnoncredsRevocationRegistryFullError, IndyError, ErrorCode
 
+from ..config.injection_context import InjectionContext
+from ..indy import create_tails_reader, create_tails_writer
+from ..indy.error import IndyErrorHandler
 from ..messaging.util import encode
+from ..revocation.models.issuer_cred_record import IssuerCredentialRecord
+from ..storage.base import BaseStorage
+from ..storage.indy import IndyStorage
 
 from .base import (
     BaseIssuer,
@@ -18,8 +24,6 @@ from .base import (
     DEFAULT_ISSUANCE_TYPE,
     DEFAULT_SIGNATURE_TYPE,
 )
-from ..indy import create_tails_reader, create_tails_writer
-from ..indy.error import IndyErrorHandler
 
 
 class IndyIssuer(BaseIssuer):
@@ -36,13 +40,17 @@ class IndyIssuer(BaseIssuer):
         self.logger = logging.getLogger(__name__)
         self.wallet = wallet
 
+        storage = IndyStorage(wallet)  # to save revocation issuer cred records
+        self.context = InjectionContext(enforce_typing=False)
+        self.context.injector.bind_instance(BaseStorage, storage)
+
     def make_schema_id(
         self, origin_did: str, schema_name: str, schema_version: str
     ) -> str:
         """Derive the ID for a schema."""
         return f"{origin_did}:2:{schema_name}:{schema_version}"
 
-    async def create_and_store_schema(
+    async def create_schema(
         self,
         origin_did: str,
         schema_name: str,
@@ -50,7 +58,7 @@ class IndyIssuer(BaseIssuer):
         attribute_names: Sequence[str],
     ) -> Tuple[str, str]:
         """
-        Create a new credential schema and store it in the wallet.
+        Create a new credential schema.
 
         Args:
             origin_did: the DID issuing the credential definition
@@ -85,6 +93,7 @@ class IndyIssuer(BaseIssuer):
 
         Args:
             credential_definition_id: The credential definition ID to check
+
         """
         try:
             await indy.anoncreds.issuer_create_credential_offer(
@@ -232,7 +241,42 @@ class IndyIssuer(BaseIssuer):
                 error, "Error when issuing credential", IssuerError
             ) from error
 
+        if credential_revocation_id:
+            issuer_cred_rec = IssuerCredentialRecord(
+                cred_def_id=credential_offer["cred_def_id"],
+                rev_reg_id=revoc_reg_id,
+                cred_rev_id=credential_revocation_id,
+                cred_values={  # pick up "None" for unpspecified credential values
+                    attr: encoded_values[attr]["raw"] for attr in encoded_values
+                }
+            )
+            await issuer_cred_rec.save(self.context)
         return credential_json, credential_revocation_id
+
+    async def query_revocable(
+        self,
+        cred_def_id: str,
+        cred_values: Mapping[str, str],
+    ) -> Sequence[IssuerCredentialRecord]:
+        """
+        Return revocation data for issued credentials matching input criteria.
+
+        Args:
+            cred_def_id: Credential definition id to match
+            cred_values: Mapping of attribute names to values to match
+
+        Returns:
+            List of matching credential records, in ascending last-update order
+
+        """
+        return sorted(
+            await IssuerCredentialRecord.query_revocable(
+                self.context,
+                cred_def_id=cred_def_id,
+                cred_values=cred_values,
+            ),
+            key=lambda r: r.updated_at
+        )
 
     async def revoke_credential(
         self, revoc_reg_id: str, tails_file_path: str, cred_revoc_id: str
@@ -256,6 +300,16 @@ class IndyIssuer(BaseIssuer):
             )
             # may throw AnoncredsInvalidUserRevocId if using ISSUANCE_ON_DEMAND
 
+        issuer_cred_rec = await IssuerCredentialRecord.retrieve_by_tag_filter(
+            context=self.context,
+            tag_filter={
+                "rev_reg_id": revoc_reg_id,
+                "cred_rev_id": cred_revoc_id
+            }
+        )
+        issuer_cred_rec.state = IssuerCredentialRecord.STATE_REVOKED
+        await issuer_cred_rec.save(self.context)
+
         return revoc_reg_delta_json
 
     async def create_and_store_revocation_registry(
@@ -274,7 +328,7 @@ class IndyIssuer(BaseIssuer):
         Args:
             origin_did: the DID issuing the revocation registry
             cred_def_id: the identifier of the related credential definition
-            revoc_def_type: the revocation registry type (default CL_ACCUM)
+            revoc_def_type: the revocation registry type (specify "CL_ACCUM")
             tag: the unique revocation registry tag
             max_cred_num: the number of credentials supported in the registry
             tails_base_path: where to store the tails file

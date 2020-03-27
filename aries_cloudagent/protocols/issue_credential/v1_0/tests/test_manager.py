@@ -1158,20 +1158,23 @@ class TestCredentialManager(AsyncTestCase):
             assert ret_exchange.state == V10CredentialExchange.STATE_ACKED
             delete_ex.assert_called_once()
 
+    async def test_query_revocable(self):
+        issuer = async_mock.MagicMock(BaseIssuer, autospec=True)
+        issuer.query_revocable = async_mock.CoroutineMock()
+        self.context.injector.bind_instance(BaseIssuer, issuer)
+
+        result = await self.manager.query_revocable(
+            CRED_DEF_ID,
+            {"attr1": "value1"}
+        )
+        assert result == issuer.query_revocable.return_value
+
     async def test_revoke_credential_publish(self):
         CRED_REV_ID = 1
-        exchange = V10CredentialExchange(
-            credential_definition_id=CRED_DEF_ID,
-            role=V10CredentialExchange.ROLE_ISSUER,
-            revocation_id=CRED_REV_ID,
-            revoc_reg_id=REV_REG_ID,
-        )
 
         with async_mock.patch.object(
             test_module, "IndyRevocation", autospec=True
-        ) as revoc, async_mock.patch.object(
-            V10CredentialExchange, "save", autospec=True
-        ) as save_ex:
+        ) as revoc:
             mock_issuer_rev_reg_record = async_mock.MagicMock(
                 revoc_reg_id=REV_REG_ID,
                 tails_local_path=TAILS_LOCAL,
@@ -1196,17 +1199,10 @@ class TestCredentialManager(AsyncTestCase):
             )
             self.context.injector.bind_instance(BaseIssuer, issuer)
 
-            await self.manager.revoke_credential(exchange, True)
-            save_ex.assert_called_once()
+            await self.manager.revoke_credential(REV_REG_ID, CRED_REV_ID, True)
 
     async def test_revoke_credential_no_rev_reg_rec(self):
         CRED_REV_ID = 1
-        exchange = V10CredentialExchange(
-            credential_definition_id=CRED_DEF_ID,
-            role=V10CredentialExchange.ROLE_ISSUER,
-            revocation_id=CRED_REV_ID,
-            revoc_reg_id=REV_REG_ID,
-        )
 
         with async_mock.patch.object(
             test_module, "IndyRevocation", autospec=True
@@ -1219,22 +1215,14 @@ class TestCredentialManager(AsyncTestCase):
             self.context.injector.bind_instance(BaseIssuer, issuer)
 
             with self.assertRaises(CredentialManagerError):
-                await self.manager.revoke_credential(exchange)
+                await self.manager.revoke_credential(REV_REG_ID, CRED_REV_ID)
 
     async def test_revoke_credential_pend(self):
         CRED_REV_ID = 1
-        exchange = V10CredentialExchange(
-            credential_definition_id=CRED_DEF_ID,
-            role=V10CredentialExchange.ROLE_ISSUER,
-            revocation_id=CRED_REV_ID,
-            revoc_reg_id=REV_REG_ID,
-        )
 
         with async_mock.patch.object(
             test_module, "IndyRevocation", autospec=True
-        ) as revoc, async_mock.patch.object(
-            V10CredentialExchange, "save", autospec=True
-        ) as save_ex:
+        ) as revoc:
             mock_issuer_rev_reg_record = async_mock.MagicMock(
                 mark_pending=async_mock.CoroutineMock()
             )
@@ -1245,8 +1233,7 @@ class TestCredentialManager(AsyncTestCase):
             issuer = async_mock.MagicMock(BaseIssuer, autospec=True)
             self.context.injector.bind_instance(BaseIssuer, issuer)
 
-            await self.manager.revoke_credential(exchange, False)
-            save_ex.assert_called_once()
+            await self.manager.revoke_credential(REV_REG_ID, CRED_REV_ID, False)
             mock_issuer_rev_reg_record.mark_pending.assert_called_once_with(
                 self.context,
                 CRED_REV_ID

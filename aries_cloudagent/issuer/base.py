@@ -39,7 +39,7 @@ class BaseIssuer(ABC, metaclass=ABCMeta):
         """Derive the ID for a schema."""
 
     @abstractmethod
-    async def create_and_store_schema(
+    async def create_schema(
         self,
         origin_did: str,
         schema_name: str,
@@ -47,7 +47,7 @@ class BaseIssuer(ABC, metaclass=ABCMeta):
         attribute_names: Sequence[str],
     ) -> Tuple[str, str]:
         """
-        Create a new credential schema and store it in the wallet.
+        Create a new credential schema.
 
         Args:
             origin_did: the DID issuing the credential definition

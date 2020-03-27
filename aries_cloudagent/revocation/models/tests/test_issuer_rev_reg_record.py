@@ -1,15 +1,11 @@
 import json
 
-import indy.anoncreds
-import indy.blob_storage
-
 import pytest
 
 from asynctest import TestCase as AsyncTestCase, mock as async_mock
 
 from ....config.injection_context import InjectionContext
 from ....issuer.base import BaseIssuer, IssuerError
-from ....issuer.indy import IndyIssuer
 from ....ledger.base import BaseLedger
 from ....storage.base import BaseStorage
 from ....storage.basic import BasicStorage

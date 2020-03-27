@@ -88,6 +88,7 @@ async def revocation_create_registry(request: web.BaseRequest):
         )
     except RevocationNotSupportedError as e:
         raise web.HTTPBadRequest(reason=e.message) from e
+
     await shield(
         registry_record.generate_registry(context, RevocationRegistry.get_temp_dir())
     )
@@ -133,7 +134,7 @@ async def get_active_registry(request: web.BaseRequest):
 
     return web.json_response(
         {
-            "result": revoc_registry.serialize() if revoc_registry else None
+            "result": revoc_registry.serialize()
         }
     )
 
@@ -291,6 +292,7 @@ async def register(app: web.Application):
         [
             web.post("/revocation/create-registry", revocation_create_registry),
             web.get("/revocation/registry/{id}", get_registry),
+            web.get("/revocation/active-registry/{id}", get_active_registry),
             web.get("/revocation/registry/{id}/tails-file", get_tails_file),
             web.patch("/revocation/registry/{id}", update_registry),
             web.post("/revocation/registry/{id}/publish", publish_registry),

@@ -1,7 +1,6 @@
 """Issuer storage handling for credential revocation data."""
 
 import logging
-import re
 
 from typing import Any, Sequence
 
@@ -9,9 +8,10 @@ from marshmallow import fields
 
 from ...config.injection_context import InjectionContext
 from ...messaging.models.base_record import BaseRecord, BaseRecordSchema
-from ...messaging.valid import (  # TODO update
+from ...messaging.valid import (
+    INDY_CRED_DEF_ID,
     INDY_CRED_REV_ID,
-    INDY_SCHEMA_ID,
+    INDY_REV_REG_ID,
     UUIDFour,
 )
 
@@ -27,11 +27,10 @@ class IssuerCredentialRecord(BaseRecord):
         schema_class = "IssuerCredentialRecordSchema"
 
     RECORD_ID_NAME = "record_id"
-    RECORD_TYPE = "issuer_rev_reg"
+    RECORD_TYPE = "issuer_cred"
     LOG_STATE_FLAG = "debug.revocation"
     CACHE_ENABLED = False
     TAG_NAMES = {
-        "schema_id",
         "cred_def_id",
         "rev_reg_id",
         "cred_rev_id",
@@ -49,7 +48,7 @@ class IssuerCredentialRecord(BaseRecord):
         *,
         record_id: str = None,
         state: str = None,
-        schema_id: str = None,
+        cred_def_id: str = None,
         rev_reg_id: str = None,
         cred_rev_id: str = None,
         cred_values: dict = None,
@@ -60,13 +59,12 @@ class IssuerCredentialRecord(BaseRecord):
             record_id, state=state or IssuerCredentialRecord.STATE_ISSUED, **kwargs
         )
 
+        self.cred_def_id = cred_def_id
         self.rev_reg_id = rev_reg_id
-        if rev_reg_id:
-            cd_id_match = re.match(r"^.*?:4:(.*:3:CL:[^:]+:[^:]+):.*", rev_reg_id)
-            self.cred_def_id = cd_id_match.group(1) if cd_id_match else None
-        self.schema_id = schema_id
         self.cred_rev_id = cred_rev_id
-        self.cred_values = cred_values
+        self.cred_values = {
+            attr: str(value) for (attr, value) in cred_values.items()
+        } if cred_values else None
 
     @property
     def record_id(self) -> str:
@@ -81,29 +79,36 @@ class IssuerCredentialRecord(BaseRecord):
         }
 
     @classmethod
-    async def query_by_values(
+    async def query_revocable(
         cls,
         context: InjectionContext,
+        cred_def_id: str,
         cred_values: dict,
         *,
-        ident: str = None,
         state: str = None
     ) -> Sequence["IssuerCredentialRecord"]:
-        """Retrieve issuer credential records by credential values.
+        """Retrieve issuer credential records by cred def id and credential values.
 
         Args:
             context: The injection context to use
-            cred_values: The credential values to match
-            ident: schema id or cred def id to match
-            state: A state value to filter by
+            cred_def_id: cred def id to match
+            cred_values: Mapping of attribute names to values to match
+            state: A state value by which to filter (default STATE_ISSUED)
+
         """
         tag_filter = {
-            "cred_def_id" if ":3:" in ident else "schema_id": ident,
-            **{"state": state for _ in [""] if state}
+            "cred_def_id": cred_def_id,
+            "state": state or IssuerCredentialRecord.STATE_ISSUED
+        }
+
+        cred_values_raw = {
+            attr: str(value) for (attr, value) in cred_values.items()
         }
         records = await cls.query(context, tag_filter)
         result = [
-            r for r in records if cred_values.items() <= r.value["cred_values"].items()
+            r for r in records if cred_values_raw.items() <= r.value[
+                "cred_values"
+            ].items()
         ]
         return result
 
@@ -130,10 +135,15 @@ class IssuerCredentialRecordSchema(BaseRecordSchema):
         description="Issue credential record state",
         example=IssuerCredentialRecord.STATE_ISSUED,
     )
-    schema_id = fields.Str(
+    cred_def_id = fields.Str(
         required=False,
-        description="Schema identifier",
-        **INDY_SCHEMA_ID,
+        description="Credential definition identifier",
+        **INDY_CRED_DEF_ID
+    )
+    rev_reg_id = fields.Str(
+        required=False,
+        description="Revocation registry identifier",
+        **INDY_REV_REG_ID
     )
     cred_rev_id = fields.Str(
         required=False,

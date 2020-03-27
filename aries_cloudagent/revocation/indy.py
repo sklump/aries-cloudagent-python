@@ -54,17 +54,18 @@ class IndyRevocation:
     async def get_active_issuer_rev_reg_record(
         self, context: InjectionContext, cred_def_id: str
     ) -> "IssuerRevRegRecord":
-        """Return the current active registry for issuing a given credential definition.
+        """Return a current active registry for issuing a given credential definition.
 
         Args:
             context: Injection context
             cred_def_id: ID of the base credential definition
         """
-        return await IssuerRevRegRecord.query_by_cred_def_id(
+        current = await IssuerRevRegRecord.query_by_cred_def_id(
             context,
             cred_def_id,
             IssuerRevRegRecord.STATE_ACTIVE
         )
+        return current[0] if current else None
 
     async def get_issuer_rev_reg_record(
         self, revoc_reg_id: str

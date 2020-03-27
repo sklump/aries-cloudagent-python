@@ -399,7 +399,7 @@ class TestIndyLedger(AsyncTestCase):
         issuer = async_mock.MagicMock(BaseIssuer)
         ledger = IndyLedger("name", mock_wallet)
 
-        issuer.create_and_store_schema.return_value = (
+        issuer.create_schema.return_value = (
             "schema_issuer_did:name:1.0",
             "{}",
         )
@@ -428,12 +428,12 @@ class TestIndyLedger(AsyncTestCase):
             )
 
             mock_wallet.get_public_did.assert_called_once_with()
-            issuer.create_and_store_schema.assert_called_once_with(
+            issuer.create_schema.assert_called_once_with(
                 mock_did.did, "schema_name", "schema_version", [1, 2, 3]
             )
 
             mock_build_schema_req.assert_called_once_with(
-                mock_did.did, issuer.create_and_store_schema.return_value[1]
+                mock_did.did, issuer.create_schema.return_value[1]
             )
 
             mock_submit.assert_called_once_with(
@@ -442,7 +442,7 @@ class TestIndyLedger(AsyncTestCase):
                 sign_did=mock_wallet.get_public_did.return_value,
             )
 
-            assert schema_id == issuer.create_and_store_schema.return_value[0]
+            assert schema_id == issuer.create_schema.return_value[0]
 
     @async_mock.patch("indy.pool.set_protocol_version")
     @async_mock.patch("indy.pool.create_pool_ledger_config")
@@ -472,7 +472,7 @@ class TestIndyLedger(AsyncTestCase):
         mock_check_existing.return_value = (fetch_schema_id, {})
 
         issuer = async_mock.MagicMock(BaseIssuer)
-        issuer.create_and_store_schema.return_value = ("1", "{}")
+        issuer.create_schema.return_value = ("1", "{}")
         ledger = IndyLedger("name", mock_wallet)
 
         async with ledger:
@@ -509,7 +509,7 @@ class TestIndyLedger(AsyncTestCase):
         mock_check_existing.side_effect = [None, (fetch_schema_id, "{}")]
 
         issuer = async_mock.MagicMock(BaseIssuer)
-        issuer.create_and_store_schema.return_value = ("1", "{}")
+        issuer.create_schema.return_value = ("1", "{}")
         ledger = IndyLedger("name", mock_wallet)
         ledger._submit = async_mock.CoroutineMock(
             side_effect=LedgerTransactionError("UnauthorizedClientRequest")
@@ -551,7 +551,7 @@ class TestIndyLedger(AsyncTestCase):
         mock_check_existing.side_effect = [None, fetch_schema_id]
 
         issuer = async_mock.MagicMock(BaseIssuer)
-        issuer.create_and_store_schema.return_value = ("1", "{}")
+        issuer.create_schema.return_value = ("1", "{}")
         ledger = IndyLedger("name", mock_wallet)
         ledger._submit = async_mock.CoroutineMock(
             side_effect=LedgerTransactionError("Some other error message")
