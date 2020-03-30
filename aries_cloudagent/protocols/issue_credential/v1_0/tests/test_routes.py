@@ -52,9 +52,7 @@ class TestCredentialRoutes(AsyncTestCase):
                 test_module.web, "json_response"
             ) as mock_response:
                 await test_module.credential_exchange_list(mock)
-                mock_response.assert_called_once_with(
-                    {"results": [mock_cred_ex.serialize.return_value]}
-                )
+                mock_response.assert_called_once()
 
     async def test_credential_exchange_retrieve(self):
         mock = async_mock.MagicMock()
@@ -1152,14 +1150,13 @@ class TestCredentialRoutes(AsyncTestCase):
         ) as mock_cred_mgr, async_mock.patch.object(
             test_module.web, "json_response"
         ) as mock_response:
-            mock_cred_mgr.return_value.publish_pending_revocations = (
-                async_mock.CoroutineMock()
-            )
+            pub_pending = async_mock.CoroutineMock()
+            mock_cred_mgr.return_value.publish_pending_revocations = pub_pending
 
             await test_module.credential_exchange_publish_revocations(mock)
 
             mock_response.assert_called_once_with(
-                mock_cred_mgr.return_value.publish_pending_revocations.return_value
+                {"results": pub_pending.return_value}
             )
 
     async def test_credential_exchange_query_revocable(self):
@@ -1173,8 +1170,6 @@ class TestCredentialRoutes(AsyncTestCase):
         }
 
         with async_mock.patch.object(
-            test_module, "IssuerCredentialRecord", autospec=True
-        ) as mock_issuer_cred_record, async_mock.patch.object(
             test_module, "CredentialManager", autospec=True
         ) as mock_credential_manager, async_mock.patch.object(
             test_module.CredentialPreview, "deserialize", autospec=True

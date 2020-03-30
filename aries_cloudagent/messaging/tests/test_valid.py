@@ -6,6 +6,7 @@ from ..valid import (
     BASE64,
     BASE64URL,
     INDY_CRED_DEF_ID,
+    INDY_CRED_REV_ID,
     INDY_DID,
     INDY_ISO8601_DATETIME,
     INDY_PREDICATE,
@@ -91,6 +92,19 @@ class TestValid(TestCase):
         INDY_CRED_DEF_ID["validate"](
             "Q4zqM7aXqm7gDQkUVLng9h:3:CL:Q4zqM7aXqm7gDQkUVLng9h:2:bc-reg:1.0:tag"
         )  # long
+
+    def test_cred_rev_id(self):
+        non_cred_rev_ids = [
+            "-1",
+            "0",
+            "a suffusion of yellow"
+        ]
+        for non_cred_rev_id in non_cred_rev_ids:
+            with self.assertRaises(ValidationError):
+                INDY_CRED_REV_ID["validate"](non_cred_rev_id)
+
+        INDY_CRED_REV_ID["validate"]("1")
+        INDY_CRED_REV_ID["validate"]("1234567890")
 
     def test_rev_reg_id(self):
         non_rev_reg_ids = [

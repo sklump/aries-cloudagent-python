@@ -26,6 +26,7 @@ from ....messaging.credential_definitions.util import (
 )
 from ....revocation.indy import IndyRevocation
 from ....revocation.models.revocation_registry import RevocationRegistry
+from ....revocation.models.issuer_cred_record import IssuerCredentialRecord
 from ....revocation.models.issuer_rev_reg_record import IssuerRevRegRecord
 from ....storage.base import BaseStorage
 from ....storage.error import StorageNotFoundError
@@ -686,7 +687,7 @@ class CredentialManager:
         self,
         cred_def_id: str,
         credential_values: Mapping[str, str]
-    ):
+    ) -> Sequence[IssuerCredentialRecord]:
         """
         Query revocable credentials by attribute values.
 

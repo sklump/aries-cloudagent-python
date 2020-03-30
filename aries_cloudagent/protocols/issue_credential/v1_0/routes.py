@@ -19,7 +19,7 @@ from ....messaging.valid import (
     INDY_VERSION,
     UUIDFour,
 )
-from ....revocation.models.issuer_cred_record import IssuerCredentialRecord
+from ....revocation.models.issuer_cred_record import IssuerCredentialRecordSchema
 from ....storage.error import StorageNotFoundError
 
 from ...problem_report.message import ProblemReport
@@ -163,7 +163,7 @@ class V10PublishRevocationsResultSchema(Schema):
     )
 
 
-class RevocableRequestSchema(Schema):
+class V10QueryRevocableRequestSchema(Schema):
     """Request schema for request for revocable credential query."""
 
     cred_def_id = fields.Str(
@@ -176,17 +176,6 @@ class RevocableRequestSchema(Schema):
         values=fields.Str(example="martini"),
         description="Mapping of attribute names to values to match",
         required=True,
-    )
-
-
-class RevocableResultSchema(Schema):
-    """Result schema for request for revocable credential query."""
-
-    results = fields.Nested(
-        IssuerCredentialRecord,
-        required=True,
-        many=True,
-        description="List of candidates for revocation matching input values"
     )
 
 
@@ -697,8 +686,8 @@ async def credential_exchange_store(request: web.BaseRequest):
     tags=["issue-credential"],
     summary="Query credentials revocable by attribute values"
 )
-@request_schema(RevocableRequestSchema())
-@response_schema(RevocableResultSchema(), 200)
+@request_schema(V10QueryRevocableRequestSchema())
+@response_schema(IssuerCredentialRecordSchema(many=True), 200)
 async def credential_exchange_query_revocable(request: web.BaseRequest):
     """
     Query credentials revocable by attribute values.
@@ -718,7 +707,6 @@ async def credential_exchange_query_revocable(request: web.BaseRequest):
         raise web.HTTPBadRequest()
 
     credential_values = body.get("credential_values")
-    print('CRED VALUES: {}'.format(credential_values))
     if not credential_values:
         raise web.HTTPBadRequest()
 
@@ -729,8 +717,7 @@ async def credential_exchange_query_revocable(request: web.BaseRequest):
         credential_values
     )
 
-    # TODO outbound handler for audit trail?
-    return web.json_response([rec.serialize() for rec in records])
+    return web.json_response(records)
 
 
 @docs(
@@ -758,7 +745,6 @@ async def credential_exchange_query_revocable(request: web.BaseRequest):
     ],
     summary="Revoke an issued credential"
 )
-@response_schema(V10CredentialExchangeSchema(), 200)
 async def credential_exchange_revoke(request: web.BaseRequest):
     """
     Request handler for storing a credential request.
@@ -801,7 +787,11 @@ async def credential_exchange_publish_revocations(request: web.BaseRequest):
 
     credential_manager = CredentialManager(context)
 
-    return web.json_response(await credential_manager.publish_pending_revocations())
+    return web.json_response(
+        {
+            "results": await credential_manager.publish_pending_revocations()
+        }
+    )
 
 
 @docs(

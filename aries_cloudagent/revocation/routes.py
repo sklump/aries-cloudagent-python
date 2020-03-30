@@ -110,7 +110,7 @@ async def revocation_create_registry(request: web.BaseRequest):
 @response_schema(RevRegCreateResultSchema(), 200)
 async def get_active_registry(request: web.BaseRequest):
     """
-    Request handler for getting the active revocation registry.
+    Request handler for getting an active revocation registry by cred def id.
 
     Args:
         request: aiohttp request object
@@ -290,11 +290,11 @@ async def register(app: web.Application):
     """Register routes."""
     app.add_routes(
         [
-            web.post("/revocation/create-registry", revocation_create_registry),
-            web.get("/revocation/registry/{id}", get_registry),
-            web.get("/revocation/active-registry/{id}", get_active_registry),
-            web.get("/revocation/registry/{id}/tails-file", get_tails_file),
-            web.patch("/revocation/registry/{id}", update_registry),
-            web.post("/revocation/registry/{id}/publish", publish_registry),
+            # web.post("/revocation/create-registry", revocation_create_registry),
+            # web.get("/revocation/registry/{id}", get_registry),
+            # web.get("/revocation/active-registry/{id}", get_active_registry),
+            # web.get("/revocation/registry/{id}/tails-file", get_tails_file),
+            # web.patch("/revocation/registry/{id}", update_registry),
+            # web.post("/revocation/registry/{id}/publish", publish_registry),
         ]
     )
