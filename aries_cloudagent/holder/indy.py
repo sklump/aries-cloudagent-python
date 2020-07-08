@@ -366,6 +366,23 @@ class IndyHolder(BaseHolder):
         """
 
         with IndyErrorHandler("Error when constructing proof", HolderError):
+            print('\n\n== Creating presentation')
+            print(f'.. req-creds {json.dumps(requested_credentials, indent=4)}')
+            print(f'.. schemas {json.dumps(schemas, indent=4)}')
+            print(
+                '.. cred defs/revocable {}'.format(
+                    json.dumps(
+                        {
+                            cd_id: "revocation" in credential_definitions[
+                                cd_id
+                            ]["value"]
+                            for cd_id in credential_definitions
+                        },
+                        indent=4
+                    )
+                )
+            )
+            print(f'.. rev states {json.dumps(rev_states, indent=4)}')
             presentation_json = await indy.anoncreds.prover_create_proof(
                 self.wallet.handle,
                 json.dumps(presentation_request),
@@ -374,6 +391,20 @@ class IndyHolder(BaseHolder):
                 json.dumps(schemas),
                 json.dumps(credential_definitions),
                 json.dumps(rev_states) if rev_states else "{}",
+            )
+            print(
+                '>> proof.req-proof {}'.format(
+                    json.dumps(
+                        json.loads(presentation_json)["requested_proof"], indent=4
+                    )
+                )
+            )
+            print(
+                '>> proof.idents {}'.format(
+                    json.dumps(
+                        json.loads(presentation_json)["identifiers"], indent=4
+                    )
+                )
             )
 
         return presentation_json

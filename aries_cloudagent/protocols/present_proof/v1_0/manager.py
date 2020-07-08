@@ -337,7 +337,13 @@ class PresentationManager:
         async with ledger:
             for referented in requested_referents.values():
                 credential_id = referented["cred_id"]
+                print(
+                    '    ++ doing referented cred brief: {}'.format(
+                        json.dumps(credentials[credential_id], indent=4)
+                    )
+                )
                 if not credentials[credential_id].get("rev_reg_id"):
+                    print(f'    ++ ++ no rev reg id: next')
                     continue
 
                 rev_reg_id = credentials[credential_id]["rev_reg_id"]
@@ -346,6 +352,7 @@ class PresentationManager:
                 )
 
                 if referent_non_revoc_interval:
+                    print(f'    ++ ++ non-revo interval: {referent_non_revoc_interval}')
                     key = (
                         f"{rev_reg_id}_{non_revoc_interval['from']}_"
                         f"{non_revoc_interval['to']}"
@@ -363,6 +370,9 @@ class PresentationManager:
                             delta_timestamp,
                         )
                     referented["timestamp"] = revoc_reg_deltas[key][3]
+                    print(f'    ++ ++ timestamp: {referented["timestamp"]}')
+                else:
+                    print(f'    ++ ++ (no specific interval; passing on timestamp)')
 
         # Get revocation states to prove non-revoked
         revocation_states = {}
@@ -395,16 +405,28 @@ class PresentationManager:
                 raise e
 
         for (referent, referented) in requested_referents.items():
+            print(f'    %% TIMESTAMP on {referent}: {json.dumps(referented, indent=4)}')
             if "timestamp" not in referented:
+                print(f'    %% %% no timestamp: skip')
                 continue
             if referent in requested_credentials["requested_attributes"]:
                 requested_credentials["requested_attributes"][referent][
                     "timestamp"
                 ] = referented["timestamp"]
+                print(
+                    '    %% %% req-creds.req-attrs.{}.timestamp := {}'.format(
+                        referent, referented["timestamp"]
+                    )
+                )
             if referent in requested_credentials["requested_predicates"]:
                 requested_credentials["requested_predicates"][referent][
                     "timestamp"
                 ] = referented["timestamp"]
+                print(
+                    '    %% %% req-creds.req-preds.{}.timestamp := {}'.format(
+                        referent, referented["timestamp"]
+                    )
+                )
 
         indy_proof_json = await holder.create_presentation(
             presentation_exchange_record.presentation_request,

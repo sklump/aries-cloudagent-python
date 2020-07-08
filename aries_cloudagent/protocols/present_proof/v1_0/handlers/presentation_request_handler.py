@@ -17,6 +17,8 @@ from ..util.indy import indy_proof_req_preview2indy_requested_creds
 
 from .....utils.tracing import trace_event, get_timer
 
+import json
+
 
 class PresentationRequestHandler(BaseHandler):
     """Message handler class for Aries#0037 v1.0 presentation requests."""
@@ -95,6 +97,13 @@ class PresentationRequestHandler(BaseHandler):
                     indy_proof_request,
                     presentation_preview,
                     holder=await context.inject(BaseHolder),
+                )
+                print(
+                    '\n\n## HANDLER: proof-req {}, preview {} -> req-creds {}'.format(
+                        json.dumps(indy_proof_request, indent=4),
+                        json.dumps(presentation_preview, indent=4),
+                        json.dumps(req_creds, indent=4)
+                    )
                 )
             except ValueError as err:
                 self._logger.warning(f"{err}")
