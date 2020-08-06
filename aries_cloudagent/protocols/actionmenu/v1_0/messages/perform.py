@@ -5,6 +5,7 @@ from typing import Mapping
 from marshmallow import fields
 
 from .....messaging.agent_message import AgentMessage, AgentMessageSchema
+from .....messaging.models.base import SchemaMeta
 
 from ..message_types import PERFORM, PROTOCOL_PACKAGE
 
@@ -34,13 +35,9 @@ class Perform(AgentMessage):
         self.params = params
 
 
+@SchemaMeta()
 class PerformSchema(AgentMessageSchema):
     """Perform schema class."""
-
-    class Meta:
-        """Perform schema metadata."""
-
-        model_class = Perform
 
     name = fields.Str(required=True, description="Menu option name", example="Query",)
     params = fields.Dict(

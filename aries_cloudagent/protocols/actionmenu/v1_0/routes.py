@@ -8,7 +8,7 @@ from aiohttp_apispec import docs, match_info_schema, request_schema
 from marshmallow import fields, Schema
 
 from ....connections.models.connection_record import ConnectionRecord
-from ....messaging.models.base import BaseModelError
+from ....messaging.models.base import BaseModelError, SchemaMeta
 from ....messaging.valid import UUIDFour
 from ....storage.error import StorageError, StorageNotFoundError
 
@@ -21,6 +21,7 @@ from .util import MENU_RECORD_TYPE, retrieve_connection_menu, save_connection_me
 LOGGER = logging.getLogger(__name__)
 
 
+@SchemaMeta(model_class=None)
 class PerformRequestSchema(Schema):
     """Request schema for performing a menu action."""
 
@@ -33,6 +34,7 @@ class PerformRequestSchema(Schema):
     )
 
 
+@SchemaMeta(model_class=None)
 class MenuJsonSchema(Schema):
     """Matches MenuSchema but without the inherited AgentMessage properties."""
 
@@ -54,6 +56,7 @@ class MenuJsonSchema(Schema):
     )
 
 
+@SchemaMeta(model_class=None)
 class SendMenuSchema(Schema):
     """Request schema for sending a menu to a connection."""
 
@@ -62,6 +65,7 @@ class SendMenuSchema(Schema):
     )
 
 
+@SchemaMeta(model_class=None)
 class ConnIdMatchInfoSchema(Schema):
     """Path parameters and validators for request taking connection id."""
 

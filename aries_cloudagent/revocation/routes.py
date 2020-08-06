@@ -16,6 +16,7 @@ from aiohttp_apispec import (
 from marshmallow import fields, Schema, validate
 
 from ..messaging.credential_definitions.util import CRED_DEF_SENT_RECORD_TYPE
+from ..messaging.models.base import SchemaMeta
 from ..messaging.valid import INDY_CRED_DEF_ID, INDY_REV_REG_ID
 from ..storage.base import BaseStorage, StorageNotFoundError
 
@@ -27,6 +28,7 @@ from .models.issuer_rev_reg_record import IssuerRevRegRecord, IssuerRevRegRecord
 LOGGER = logging.getLogger(__name__)
 
 
+@SchemaMeta(model_class=None)
 class RevRegCreateRequestSchema(Schema):
     """Request schema for revocation registry creation request."""
 
@@ -38,12 +40,14 @@ class RevRegCreateRequestSchema(Schema):
     )
 
 
+@SchemaMeta(model_class=None)
 class RevRegCreateResultSchema(Schema):
     """Result schema for revocation registry creation request."""
 
     result = IssuerRevRegRecordSchema()
 
 
+@SchemaMeta(model_class=None)
 class RevRegsCreatedSchema(Schema):
     """Result schema for request for revocation registries created."""
 
@@ -52,6 +56,7 @@ class RevRegsCreatedSchema(Schema):
     )
 
 
+@SchemaMeta(model_class=None)
 class RevRegUpdateTailsFileUriSchema(Schema):
     """Request schema for updating tails file URI."""
 
@@ -65,6 +70,7 @@ class RevRegUpdateTailsFileUriSchema(Schema):
     )
 
 
+@SchemaMeta(model_class=None)
 class RevRegsCreatedQueryStringSchema(Schema):
     """Query string parameters and validators for rev regs created request."""
 
@@ -86,6 +92,7 @@ class RevRegsCreatedQueryStringSchema(Schema):
     )
 
 
+@SchemaMeta(model_class=None)
 class RevRegIdMatchInfoSchema(Schema):
     """Path parameters and validators for request taking rev reg id."""
 
@@ -94,6 +101,7 @@ class RevRegIdMatchInfoSchema(Schema):
     )
 
 
+@SchemaMeta(model_class=None)
 class CredDefIdMatchInfoSchema(Schema):
     """Path parameters and validators for request taking cred def id."""
 

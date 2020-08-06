@@ -5,6 +5,7 @@ from typing import Any
 from marshmallow import fields, validate
 
 from .....config.injection_context import InjectionContext
+from .....messaging.models.base import SchemaMeta
 from .....messaging.models.base_record import BaseExchangeRecord, BaseExchangeSchema
 from .....messaging.valid import INDY_CRED_DEF_ID, INDY_SCHEMA_ID, UUIDFour
 
@@ -152,13 +153,9 @@ class V10CredentialExchange(BaseExchangeRecord):
         return super().__eq__(other)
 
 
+@SchemaMeta()
 class V10CredentialExchangeSchema(BaseExchangeSchema):
     """Schema to allow serialization/deserialization of credential exchange records."""
-
-    class Meta:
-        """V10CredentialExchangeSchema metadata."""
-
-        model_class = V10CredentialExchange
 
     credential_exchange_id = fields.Str(
         required=False,

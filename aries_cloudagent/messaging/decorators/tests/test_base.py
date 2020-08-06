@@ -9,7 +9,7 @@ from unittest import TestCase
 
 from marshmallow import fields
 
-from ....messaging.models.base import BaseModel, BaseModelSchema
+from ....messaging.models.base import BaseModel, BaseModelSchema, SchemaMeta
 
 from ..base import BaseDecoratorSet, DECORATOR_PREFIX
 
@@ -28,11 +28,9 @@ class SampleDecorator(BaseModel):
         self.score = score
 
 
+@SchemaMeta()
 class SampleDecoratorSchema(BaseModelSchema):
     """Sample schema decorator for base decorator tests."""
-
-    class Meta:
-        model_class = SampleDecorator
 
     score = fields.Int(required=True)
 

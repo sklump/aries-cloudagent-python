@@ -5,6 +5,7 @@ from typing import Sequence
 from marshmallow import fields
 
 from .....messaging.agent_message import AgentMessage, AgentMessageSchema
+from .....messaging.models.base import SchemaMeta
 
 from ..message_types import PROTOCOL_PACKAGE, ROUTE_UPDATE_RESPONSE
 from ..models.route_updated import RouteUpdated, RouteUpdatedSchema
@@ -37,12 +38,8 @@ class RouteUpdateResponse(AgentMessage):
         self.updated = updated or []
 
 
+@SchemaMeta()
 class RouteUpdateResponseSchema(AgentMessageSchema):
     """RouteUpdateResponse message schema used in serialization/deserialization."""
-
-    class Meta:
-        """RouteUpdateResponseSchema metadata."""
-
-        model_class = RouteUpdateResponse
 
     updated = fields.List(fields.Nested(RouteUpdatedSchema()), required=True)

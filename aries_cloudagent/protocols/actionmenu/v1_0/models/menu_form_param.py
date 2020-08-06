@@ -2,7 +2,7 @@
 
 from marshmallow import fields
 
-from .....messaging.models.base import BaseModel, BaseModelSchema
+from .....messaging.models.base import BaseModel, BaseModelSchema, SchemaMeta
 
 
 class MenuFormParam(BaseModel):
@@ -43,13 +43,9 @@ class MenuFormParam(BaseModel):
         self.required = required
 
 
+@SchemaMeta()
 class MenuFormParamSchema(BaseModelSchema):
     """MenuFormParam schema."""
-
-    class Meta:
-        """MenuFormParamSchema metadata."""
-
-        model_class = MenuFormParam
 
     name = fields.Str(
         required=True, description="Menu parameter name", example="delay",

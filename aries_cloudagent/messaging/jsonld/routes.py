@@ -3,15 +3,16 @@
 from aiohttp import web
 from aiohttp_apispec import docs, request_schema, response_schema
 
-from ...messaging.jsonld.credential import (
-    sign_credential,
-    verify_credential,
-)
-from ...wallet.base import BaseWallet
-
 from marshmallow import fields, Schema
 
+from ...wallet.base import BaseWallet
 
+from ..models.base import SchemaMeta
+
+from .credential import sign_credential, verify_credential
+
+
+@SchemaMeta(model_class=None)
 class SignRequestSchema(Schema):
     """Request schema for signing a jsonld doc."""
 
@@ -19,6 +20,7 @@ class SignRequestSchema(Schema):
     doc = fields.Dict(required=True, description="JSON-LD Doc to sign")
 
 
+@SchemaMeta(model_class=None)
 class SignResponseSchema(Schema):
     """Response schema for a signed jsonld doc."""
 

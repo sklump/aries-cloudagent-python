@@ -2,7 +2,7 @@
 
 from marshmallow import fields
 
-from .....messaging.models.base import BaseModel, BaseModelSchema
+from .....messaging.models.base import BaseModel, BaseModelSchema, SchemaMeta
 
 
 class RouteQueryResult(BaseModel):
@@ -25,12 +25,8 @@ class RouteQueryResult(BaseModel):
         self.recipient_key = recipient_key
 
 
+@SchemaMeta()
 class RouteQueryResultSchema(BaseModelSchema):
     """RouteQueryResult schema."""
-
-    class Meta:
-        """RouteQueryResultSchema metadata."""
-
-        model_class = "RouteQueryResult"
 
     recipient_key = fields.Str(required=True)

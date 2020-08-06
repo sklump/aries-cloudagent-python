@@ -1,5 +1,6 @@
 from unittest import TestCase as UnitTestCase
 
+from ......messaging.models.base import SchemaMeta
 from ......messaging.models.base_record import BaseExchangeRecord, BaseExchangeSchema
 
 from ..presentation_exchange import V10PresentationExchange
@@ -13,9 +14,9 @@ class BasexRecordImpl(BaseExchangeRecord):
     CACHE_ENABLED = True
 
 
+@SchemaMeta()
 class BasexRecordImplSchema(BaseExchangeSchema):
-    class Meta:
-        model_class = BasexRecordImpl
+    """Base record impl schema meant to fail equality check with base record on type."""
 
 
 class TestRecord(UnitTestCase):

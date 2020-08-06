@@ -31,6 +31,7 @@ from .models.base import (
     BaseModelSchema,
     resolve_class,
     resolve_meta_property,
+    SchemaMeta,
 )
 from .valid import UUIDFour
 
@@ -382,14 +383,9 @@ class AgentMessage(BaseModel):
         self._trace.append_trace_report(val)
 
 
+@SchemaMeta(signed_fields=None)
 class AgentMessageSchema(BaseModelSchema):
     """AgentMessage schema."""
-
-    class Meta:
-        """AgentMessageSchema metadata."""
-
-        model_class = None
-        signed_fields = None
 
     # Avoid clobbering keywords
     _type = fields.Str(

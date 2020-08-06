@@ -4,7 +4,7 @@ from typing import Sequence
 
 from marshmallow import fields
 
-from ...messaging.models.base import BaseModel, BaseModelSchema
+from ...messaging.models.base import BaseModel, BaseModelSchema, SchemaMeta
 from ...messaging.valid import INDY_DID, INDY_RAW_PUBLIC_KEY
 
 
@@ -44,13 +44,9 @@ class ConnectionTarget(BaseModel):
         self.sender_key = sender_key
 
 
+@SchemaMeta()
 class ConnectionTargetSchema(BaseModelSchema):
     """ConnectionTarget schema."""
-
-    class Meta:
-        """ConnectionTargetSchema metadata."""
-
-        model_class = ConnectionTarget
 
     did = fields.Str(required=False, description="", **INDY_DID)
     endpoint = fields.Str(

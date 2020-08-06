@@ -1,18 +1,24 @@
 """Cryptography functions used by BasicWallet."""
 
-from collections import OrderedDict
 import json
+
+from collections import OrderedDict
 from typing import Callable, Optional, Sequence, Tuple
 
-from marshmallow import fields, Schema, ValidationError
 import nacl.bindings
 import nacl.exceptions
 import nacl.utils
+
+from marshmallow import fields, Schema, ValidationError
+
+from ..messaging.valid import ENDPOINT, INDY_CRED_DEF_ID, INDY_DID, INDY_RAW_PUBLIC_KEY
+from ..messaging.models.base import SchemaMeta
 
 from .error import WalletError
 from .util import bytes_to_b58, bytes_to_b64, b64_to_bytes, b58_to_bytes
 
 
+@SchemaMeta(model_class=None)
 class PackMessageSchema(Schema):
     """Packed message schema."""
 
@@ -22,6 +28,7 @@ class PackMessageSchema(Schema):
     ciphertext = fields.Str(required=True)
 
 
+@SchemaMeta(model_class=None)
 class PackRecipientHeaderSchema(Schema):
     """Packed recipient header schema."""
 
@@ -30,6 +37,7 @@ class PackRecipientHeaderSchema(Schema):
     iv = fields.Str(required=False, allow_none=True)
 
 
+@SchemaMeta(model_class=None)
 class PackRecipientSchema(Schema):
     """Packed recipient schema."""
 
@@ -37,6 +45,7 @@ class PackRecipientSchema(Schema):
     header = fields.Nested(PackRecipientHeaderSchema(), required=True)
 
 
+@SchemaMeta(model_class=None)
 class PackRecipientsSchema(Schema):
     """Packed recipients schema."""
 

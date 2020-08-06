@@ -6,7 +6,7 @@ This decorator allows changes to agent response behaviour and queue status updat
 
 from marshmallow import fields, validate
 
-from ..models.base import BaseModel, BaseModelSchema
+from ..models.base import BaseModel, BaseModelSchema, SchemaMeta
 from ..valid import UUIDFour, WHOLE_NUM
 
 
@@ -39,13 +39,9 @@ class TransportDecorator(BaseModel):
         self.queued_message_count = queued_message_count
 
 
+@SchemaMeta()
 class TransportDecoratorSchema(BaseModelSchema):
     """Transport decorator schema used in serialization/deserialization."""
-
-    class Meta:
-        """TransportDecoratorSchema metadata."""
-
-        model_class = TransportDecorator
 
     return_route = fields.Str(
         required=False,

@@ -4,7 +4,7 @@ from typing import Sequence
 
 from marshmallow import fields
 
-from .....messaging.models.base import BaseModel, BaseModelSchema
+from .....messaging.models.base import BaseModel, BaseModelSchema, SchemaMeta
 
 from .menu_form_param import MenuFormParam, MenuFormParamSchema
 
@@ -40,13 +40,9 @@ class MenuForm(BaseModel):
         self.submit_label = submit_label
 
 
+@SchemaMeta()
 class MenuFormSchema(BaseModelSchema):
     """MenuForm schema."""
-
-    class Meta:
-        """MenuFormSchema metadata."""
-
-        model_class = MenuForm
 
     title = fields.Str(
         required=False, description="Menu form title", example="Preferences",

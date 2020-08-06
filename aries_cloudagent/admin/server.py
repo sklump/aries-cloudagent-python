@@ -14,11 +14,12 @@ from aiohttp_apispec import (
 )
 import aiohttp_cors
 
-from marshmallow import fields, Schema
+from marshmallow import fields, RAISE, Schema
 
 from ..config.injection_context import InjectionContext
 from ..core.plugin_registry import PluginRegistry
 from ..ledger.error import LedgerConfigError, LedgerTransactionError
+from ..messaging.models.base import SchemaMeta
 from ..messaging.responder import BaseResponder
 from ..transport.queue.basic import BasicMessageQueue
 from ..transport.outbound.message import OutboundMessage
@@ -33,6 +34,7 @@ from .error import AdminSetupError
 LOGGER = logging.getLogger(__name__)
 
 
+@SchemaMeta(unknown=RAISE)
 class AdminModulesSchema(Schema):
     """Schema for the modules endpoint."""
 
@@ -41,16 +43,19 @@ class AdminModulesSchema(Schema):
     )
 
 
+@SchemaMeta(unknown=RAISE)
 class AdminStatusSchema(Schema):
     """Schema for the status endpoint."""
 
 
+@SchemaMeta(unknown=RAISE)
 class AdminStatusLivelinessSchema(Schema):
     """Schema for the liveliness endpoint."""
 
     alive = fields.Boolean(description="Liveliness status", example=True)
 
 
+@SchemaMeta(unknown=RAISE)
 class AdminStatusReadinessSchema(Schema):
     """Schema for the readiness endpoint."""
 

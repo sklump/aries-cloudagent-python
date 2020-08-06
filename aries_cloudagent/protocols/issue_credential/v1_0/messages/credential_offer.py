@@ -9,10 +9,10 @@ from .....messaging.decorators.attach_decorator import (
     AttachDecorator,
     AttachDecoratorSchema,
 )
+from .....messaging.models.base import SchemaMeta
 
 from ..message_types import ATTACH_DECO_IDS, CREDENTIAL_OFFER, PROTOCOL_PACKAGE
 from .inner.credential_preview import CredentialPreview, CredentialPreviewSchema
-
 
 HANDLER_CLASS = (
     f"{PROTOCOL_PACKAGE}.handlers.credential_offer_handler.CredentialOfferHandler"
@@ -71,13 +71,9 @@ class CredentialOffer(AgentMessage):
         )
 
 
+@SchemaMeta()
 class CredentialOfferSchema(AgentMessageSchema):
     """Credential offer schema."""
-
-    class Meta:
-        """Credential offer schema metadata."""
-
-        model_class = CredentialOffer
 
     comment = fields.Str(
         description="Human-readable comment", required=False, allow_none=True

@@ -2,7 +2,7 @@
 
 from marshmallow import fields
 
-from .....messaging.models.base import BaseModel, BaseModelSchema
+from .....messaging.models.base import BaseModel, BaseModelSchema, SchemaMeta
 
 
 class Paginated(BaseModel):
@@ -39,13 +39,9 @@ class Paginated(BaseModel):
         self.total = total
 
 
+@SchemaMeta()
 class PaginatedSchema(BaseModelSchema):
     """Paginated schema."""
-
-    class Meta:
-        """PaginatedSchema metadata."""
-
-        model_class = "Paginated"
 
     start = fields.Int(required=False)
     end = fields.Int(required=False)

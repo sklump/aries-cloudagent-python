@@ -3,6 +3,7 @@
 from marshmallow import fields, validate
 
 from ...config.injection_context import InjectionContext
+from ...messaging.models.base import SchemaMeta
 from ...messaging.models.base_record import BaseRecord, BaseRecordSchema
 from ...messaging.valid import INDY_DID, INDY_RAW_PUBLIC_KEY, UUIDFour
 
@@ -262,13 +263,9 @@ class ConnectionRecord(BaseRecord):  # lgtm[py/missing-equals]
         await self.clear_cached_key(context, cache_key)
 
 
+@SchemaMeta()
 class ConnectionRecordSchema(BaseRecordSchema):
     """Schema to allow serialization/deserialization of connection records."""
-
-    class Meta:
-        """ConnectionRecordSchema metadata."""
-
-        model_class = ConnectionRecord
 
     connection_id = fields.Str(
         required=False, description="Connection identifier", example=UUIDFour.EXAMPLE

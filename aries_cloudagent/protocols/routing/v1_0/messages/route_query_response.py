@@ -5,6 +5,7 @@ from typing import Sequence
 from marshmallow import fields
 
 from .....messaging.agent_message import AgentMessage, AgentMessageSchema
+from .....messaging.models.base import SchemaMeta
 
 from ..message_types import PROTOCOL_PACKAGE, ROUTE_QUERY_RESPONSE
 from ..models.paginated import Paginated, PaginatedSchema
@@ -45,13 +46,9 @@ class RouteQueryResponse(AgentMessage):
         self.paginated = paginated
 
 
+@SchemaMeta()
 class RouteQueryResponseSchema(AgentMessageSchema):
     """RouteQueryResponse message schema used in serialization/deserialization."""
-
-    class Meta:
-        """RouteQueryResponseSchema metadata."""
-
-        model_class = RouteQueryResponse
 
     routes = fields.List(fields.Nested(RouteQueryResultSchema()), required=True)
     paginated = fields.Nested(PaginatedSchema(), required=False)

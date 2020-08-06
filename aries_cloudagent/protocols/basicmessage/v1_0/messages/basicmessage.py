@@ -6,6 +6,7 @@ from typing import Union
 from marshmallow import fields
 
 from .....messaging.agent_message import AgentMessage, AgentMessageSchema
+from .....messaging.models.base import SchemaMeta
 from .....messaging.util import datetime_now, datetime_to_str
 from .....messaging.valid import INDY_ISO8601_DATETIME
 
@@ -50,13 +51,9 @@ class BasicMessage(AgentMessage):
         self.content = content
 
 
+@SchemaMeta()
 class BasicMessageSchema(AgentMessageSchema):
     """Basic message schema class."""
-
-    class Meta:
-        """Basic message schema metadata."""
-
-        model_class = BasicMessage
 
     sent_time = fields.Str(
         required=False,

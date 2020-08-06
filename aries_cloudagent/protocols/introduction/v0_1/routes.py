@@ -8,6 +8,7 @@ from aiohttp_apispec import docs, match_info_schema, querystring_schema
 from marshmallow import fields, Schema
 
 from ....messaging.valid import UUIDFour
+from ....messaging.models.base import SchemaMeta
 from ....storage.error import StorageError
 
 from .base_service import BaseIntroductionService, IntroductionError
@@ -15,6 +16,7 @@ from .base_service import BaseIntroductionService, IntroductionError
 LOGGER = logging.getLogger(__name__)
 
 
+@SchemaMeta(model_class=None)
 class IntroStartQueryStringSchema(Schema):
     """Query string parameters for request to start introduction."""
 
@@ -28,6 +30,7 @@ class IntroStartQueryStringSchema(Schema):
     )
 
 
+@SchemaMeta(model_class=None)
 class ConnIdMatchInfoSchema(Schema):
     """Path parameters and validators for request taking connection id."""
 

@@ -16,6 +16,7 @@ from ...tails.base import BaseTailsServer
 from ...config.injection_context import InjectionContext
 from ...indy.util import indy_client_dir
 from ...issuer.base import BaseIssuer, IssuerError
+from ...messaging.models.base import SchemaMeta
 from ...messaging.models.base_record import BaseRecord, BaseRecordSchema
 from ...messaging.valid import (
     BASE58_SHA256_HASH,
@@ -31,7 +32,6 @@ from ..error import RevocationError
 from .revocation_registry import RevocationRegistry
 
 DEFAULT_REGISTRY_SIZE = 100
-
 LOGGER = logging.getLogger(__name__)
 
 
@@ -375,13 +375,9 @@ class IssuerRevRegRecord(BaseRecord):
         return super().__eq__(other)
 
 
+@SchemaMeta()
 class IssuerRevRegRecordSchema(BaseRecordSchema):
     """Schema to allow serialization/deserialization of revocation registry records."""
-
-    class Meta:
-        """IssuerRevRegRecordSchema metadata."""
-
-        model_class = IssuerRevRegRecord
 
     record_id = fields.Str(
         required=False,

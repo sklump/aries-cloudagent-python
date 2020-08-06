@@ -4,6 +4,7 @@ from typing import Any
 
 from marshmallow import fields, validate
 
+from .....messaging.models.base import SchemaMeta
 from .....messaging.models.base_record import BaseExchangeRecord, BaseExchangeSchema
 from .....messaging.valid import UUIDFour
 
@@ -102,13 +103,9 @@ class V10PresentationExchange(BaseExchangeRecord):
         return super().__eq__(other)
 
 
+@SchemaMeta()
 class V10PresentationExchangeSchema(BaseExchangeSchema):
     """Schema for de/serialization of v1.0 presentation exchange records."""
-
-    class Meta:
-        """V10PresentationExchangeSchema metadata."""
-
-        model_class = V10PresentationExchange
 
     presentation_exchange_id = fields.Str(
         required=False,

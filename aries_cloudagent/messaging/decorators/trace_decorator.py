@@ -9,7 +9,7 @@ from typing import Sequence
 
 from marshmallow import fields
 
-from ..models.base import BaseModel, BaseModelSchema
+from ..models.base import BaseModel, BaseModelSchema, SchemaMeta
 from ..valid import UUIDFour
 
 
@@ -227,13 +227,9 @@ class TraceDecorator(BaseModel):
         self._trace_reports.append(trace_report)
 
 
+@SchemaMeta()
 class TraceReportSchema(BaseModelSchema):
     """Trace report schema."""
-
-    class Meta:
-        """TraceReportSchema metadata."""
-
-        model_class = TraceReport
 
     msg_id = fields.Str(
         required=True,
@@ -285,13 +281,9 @@ class TraceReportSchema(BaseModelSchema):
     )
 
 
+@SchemaMeta()
 class TraceDecoratorSchema(BaseModelSchema):
     """Trace decorator schema used in serialization/deserialization."""
-
-    class Meta:
-        """TraceDecoratorSchema metadata."""
-
-        model_class = TraceDecorator
 
     target = fields.Str(
         required=True,

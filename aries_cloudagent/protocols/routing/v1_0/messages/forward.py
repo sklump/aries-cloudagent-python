@@ -7,6 +7,7 @@ from typing import Union
 from marshmallow import fields, pre_load
 
 from .....messaging.agent_message import AgentMessage, AgentMessageSchema
+from .....messaging.models.base import SchemaMeta
 
 from ..message_types import FORWARD, PROTOCOL_PACKAGE
 
@@ -38,13 +39,9 @@ class Forward(AgentMessage):
         self.msg = msg
 
 
+@SchemaMeta()
 class ForwardSchema(AgentMessageSchema):
     """Forward message schema used in serialization/deserialization."""
-
-    class Meta:
-        """ForwardSchema metadata."""
-
-        model_class = Forward
 
     @pre_load
     def handle_str_message(self, data, **kwargs):

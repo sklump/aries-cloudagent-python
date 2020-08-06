@@ -2,6 +2,7 @@
 
 from marshmallow import fields, Schema
 
+from ..models.base import SchemaMeta
 from ..valid import (
     INDY_DID,
     INDY_SCHEMA_ID,
@@ -9,6 +10,7 @@ from ..valid import (
 )
 
 
+@SchemaMeta(model_class=None)
 class SchemaQueryStringSchema(Schema):
     """Query string parameters for schema searches."""
 

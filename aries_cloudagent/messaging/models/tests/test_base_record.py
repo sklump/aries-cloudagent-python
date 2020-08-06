@@ -11,6 +11,7 @@ from ....storage.basic import BasicStorage
 from ...responder import BaseResponder, MockResponder
 from ...util import time_now
 
+from ..base import SchemaMeta
 from ..base_record import BaseRecord, BaseRecordSchema
 
 
@@ -22,9 +23,9 @@ class BaseRecordImpl(BaseRecord):
     CACHE_ENABLED = True
 
 
+@SchemaMeta()
 class BaseRecordImplSchema(BaseRecordSchema):
-    class Meta:
-        model_class = BaseRecordImpl
+    """Base record impl schema."""
 
 
 class ARecordImpl(BaseRecord):
@@ -47,10 +48,8 @@ class ARecordImpl(BaseRecord):
         return {"a": self.a, "b": self.b}
 
 
+@SchemaMeta(model_class=BaseRecordImpl)
 class ARecordImplSchema(BaseRecordSchema):
-    class Meta:
-        model_class = BaseRecordImpl
-
     ident = fields.Str(attribute="_id")
     a = fields.Str()
     b = fields.Str()

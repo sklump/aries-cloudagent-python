@@ -8,7 +8,7 @@ from typing import Mapping, Sequence
 from marshmallow import fields
 
 from ......ledger.indy import IndyLedger
-from ......messaging.models.base import BaseModel, BaseModelSchema
+from ......messaging.models.base import BaseModel, BaseModelSchema, SchemaMeta
 from ......messaging.util import canon
 from ......messaging.valid import INDY_CRED_DEF_ID, INDY_PREDICATE
 from ......revocation.models.indy import NonRevocationInterval
@@ -68,13 +68,9 @@ class PresPredSpec(BaseModel):
         return self.threshold == other.threshold
 
 
+@SchemaMeta()
 class PresPredSpecSchema(BaseModelSchema):
     """Predicate specifiation schema."""
-
-    class Meta:
-        """Predicate specifiation schema metadata."""
-
-        model_class = PresPredSpec
 
     name = fields.Str(description="Attribute name", required=True, example="high_score")
     cred_def_id = fields.Str(
@@ -205,13 +201,9 @@ class PresAttrSpec(BaseModel):
         return self.b64_decoded_value() == other.b64_decoded_value()
 
 
+@SchemaMeta()
 class PresAttrSpecSchema(BaseModelSchema):
     """Attribute specifiation schema."""
-
-    class Meta:
-        """Attribute specifiation schema metadata."""
-
-        model_class = PresAttrSpec
 
     name = fields.Str(
         description="Attribute name", required=True, example="favourite_drink"
@@ -425,13 +417,9 @@ class PresentationPreview(BaseModel):
         return True
 
 
+@SchemaMeta()
 class PresentationPreviewSchema(BaseModelSchema):
     """Presentation preview schema."""
-
-    class Meta:
-        """Presentation preview schema metadata."""
-
-        model_class = PresentationPreview
 
     _type = fields.Str(
         description="Message type identifier",

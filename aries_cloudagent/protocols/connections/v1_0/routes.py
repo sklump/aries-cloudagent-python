@@ -17,7 +17,7 @@ from ....connections.models.connection_record import (
     ConnectionRecord,
     ConnectionRecordSchema,
 )
-from ....messaging.models.base import BaseModelError
+from ....messaging.models.base import BaseModelError, SchemaMeta
 from ....messaging.valid import (
     ENDPOINT,
     INDY_DID,
@@ -35,8 +35,15 @@ from .messages.connection_invitation import (
 )
 
 
+# @SchemaMeta(model_class=None)
 class ConnectionListSchema(Schema):
     """Result schema for connection list."""
+
+    def __init__(self):
+        if getattr(self, "Meta"):
+            print(f"\n$$ {self.__class__.__name__}: {self.Meta.__qualname__}")
+        else:
+            print(f"\n$$ {self.__class__.__name__}: No Meta")
 
     results = fields.List(
         fields.Nested(ConnectionRecordSchema()),
@@ -44,16 +51,30 @@ class ConnectionListSchema(Schema):
     )
 
 
+# @SchemaMeta(model_class=None)
 class ReceiveInvitationRequestSchema(ConnectionInvitationSchema):
     """Request schema for receive invitation request."""
+
+    def __init__(self):
+        if getattr(self, "Meta"):
+            print(f"\n$$ {self.__class__.__name__}: {self.Meta.__qualname__}")
+        else:
+            print(f"\n$$ {self.__class__.__name__}: No Meta")
 
     @validates_schema
     def validate_fields(self, data, **kwargs):
         """Bypass middleware field validation."""
 
 
+# @SchemaMeta(model_class=None)
 class InvitationResultSchema(Schema):
     """Result schema for a new connection invitation."""
+
+    def __init__(self):
+        if getattr(self, "Meta"):
+            print(f"\n$$ {self.__class__.__name__}: {self.Meta.__qualname__}")
+        else:
+            print(f"\n$$ {self.__class__.__name__}: No Meta")
 
     connection_id = fields.Str(
         description="Connection identifier", example=UUIDFour.EXAMPLE
@@ -65,8 +86,15 @@ class InvitationResultSchema(Schema):
     )
 
 
+# @SchemaMeta(model_class=None)
 class ConnectionStaticRequestSchema(Schema):
     """Request schema for a new static connection."""
+
+    def __init__(self):
+        if getattr(self, "Meta"):
+            print(f"\n$$ {self.__class__.__name__}: {self.Meta.__qualname__}")
+        else:
+            print(f"\n$$ {self.__class__.__name__}: No Meta")
 
     my_seed = fields.Str(description="Seed to use for the local DID", required=False)
     my_did = fields.Str(description="Local DID", required=False, **INDY_DID)
@@ -89,8 +117,15 @@ class ConnectionStaticRequestSchema(Schema):
     alias = fields.Str(description="Alias to assign to this connection", required=False)
 
 
+# @SchemaMeta(model_class=None)
 class ConnectionStaticResultSchema(Schema):
     """Result schema for new static connection."""
+
+    def __init__(self):
+        if getattr(self, "Meta"):
+            print(f"\n$$ {self.__class__.__name__}: {self.Meta.__qualname__}")
+        else:
+            print(f"\n$$ {self.__class__.__name__}: No Meta")
 
     my_did = fields.Str(description="Local DID", required=True, **INDY_DID)
     mv_verkey = fields.Str(
@@ -104,8 +139,15 @@ class ConnectionStaticResultSchema(Schema):
     record = fields.Nested(ConnectionRecordSchema, required=True)
 
 
+# @SchemaMeta(model_class=None)
 class ConnectionsListQueryStringSchema(Schema):
     """Parameters and validators for connections list request query string."""
+
+    def __init__(self):
+        if getattr(self, "Meta"):
+            print(f"\n$$ {self.__class__.__name__}: {self.Meta.__qualname__}")
+        else:
+            print(f"\n$$ {self.__class__.__name__}: No Meta")
 
     alias = fields.Str(description="Alias", required=False, example="Barry",)
     initiator = fields.Str(
@@ -136,8 +178,15 @@ class ConnectionsListQueryStringSchema(Schema):
     )
 
 
+# @SchemaMeta(model_class=None)
 class CreateInvitationQueryStringSchema(Schema):
     """Parameters and validators for create invitation request query string."""
+
+    def __init__(self):
+        if getattr(self, "Meta"):
+            print(f"\n$$ {self.__class__.__name__}: {self.Meta.__qualname__}")
+        else:
+            print(f"\n$$ {self.__class__.__name__}: No Meta")
 
     alias = fields.Str(description="Alias", required=False, example="Barry",)
     auto_accept = fields.Boolean(
@@ -152,8 +201,15 @@ class CreateInvitationQueryStringSchema(Schema):
     )
 
 
+# @SchemaMeta(model_class=None)
 class ReceiveInvitationQueryStringSchema(Schema):
     """Parameters and validators for receive invitation request query string."""
+
+    def __init__(self):
+        if getattr(self, "Meta"):
+            print(f"\n$$ {self.__class__.__name__}: {self.Meta.__qualname__}")
+        else:
+            print(f"\n$$ {self.__class__.__name__}: No Meta")
 
     alias = fields.Str(description="Alias", required=False, example="Barry",)
     auto_accept = fields.Boolean(
@@ -162,8 +218,15 @@ class ReceiveInvitationQueryStringSchema(Schema):
     )
 
 
+# @SchemaMeta(model_class=None)
 class AcceptInvitationQueryStringSchema(Schema):
     """Parameters and validators for accept invitation request query string."""
+
+    def __init__(self):
+        if getattr(self, "Meta"):
+            print(f"\n$$ {self.__class__.__name__}: {self.Meta.__qualname__}")
+        else:
+            print(f"\n$$ {self.__class__.__name__}: No Meta")
 
     my_endpoint = fields.Str(description="My URL endpoint", required=False, **ENDPOINT)
     my_label = fields.Str(
@@ -171,22 +234,43 @@ class AcceptInvitationQueryStringSchema(Schema):
     )
 
 
+# @SchemaMeta(model_class=None)
 class AcceptRequestQueryStringSchema(Schema):
     """Parameters and validators for accept conn-request web-request query string."""
+
+    def __init__(self):
+        if getattr(self, "Meta"):
+            print(f"\n$$ {self.__class__.__name__}: {self.Meta.__qualname__}")
+        else:
+            print(f"\n$$ {self.__class__.__name__}: No Meta")
 
     my_endpoint = fields.Str(description="My URL endpoint", required=False, **ENDPOINT)
 
 
+# @SchemaMeta(model_class=None)
 class ConnIdMatchInfoSchema(Schema):
     """Path parameters and validators for request taking connection id."""
+
+    def __init__(self):
+        if getattr(self, "Meta"):
+            print(f"\n$$ {self.__class__.__name__}: {self.Meta.__qualname__}")
+        else:
+            print(f"\n$$ {self.__class__.__name__}: No Meta")
 
     conn_id = fields.Str(
         description="Connection identifier", required=True, example=UUIDFour.EXAMPLE
     )
 
 
+# @SchemaMeta(model_class=None)
 class ConnIdRefIdMatchInfoSchema(Schema):
     """Path parameters and validators for request taking connection and ref ids."""
+
+    def __init__(self):
+        if getattr(self, "Meta"):
+            print(f"\n$$ {self.__class__.__name__}: {self.Meta.__qualname__}")
+        else:
+            print(f"\n$$ {self.__class__.__name__}: No Meta")
 
     conn_id = fields.Str(
         description="Connection identifier", required=True, example=UUIDFour.EXAMPLE

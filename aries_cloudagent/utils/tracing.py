@@ -16,13 +16,14 @@ from ..messaging.decorators.trace_decorator import (
     TRACE_MESSAGE_TARGET,
     TRACE_LOG_TARGET,
 )
+from ..messaging.models.base import SchemaMeta
 from ..messaging.models.base_record import BaseExchangeRecord
-
 
 LOGGER = logging.getLogger(__name__)
 DT_FMT = "%Y-%m-%d %H:%M:%S.%f%z"
 
 
+@SchemaMeta(model_class=None)
 class AdminAPIMessageTracingSchema(Schema):
     """
     Request/result schema including agent message tracing.

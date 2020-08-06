@@ -10,7 +10,7 @@ from marshmallow import fields
 from ...wallet.base import BaseWallet
 from ...wallet.util import b64_to_bytes, bytes_to_b64
 
-from ..models.base import BaseModel, BaseModelSchema
+from ..models.base import BaseModel, BaseModelSchema, SchemaMeta
 from ..valid import Base64URL, BASE64URL, INDY_RAW_PUBLIC_KEY
 
 
@@ -121,13 +121,9 @@ class SignatureDecorator(BaseModel):
         )
 
 
+@SchemaMeta()
 class SignatureDecoratorSchema(BaseModelSchema):
     """SignatureDecorator schema."""
-
-    class Meta:
-        """SignatureDecoratorSchema metadata."""
-
-        model_class = SignatureDecorator
 
     signature_type = fields.Str(
         data_key="@type",

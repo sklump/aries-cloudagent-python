@@ -10,7 +10,7 @@ from typing import Union
 
 from marshmallow import fields
 
-from ..models.base import BaseModel, BaseModelSchema
+from ..models.base import BaseModel, BaseModelSchema, SchemaMeta
 from ..util import datetime_to_str
 from ..valid import INDY_ISO8601_DATETIME
 
@@ -53,13 +53,9 @@ class TimingDecorator(BaseModel):
         self.wait_until_time = datetime_to_str(wait_until_time)
 
 
+@SchemaMeta()
 class TimingDecoratorSchema(BaseModelSchema):
     """Timing decorator schema used in serialization/deserialization."""
-
-    class Meta:
-        """TimingDecoratorSchema metadata."""
-
-        model_class = TimingDecorator
 
     in_time = fields.Str(
         required=False, description="Time of message receipt", **INDY_ISO8601_DATETIME

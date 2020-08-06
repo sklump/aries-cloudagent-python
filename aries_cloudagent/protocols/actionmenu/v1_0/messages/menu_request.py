@@ -1,6 +1,7 @@
 """Represents a request for an action menu."""
 
 from .....messaging.agent_message import AgentMessage, AgentMessageSchema
+from .....messaging.models.base import SchemaMeta
 
 from ..message_types import MENU_REQUEST, PROTOCOL_PACKAGE
 
@@ -22,10 +23,6 @@ class MenuRequest(AgentMessage):
         super().__init__(**kwargs)
 
 
+@SchemaMeta()
 class MenuRequestSchema(AgentMessageSchema):
     """MenuRequest schema class."""
-
-    class Meta:
-        """MenuRequest schema metadata."""
-
-        model_class = MenuRequest

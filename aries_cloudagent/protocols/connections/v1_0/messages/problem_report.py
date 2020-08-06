@@ -4,6 +4,7 @@ from enum import Enum
 from marshmallow import fields, validate
 
 from .....messaging.agent_message import AgentMessage, AgentMessageSchema
+from .....messaging.models.base import SchemaMeta
 
 from ..message_types import PROBLEM_REPORT
 
@@ -43,13 +44,9 @@ class ProblemReport(AgentMessage):
         self.problem_code = problem_code
 
 
+@SchemaMeta()
 class ProblemReportSchema(AgentMessageSchema):
     """Schema for ProblemReport base class."""
-
-    class Meta:
-        """Metadata for problem report schema."""
-
-        model_class = ProblemReport
 
     explain = fields.Str(
         required=False,

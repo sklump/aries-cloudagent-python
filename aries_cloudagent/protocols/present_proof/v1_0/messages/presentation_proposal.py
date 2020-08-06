@@ -3,11 +3,11 @@
 from marshmallow import fields
 
 from .....messaging.agent_message import AgentMessage, AgentMessageSchema
+from .....messaging.models.base import SchemaMeta
 
 from ..message_types import PRESENTATION_PROPOSAL, PROTOCOL_PACKAGE
 
 from .inner.presentation_preview import PresentationPreview, PresentationPreviewSchema
-
 
 HANDLER_CLASS = (
     f"{PROTOCOL_PACKAGE}.handlers."
@@ -45,13 +45,9 @@ class PresentationProposal(AgentMessage):
         self.presentation_proposal = presentation_proposal
 
 
+@SchemaMeta()
 class PresentationProposalSchema(AgentMessageSchema):
     """Presentation proposal schema."""
-
-    class Meta:
-        """Presentation proposal schema metadata."""
-
-        model_class = PresentationProposal
 
     comment = fields.Str(
         description="Human-readable comment", required=False, allow_none=True

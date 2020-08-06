@@ -5,6 +5,7 @@ from typing import Mapping, Sequence
 from marshmallow import fields, Schema, validate
 
 from .....messaging.agent_message import AgentMessage, AgentMessageSchema
+from .....messaging.models.base import SchemaMeta
 
 from ..message_types import DISCLOSE, PROTOCOL_PACKAGE
 
@@ -32,6 +33,7 @@ class Disclose(AgentMessage):
         self.protocols = list(protocols) if protocols else []
 
 
+@SchemaMeta(model_class=None)
 class ProtocolDescriptorSchema(Schema):
     """Schema for an entry in the protocols list."""
 
@@ -48,13 +50,9 @@ class ProtocolDescriptorSchema(Schema):
     )
 
 
+@SchemaMeta()
 class DiscloseSchema(AgentMessageSchema):
     """Disclose message schema used in serialization/deserialization."""
-
-    class Meta:
-        """DiscloseSchema metadata."""
-
-        model_class = Disclose
 
     protocols = fields.List(
         fields.Nested(ProtocolDescriptorSchema()),

@@ -3,6 +3,7 @@
 from marshmallow import fields
 
 from .....messaging.agent_message import AgentMessage, AgentMessageSchema
+from .....messaging.models.base import SchemaMeta
 from .....protocols.connections.v1_0.messages.connection_invitation import (
     ConnectionInvitation,
     ConnectionInvitationSchema,
@@ -41,13 +42,9 @@ class ForwardInvitation(AgentMessage):
         self.message = message
 
 
+@SchemaMeta()
 class ForwardInvitationSchema(AgentMessageSchema):
     """ForwardInvitation request schema class."""
-
-    class Meta:
-        """ForwardInvitation request schema metadata."""
-
-        model_class = ForwardInvitation
 
     invitation = fields.Nested(ConnectionInvitationSchema(), required=True)
     message = fields.Str(

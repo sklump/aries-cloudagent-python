@@ -1,7 +1,7 @@
 from marshmallow import fields
 from unittest import TestCase
 
-from ...models.base import BaseModel, BaseModelSchema
+from ...models.base import BaseModel, BaseModelSchema, SchemaMeta
 
 from ..base import BaseDecoratorSet
 from ..default import DecoratorSet, DEFAULT_MODELS
@@ -17,9 +17,8 @@ class SimpleModel(BaseModel):
         self.value = value
 
 
+@SchemaMeta()
 class SimpleModelSchema(BaseModelSchema):
-    class Meta:
-        model_class = SimpleModel
 
     value = fields.Str(required=True)
     handled_decorator = fields.Str(required=False, data_key="handled~decorator")

@@ -15,12 +15,14 @@ from marshmallow import fields, Schema
 
 from ..ledger.base import BaseLedger
 from ..ledger.error import LedgerConfigError, LedgerError
+from ..messaging.models.base import SchemaMeta
 from ..messaging.valid import ENDPOINT, INDY_CRED_DEF_ID, INDY_DID, INDY_RAW_PUBLIC_KEY
 
 from .base import DIDInfo, BaseWallet
 from .error import WalletError, WalletNotFoundError
 
 
+@SchemaMeta(model_class=None)
 class DIDSchema(Schema):
     """Result schema for a DID."""
 
@@ -29,18 +31,21 @@ class DIDSchema(Schema):
     public = fields.Boolean(description="Whether DID is public", example=False)
 
 
+@SchemaMeta(model_class=None)
 class DIDResultSchema(Schema):
     """Result schema for a DID."""
 
     result = fields.Nested(DIDSchema())
 
 
+@SchemaMeta(model_class=None)
 class DIDListSchema(Schema):
     """Result schema for connection list."""
 
     results = fields.List(fields.Nested(DIDSchema()), description="DID list")
 
 
+@SchemaMeta(model_class=None)
 class DIDEndpointSchema(Schema):
     """Request schema to set DID endpoint; response schema to get DID endpoint."""
 
@@ -50,6 +55,7 @@ class DIDEndpointSchema(Schema):
     )
 
 
+@SchemaMeta(model_class=None)
 class DIDListQueryStringSchema(Schema):
     """Parameters and validators for DID list request query string."""
 
@@ -62,12 +68,14 @@ class DIDListQueryStringSchema(Schema):
     public = fields.Boolean(description="Whether DID is on the ledger", required=False)
 
 
+@SchemaMeta(model_class=None)
 class DIDQueryStringSchema(Schema):
     """Parameters and validators for set public DID request query string."""
 
     did = fields.Str(description="DID of interest", required=True, **INDY_DID)
 
 
+@SchemaMeta(model_class=None)
 class CredDefIdMatchInfoSchema(Schema):
     """Path parameters and validators for request taking credential definition id."""
 

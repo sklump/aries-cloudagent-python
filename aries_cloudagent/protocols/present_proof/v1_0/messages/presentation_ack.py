@@ -1,8 +1,9 @@
 """Represents an explicit RFC 15 ack message, adopted into present-proof protocol."""
 
 from .....messaging.ack.message import Ack, AckSchema
-from ..message_types import PRESENTATION_ACK, PROTOCOL_PACKAGE
+from .....messaging.models.base import SchemaMeta
 
+from ..message_types import PRESENTATION_ACK, PROTOCOL_PACKAGE
 
 HANDLER_CLASS = (
     f"{PROTOCOL_PACKAGE}.handlers.presentation_ack_handler.PresentationAckHandler"
@@ -30,10 +31,6 @@ class PresentationAck(Ack):
         super().__init__(status, **kwargs)
 
 
+@SchemaMeta()
 class PresentationAckSchema(AckSchema):
     """Schema for PresentationAck class."""
-
-    class Meta:
-        """PresentationAck schema metadata."""
-
-        model_class = PresentationAck

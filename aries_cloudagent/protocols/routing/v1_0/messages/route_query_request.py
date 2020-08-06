@@ -3,6 +3,7 @@
 from marshmallow import fields
 
 from .....messaging.agent_message import AgentMessage, AgentMessageSchema
+from .....messaging.models.base import SchemaMeta
 
 from ..message_types import PROTOCOL_PACKAGE, ROUTE_QUERY_REQUEST
 from ..models.paginate import Paginate, PaginateSchema
@@ -35,13 +36,9 @@ class RouteQueryRequest(AgentMessage):
         self.paginate = paginate
 
 
+@SchemaMeta()
 class RouteQueryRequestSchema(AgentMessageSchema):
     """RouteQueryRequest message schema used in serialization/deserialization."""
-
-    class Meta:
-        """RouteQueryRequestSchema metadata."""
-
-        model_class = RouteQueryRequest
 
     filter = fields.Dict(
         keys=fields.Str(description="field"),

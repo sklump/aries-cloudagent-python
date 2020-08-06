@@ -4,7 +4,7 @@ from typing import Sequence
 
 from marshmallow import fields
 
-from .....messaging.models.base import BaseModel, BaseModelSchema
+from .....messaging.models.base import BaseModel, BaseModelSchema, SchemaMeta
 from .....messaging.valid import INDY_DID, INDY_RAW_PUBLIC_KEY
 
 
@@ -45,32 +45,25 @@ class Service(BaseModel):
         self.service_endpoint = service_endpoint
 
 
+@SchemaMeta()
 class ServiceSchema(BaseModelSchema):
     """Service schema."""
-
-    class Meta:
-        """ServiceSchema metadata."""
-
-        model_class = Service
 
     _id = fields.Str(required=True, description="", data_key="id")
     _type = fields.Str(required=True, description="", data_key="type")
     did = fields.Str(required=False, description="", **INDY_DID)
-
     recipient_keys = fields.List(
         fields.Str(description="Recipient public key", **INDY_RAW_PUBLIC_KEY),
         data_key="recipientKeys",
         required=False,
         description="List of recipient keys",
     )
-
     routing_keys = fields.List(
         fields.Str(description="Routing key", **INDY_RAW_PUBLIC_KEY),
         data_key="routingKeys",
         required=False,
         description="List of routing keys",
     )
-
     service_endpoint = fields.Str(
         data_key="serviceEndpoint",
         required=False,

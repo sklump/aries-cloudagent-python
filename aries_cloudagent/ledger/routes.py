@@ -5,6 +5,7 @@ from aiohttp_apispec import docs, querystring_schema, request_schema, response_s
 
 from marshmallow import fields, Schema, validate
 
+from ..messaging.models.base import SchemaMeta
 from ..messaging.valid import INDY_DID, INDY_RAW_PUBLIC_KEY
 from ..storage.error import StorageError
 from ..wallet.error import WalletError
@@ -13,6 +14,7 @@ from .indy import Role
 from .error import BadLedgerRequestError, LedgerError, LedgerTransactionError
 
 
+@SchemaMeta(model_class=None)
 class AMLRecordSchema(Schema):
     """Ledger AML record."""
 
@@ -21,6 +23,7 @@ class AMLRecordSchema(Schema):
     amlContext = fields.Str()
 
 
+@SchemaMeta(model_class=None)
 class TAARecordSchema(Schema):
     """Ledger TAA record."""
 
@@ -29,6 +32,7 @@ class TAARecordSchema(Schema):
     digest = fields.Str()
 
 
+@SchemaMeta(model_class=None)
 class TAAAcceptanceSchema(Schema):
     """TAA acceptance record."""
 
@@ -36,6 +40,7 @@ class TAAAcceptanceSchema(Schema):
     time = fields.Int()
 
 
+@SchemaMeta(model_class=None)
 class TAAInfoSchema(Schema):
     """Transaction author agreement info."""
 
@@ -45,12 +50,14 @@ class TAAInfoSchema(Schema):
     taa_accepted = fields.Nested(TAAAcceptanceSchema())
 
 
+@SchemaMeta(model_class=None)
 class TAAResultSchema(Schema):
     """Result schema for a transaction author agreement."""
 
     result = fields.Nested(TAAInfoSchema())
 
 
+@SchemaMeta(model_class=None)
 class TAAAcceptSchema(Schema):
     """Input schema for accepting the TAA."""
 
@@ -59,6 +66,7 @@ class TAAAcceptSchema(Schema):
     mechanism = fields.Str()
 
 
+@SchemaMeta(model_class=None)
 class RegisterLedgerNymQueryStringSchema(Schema):
     """Query string parameters and validators for register ledger nym request."""
 
@@ -76,6 +84,7 @@ class RegisterLedgerNymQueryStringSchema(Schema):
     )
 
 
+@SchemaMeta(model_class=None)
 class QueryStringDIDSchema(Schema):
     """Parameters and validators for query string with DID only."""
 

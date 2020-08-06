@@ -4,7 +4,7 @@ from typing import Sequence
 
 from marshmallow import fields
 
-from ..models.base import BaseModel, BaseModelSchema
+from ..models.base import BaseModel, BaseModelSchema, SchemaMeta
 from ..valid import UUIDFour
 
 
@@ -32,13 +32,9 @@ class PleaseAckDecorator(BaseModel):
         self.on = list(on) if on else None
 
 
+@SchemaMeta()
 class PleaseAckDecoratorSchema(BaseModelSchema):
     """PleaseAck decorator schema used in serialization/deserialization."""
-
-    class Meta:
-        """PleaseAckDecoratorSchema metadata."""
-
-        model_class = PleaseAckDecorator
 
     message_id = fields.Str(
         description="Message identifier",

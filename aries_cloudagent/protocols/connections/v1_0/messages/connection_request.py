@@ -3,6 +3,7 @@
 from marshmallow import fields
 
 from .....messaging.agent_message import AgentMessage, AgentMessageSchema
+from .....messaging.models.base import SchemaMeta
 
 from ..message_types import CONNECTION_REQUEST, PROTOCOL_PACKAGE
 from ..models.connection_detail import ConnectionDetail, ConnectionDetailSchema
@@ -44,13 +45,9 @@ class ConnectionRequest(AgentMessage):
         self.label = label
 
 
+@SchemaMeta()
 class ConnectionRequestSchema(AgentMessageSchema):
     """Connection request schema class."""
-
-    class Meta:
-        """Connection request schema metadata."""
-
-        model_class = ConnectionRequest
 
     connection = fields.Nested(ConnectionDetailSchema, required=True)
     label = fields.Str(

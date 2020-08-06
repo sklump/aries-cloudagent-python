@@ -2,7 +2,7 @@
 
 from marshmallow import fields
 
-from .....messaging.models.base import BaseModel, BaseModelSchema
+from .....messaging.models.base import BaseModel, BaseModelSchema, SchemaMeta
 
 
 class RouteRecord(BaseModel):
@@ -38,13 +38,9 @@ class RouteRecord(BaseModel):
         self.updated_at = updated_at
 
 
+@SchemaMeta()
 class RouteRecordSchema(BaseModelSchema):
     """RouteRecord schema."""
-
-    class Meta:
-        """RouteRecordSchema metadata."""
-
-        model_class = "RouteRecord"
 
     record_id = fields.Str(required=False)
     connection_id = fields.Str(required=True)

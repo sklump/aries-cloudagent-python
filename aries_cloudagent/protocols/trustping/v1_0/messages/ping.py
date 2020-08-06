@@ -3,6 +3,7 @@
 from marshmallow import fields
 
 from .....messaging.agent_message import AgentMessage, AgentMessageSchema
+from .....messaging.models.base import SchemaMeta
 
 from ..message_types import PING, PROTOCOL_PACKAGE
 
@@ -36,13 +37,9 @@ class Ping(AgentMessage):
         self.response_requested = response_requested
 
 
+@SchemaMeta()
 class PingSchema(AgentMessageSchema):
     """Schema for Ping class."""
-
-    class Meta:
-        """PingSchema metadata."""
-
-        model_class = Ping
 
     response_requested = fields.Bool(
         description="Whether response is requested (default True)",

@@ -3,6 +3,7 @@
 from marshmallow import fields
 
 from .....messaging.agent_message import AgentMessage, AgentMessageSchema
+from .....messaging.models.base import SchemaMeta
 
 from ..message_types import QUERY, PROTOCOL_PACKAGE
 
@@ -35,13 +36,9 @@ class Query(AgentMessage):
         self.comment = comment
 
 
+@SchemaMeta()
 class QuerySchema(AgentMessageSchema):
     """Query message schema used in serialization/deserialization."""
-
-    class Meta:
-        """QuerySchema metadata."""
-
-        model_class = Query
 
     query = fields.Str(required=True)
     comment = fields.Str(required=False, allow_none=True)

@@ -1,6 +1,5 @@
 """A (proof) presentation content message."""
 
-
 from typing import Sequence
 
 from marshmallow import fields
@@ -10,9 +9,9 @@ from .....messaging.decorators.attach_decorator import (
     AttachDecorator,
     AttachDecoratorSchema,
 )
+from .....messaging.models.base import SchemaMeta
 
 from ..message_types import PRESENTATION, PROTOCOL_PACKAGE
-
 
 HANDLER_CLASS = f"{PROTOCOL_PACKAGE}.handlers.presentation_handler.PresentationHandler"
 
@@ -61,13 +60,9 @@ class Presentation(AgentMessage):
         return self.presentations_attach[index].indy_dict
 
 
+@SchemaMeta()
 class PresentationSchema(AgentMessageSchema):
     """(Proof) presentation schema."""
-
-    class Meta:
-        """Presentation schema metadata."""
-
-        model_class = Presentation
 
     comment = fields.Str(
         description="Human-readable comment", required=False, allow_none=True

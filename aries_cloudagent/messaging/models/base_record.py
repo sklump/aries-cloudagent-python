@@ -14,7 +14,7 @@ from ...config.injection_context import InjectionContext
 from ...storage.base import BaseStorage, StorageDuplicateError, StorageNotFoundError
 from ...storage.record import StorageRecord
 
-from .base import BaseModel, BaseModelSchema
+from .base import BaseModel, BaseModelSchema, SchemaMeta
 from ..responder import BaseResponder
 from ..util import datetime_to_str, time_now
 from ..valid import INDY_ISO8601_DATETIME
@@ -469,11 +469,9 @@ class BaseExchangeRecord(BaseRecord):
         return False
 
 
+@SchemaMeta()
 class BaseRecordSchema(BaseModelSchema):
     """Schema to allow serialization/deserialization of base records."""
-
-    class Meta:
-        """BaseRecordSchema metadata."""
 
     state = fields.Str(
         required=False, description="Current record state", example="active"
@@ -488,13 +486,9 @@ class BaseRecordSchema(BaseModelSchema):
     )
 
 
+@SchemaMeta(model_class=BaseExchangeRecord)
 class BaseExchangeSchema(BaseRecordSchema):
     """Base schema for exchange records."""
-
-    class Meta:
-        """BaseExchangeSchema metadata."""
-
-        model_class = BaseExchangeRecord
 
     trace = fields.Boolean(
         description="Record trace information, based on agent configuration",

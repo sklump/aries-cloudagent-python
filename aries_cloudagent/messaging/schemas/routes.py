@@ -18,10 +18,14 @@ from ...issuer.base import BaseIssuer, IssuerError
 from ...ledger.base import BaseLedger
 from ...ledger.error import LedgerError
 from ...storage.base import BaseStorage
+
+from ..models.base import SchemaMeta
 from ..valid import B58, NATURAL_NUM, INDY_SCHEMA_ID, INDY_VERSION
+
 from .util import SchemaQueryStringSchema, SCHEMA_SENT_RECORD_TYPE, SCHEMA_TAGS
 
 
+@SchemaMeta(model_class=None)
 class SchemaSendRequestSchema(Schema):
     """Request schema for schema send request."""
 
@@ -36,6 +40,7 @@ class SchemaSendRequestSchema(Schema):
     )
 
 
+@SchemaMeta(model_class=None)
 class SchemaSendResultsSchema(Schema):
     """Results schema for schema send request."""
 
@@ -45,6 +50,7 @@ class SchemaSendResultsSchema(Schema):
     schema = fields.Dict(description="Schema result", required=True)
 
 
+@SchemaMeta(model_class=None)
 class SchemaSchema(Schema):
     """Content for returned schema."""
 
@@ -62,12 +68,14 @@ class SchemaSchema(Schema):
     seqNo = fields.Int(description="Schema sequence number", **NATURAL_NUM)
 
 
+@SchemaMeta(model_class=None)
 class SchemaGetResultsSchema(Schema):
     """Results schema for schema get request."""
 
     schema_json = fields.Nested(SchemaSchema())
 
 
+@SchemaMeta(model_class=None)
 class SchemasCreatedResultsSchema(Schema):
     """Results schema for a schemas-created request."""
 
@@ -76,6 +84,7 @@ class SchemasCreatedResultsSchema(Schema):
     )
 
 
+@SchemaMeta(model_class=None)
 class SchemaIdMatchInfoSchema(Schema):
     """Path parameters and validators for request taking schema id."""
 

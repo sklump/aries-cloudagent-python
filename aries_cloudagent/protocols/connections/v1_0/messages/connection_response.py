@@ -3,6 +3,7 @@
 from marshmallow import fields
 
 from .....messaging.agent_message import AgentMessage, AgentMessageSchema
+from .....messaging.models.base import SchemaMeta
 
 from ..message_types import CONNECTION_RESPONSE, PROTOCOL_PACKAGE
 from ..models.connection_detail import ConnectionDetail, ConnectionDetailSchema
@@ -35,13 +36,8 @@ class ConnectionResponse(AgentMessage):
         self.connection = connection
 
 
+@SchemaMeta(signed_fields=("connection",))
 class ConnectionResponseSchema(AgentMessageSchema):
     """Connection response schema class."""
-
-    class Meta:
-        """Connection response schema metadata."""
-
-        model_class = ConnectionResponse
-        signed_fields = ("connection",)
 
     connection = fields.Nested(ConnectionDetailSchema, required=True)

@@ -15,19 +15,19 @@ from marshmallow import fields, Schema
 
 from ...issuer.base import BaseIssuer
 from ...ledger.base import BaseLedger
+from ...ledger.error import LedgerError
+from ...revocation.error import RevocationError, RevocationNotSupportedError
+from ...revocation.indy import IndyRevocation
 from ...storage.base import BaseStorage
 from ...tails.base import BaseTailsServer
 
+from ..models.base import SchemaMeta
 from ..valid import INDY_CRED_DEF_ID, INDY_SCHEMA_ID, INDY_VERSION
-
-from ...revocation.error import RevocationError, RevocationNotSupportedError
-from ...revocation.indy import IndyRevocation
-
-from ...ledger.error import LedgerError
 
 from .util import CredDefQueryStringSchema, CRED_DEF_TAGS, CRED_DEF_SENT_RECORD_TYPE
 
 
+@SchemaMeta(model_class=None)
 class CredentialDefinitionSendRequestSchema(Schema):
     """Request schema for schema send request."""
 
@@ -44,6 +44,7 @@ class CredentialDefinitionSendRequestSchema(Schema):
     )
 
 
+@SchemaMeta(model_class=None)
 class CredentialDefinitionSendResultsSchema(Schema):
     """Results schema for schema send request."""
 
@@ -52,6 +53,7 @@ class CredentialDefinitionSendResultsSchema(Schema):
     )
 
 
+@SchemaMeta(model_class=None)
 class CredentialDefinitionSchema(Schema):
     """Credential definition schema."""
 
@@ -80,12 +82,14 @@ class CredentialDefinitionSchema(Schema):
     )
 
 
+@SchemaMeta(model_class=None)
 class CredentialDefinitionGetResultsSchema(Schema):
     """Results schema for schema get request."""
 
     credential_definition = fields.Nested(CredentialDefinitionSchema)
 
 
+@SchemaMeta(model_class=None)
 class CredentialDefinitionsCreatedResultsSchema(Schema):
     """Results schema for cred-defs-created request."""
 
@@ -94,6 +98,7 @@ class CredentialDefinitionsCreatedResultsSchema(Schema):
     )
 
 
+@SchemaMeta(model_class=None)
 class CredDefIdMatchInfoSchema(Schema):
     """Path parameters and validators for request taking cred def id."""
 

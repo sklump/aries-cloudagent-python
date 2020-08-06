@@ -23,7 +23,7 @@ from ...wallet.util import (
     str_to_b64,
     unpad,
 )
-from ..models.base import BaseModel, BaseModelError, BaseModelSchema
+from ..models.base import BaseModel, BaseModelError, BaseModelSchema, SchemaMeta
 from ..valid import (
     BASE64,
     BASE64URL_NO_PAD,
@@ -55,13 +55,9 @@ class AttachDecoratorDataJWSHeader(BaseModel):
         return type(self) == type(other) and self.kid == other.kid
 
 
+@SchemaMeta()
 class AttachDecoratorDataJWSHeaderSchema(BaseModelSchema):
     """Attach decorator data JWS header schema."""
-
-    class Meta:
-        """Attach decorator data schema metadata."""
-
-        model_class = AttachDecoratorDataJWSHeader
 
     kid = fields.Str(
         description="Key identifier, in W3C did:key or DID URL format",
@@ -101,13 +97,9 @@ class AttachDecoratorData1JWS(BaseModel):
         )
 
 
+@SchemaMeta()
 class AttachDecoratorData1JWSSchema(BaseModelSchema):
     """Single attach decorator data JWS schema."""
-
-    class Meta:
-        """Single attach decorator data JWS schema metadata."""
-
-        model_class = AttachDecoratorData1JWS
 
     header = fields.Nested(AttachDecoratorDataJWSHeaderSchema, required=True)
     protected = fields.Str(
@@ -145,13 +137,9 @@ class AttachDecoratorDataJWS(BaseModel):
         self.signatures = signatures
 
 
+@SchemaMeta()
 class AttachDecoratorDataJWSSchema(BaseModelSchema):
     """Schema for detached JSON Web Signature for inclusion in attach decorator data."""
-
-    class Meta:
-        """Metadata for schema for detached JWS for inclusion in attach deco data."""
-
-        model_class = AttachDecoratorDataJWS
 
     @pre_load
     def validate_single_xor_multi_sig(self, data: Mapping, **kwargs):
@@ -447,13 +435,9 @@ class AttachDecoratorData(BaseModel):
         return True
 
 
+@SchemaMeta()
 class AttachDecoratorDataSchema(BaseModelSchema):
     """Attach decorator data schema."""
-
-    class Meta:
-        """Attach decorator data schema metadata."""
-
-        model_class = AttachDecoratorData
 
     @pre_load
     def validate_data_spec(self, data: Mapping, **kwargs):
@@ -625,13 +609,9 @@ class AttachDecorator(BaseModel):
         )
 
 
+@SchemaMeta()
 class AttachDecoratorSchema(BaseModelSchema):
     """Attach decorator schema used in serialization/deserialization."""
-
-    class Meta:
-        """AttachDecoratorSchema metadata."""
-
-        model_class = AttachDecorator
 
     ident = fields.Str(
         description="Attachment identifier",

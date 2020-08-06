@@ -13,6 +13,7 @@ from aiohttp_apispec import (
 from marshmallow import fields, Schema, validate, validates_schema
 from marshmallow.exceptions import ValidationError
 
+from ....connections.models.base import SchemaMeta
 from ....connections.models.connection_record import ConnectionRecord
 from ....holder.base import BaseHolder, HolderError
 from ....ledger.error import LedgerError
@@ -33,6 +34,7 @@ from ....messaging.valid import (
 )
 from ....storage.error import StorageError, StorageNotFoundError
 from ....indy.util import generate_pr_nonce
+from ....utils.tracing import trace_event, get_timer, AdminAPIMessageTracingSchema
 
 from ...problem_report.v1_0 import internal_error
 
@@ -50,9 +52,7 @@ from .models.presentation_exchange import (
 )
 
 
-from ....utils.tracing import trace_event, get_timer, AdminAPIMessageTracingSchema
-
-
+@SchemaMeta(model_class=None)
 class V10PresentationExchangeListQueryStringSchema(Schema):
     """Parameters and validators for presentation exchange list query."""
 
@@ -90,6 +90,7 @@ class V10PresentationExchangeListQueryStringSchema(Schema):
     )
 
 
+@SchemaMeta(model_class=None)
 class V10PresentationExchangeListSchema(Schema):
     """Result schema for an Aries RFC 37 v1.0 presentation exchange query."""
 
@@ -99,6 +100,7 @@ class V10PresentationExchangeListSchema(Schema):
     )
 
 
+@SchemaMeta(model_class=None)
 class V10PresentationProposalRequestSchema(AdminAPIMessageTracingSchema):
     """Request schema for sending a presentation proposal admin message."""
 
@@ -124,6 +126,7 @@ class V10PresentationProposalRequestSchema(AdminAPIMessageTracingSchema):
     )
 
 
+@SchemaMeta(model_class=None)
 class IndyProofReqPredSpecRestrictionsSchema(Schema):
     """Schema for restrictions in attr or pred specifier indy proof request."""
 
@@ -149,6 +152,7 @@ class IndyProofReqPredSpecRestrictionsSchema(Schema):
     )
 
 
+@SchemaMeta(model_class=None)
 class IndyProofReqNonRevokedSchema(Schema):
     """Non-revocation times specification in indy proof request."""
 
@@ -182,6 +186,7 @@ class IndyProofReqNonRevokedSchema(Schema):
             )
 
 
+@SchemaMeta(model_class=None)
 class IndyProofReqAttrSpecSchema(Schema):
     """Schema for attribute specification in indy proof request."""
 
@@ -245,6 +250,7 @@ class IndyProofReqAttrSpecSchema(Schema):
             )
 
 
+@SchemaMeta(model_class=None)
 class IndyProofReqPredSpecSchema(Schema):
     """Schema for predicate specification in indy proof request."""
 
@@ -263,6 +269,7 @@ class IndyProofReqPredSpecSchema(Schema):
     non_revoked = fields.Nested(IndyProofReqNonRevokedSchema(), required=False)
 
 
+@SchemaMeta(model_class=None)
 class IndyProofRequestSchema(Schema):
     """Schema for indy proof request."""
 
@@ -294,6 +301,7 @@ class IndyProofRequestSchema(Schema):
     non_revoked = fields.Nested(IndyProofReqNonRevokedSchema(), required=False)
 
 
+@SchemaMeta(model_class=None)
 class V10PresentationCreateRequestRequestSchema(AdminAPIMessageTracingSchema):
     """Request schema for creating a proof request free of any connection."""
 
@@ -306,6 +314,7 @@ class V10PresentationCreateRequestRequestSchema(AdminAPIMessageTracingSchema):
     )
 
 
+@SchemaMeta(model_class=None)
 class V10PresentationSendRequestRequestSchema(
     V10PresentationCreateRequestRequestSchema
 ):
@@ -316,6 +325,7 @@ class V10PresentationSendRequestRequestSchema(
     )
 
 
+@SchemaMeta(model_class=None)
 class IndyRequestedCredsRequestedAttrSchema(Schema):
     """Schema for requested attributes within indy requested credentials structure."""
 
@@ -336,6 +346,7 @@ class IndyRequestedCredsRequestedAttrSchema(Schema):
     )
 
 
+@SchemaMeta(model_class=None)
 class IndyRequestedCredsRequestedPredSchema(Schema):
     """Schema for requested predicates within indy requested credentials structure."""
 
@@ -353,6 +364,7 @@ class IndyRequestedCredsRequestedPredSchema(Schema):
     )
 
 
+@SchemaMeta(model_class=None)
 class V10PresentationRequestSchema(AdminAPIMessageTracingSchema):
     """Request schema for sending a presentation."""
 
@@ -393,6 +405,7 @@ class V10PresentationRequestSchema(AdminAPIMessageTracingSchema):
     )
 
 
+@SchemaMeta(model_class=None)
 class CredentialsFetchQueryStringSchema(Schema):
     """Parameters and validators for credentials fetch request query string."""
 
@@ -412,6 +425,7 @@ class CredentialsFetchQueryStringSchema(Schema):
     )
 
 
+@SchemaMeta(model_class=None)
 class PresExIdMatchInfoSchema(Schema):
     """Path parameters and validators for request taking presentation exchange id."""
 

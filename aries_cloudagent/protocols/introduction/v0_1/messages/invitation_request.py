@@ -3,6 +3,7 @@
 from marshmallow import fields
 
 from .....messaging.agent_message import AgentMessage, AgentMessageSchema
+from .....messaging.models.base import SchemaMeta
 
 from ..message_types import INVITATION_REQUEST, PROTOCOL_PACKAGE
 
@@ -34,13 +35,9 @@ class InvitationRequest(AgentMessage):
         self.message = message
 
 
+@SchemaMeta()
 class InvitationRequestSchema(AgentMessageSchema):
     """Invitation request schema class."""
-
-    class Meta:
-        """Invitation request schema metadata."""
-
-        model_class = InvitationRequest
 
     responder = fields.Str(
         required=True,

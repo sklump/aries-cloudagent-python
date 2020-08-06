@@ -3,7 +3,7 @@
 from marshmallow import fields
 
 from .....connections.models.diddoc import DIDDoc
-from .....messaging.models.base import BaseModel, BaseModelSchema
+from .....messaging.models.base import BaseModel, BaseModelSchema, SchemaMeta
 from .....messaging.valid import INDY_DID
 
 
@@ -81,13 +81,9 @@ class ConnectionDetail(BaseModel):
         return self._did_doc
 
 
+@SchemaMeta()
 class ConnectionDetailSchema(BaseModelSchema):
     """ConnectionDetail schema."""
-
-    class Meta:
-        """ConnectionDetailSchema metadata."""
-
-        model_class = "ConnectionDetail"
 
     did = fields.Str(
         data_key="DID",

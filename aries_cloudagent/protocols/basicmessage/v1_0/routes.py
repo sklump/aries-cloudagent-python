@@ -6,6 +6,7 @@ from aiohttp_apispec import docs, match_info_schema, request_schema
 from marshmallow import fields, Schema
 
 from ....connections.models.connection_record import ConnectionRecord
+from ....messaging.models.base import SchemaMeta
 from ....messaging.valid import UUIDFour
 from ....storage.error import StorageNotFoundError
 
@@ -13,12 +14,14 @@ from .message_types import SPEC_URI
 from .messages.basicmessage import BasicMessage
 
 
+@SchemaMeta(model_class=None)
 class SendMessageSchema(Schema):
     """Request schema for sending a message."""
 
     content = fields.Str(description="Message content", example="Hello")
 
 
+@SchemaMeta(model_class=None)
 class ConnIdMatchInfoSchema(Schema):
     """Path parameters and validators for request taking connection id."""
 

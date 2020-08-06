@@ -6,11 +6,11 @@ from urllib.parse import parse_qs, urljoin, urlparse
 from marshmallow import ValidationError, fields, validates_schema
 
 from .....messaging.agent_message import AgentMessage, AgentMessageSchema
+from .....messaging.models.base import SchemaMeta
 from .....messaging.valid import INDY_DID, INDY_RAW_PUBLIC_KEY
 from .....wallet.util import b64_to_bytes, bytes_to_b64
 
 from ..message_types import CONNECTION_INVITATION, PROTOCOL_PACKAGE
-
 
 HANDLER_CLASS = (
     f"{PROTOCOL_PACKAGE}.handlers"
@@ -90,13 +90,9 @@ class ConnectionInvitation(AgentMessage):
         return None
 
 
+@SchemaMeta()
 class ConnectionInvitationSchema(AgentMessageSchema):
     """Connection invitation schema class."""
-
-    class Meta:
-        """Connection invitation schema metadata."""
-
-        model_class = ConnectionInvitation
 
     label = fields.Str(
         required=False, description="Optional label for connection", example="Bob"

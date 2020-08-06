@@ -3,6 +3,7 @@
 from marshmallow import fields
 
 from .....messaging.agent_message import AgentMessage, AgentMessageSchema
+from .....messaging.models.base import SchemaMeta
 from .....protocols.connections.v1_0.messages.connection_invitation import (
     ConnectionInvitation,
     ConnectionInvitationSchema,
@@ -39,13 +40,9 @@ class Invitation(AgentMessage):
         self.message = message
 
 
+@SchemaMeta()
 class InvitationSchema(AgentMessageSchema):
     """Invitation request schema class."""
-
-    class Meta:
-        """Invitation request schema metadata."""
-
-        model_class = Invitation
 
     invitation = fields.Nested(ConnectionInvitationSchema(), required=True)
     message = fields.Str(

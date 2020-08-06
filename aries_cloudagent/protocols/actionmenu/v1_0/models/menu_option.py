@@ -2,7 +2,7 @@
 
 from marshmallow import fields
 
-from .....messaging.models.base import BaseModel, BaseModelSchema
+from .....messaging.models.base import BaseModel, BaseModelSchema, SchemaMeta
 
 from .menu_form import MenuForm, MenuFormSchema
 
@@ -41,13 +41,9 @@ class MenuOption(BaseModel):
         self.form = form
 
 
+@SchemaMeta()
 class MenuOptionSchema(BaseModelSchema):
     """MenuOption schema."""
-
-    class Meta:
-        """MenuOptionSchema metadata."""
-
-        model_class = MenuOption
 
     name = fields.Str(
         required=True,

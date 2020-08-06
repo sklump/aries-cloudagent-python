@@ -8,6 +8,7 @@ from aiohttp_apispec import docs, request_schema
 from marshmallow import fields, Schema
 from marshmallow.exceptions import ValidationError
 
+from ....messaging.models.base import SchemaMeta
 from ....storage.error import StorageNotFoundError
 
 from .manager import OutOfBandManager, OutOfBandManagerError
@@ -17,6 +18,7 @@ from .messages.invitation import InvitationSchema
 LOGGER = logging.getLogger(__name__)
 
 
+@SchemaMeta(model_class=None)
 class InvitationCreateRequestSchema(Schema):
     """Invitation create request Schema."""
 
@@ -31,7 +33,8 @@ class InvitationCreateRequestSchema(Schema):
     use_public_did = fields.Boolean(default=False)
 
 
-class InvitationSchema(InvitationSchema):
+@SchemaMeta(model_class=None)
+class InvitationReceiveRequestSchema(InvitationSchema):
     """Invitation Schema."""
 
     service = fields.Field()
@@ -78,7 +81,7 @@ async def invitation_create(request: web.BaseRequest):
 @docs(
     tags=["out-of-band"], summary="Create a new connection invitation",
 )
-@request_schema(InvitationSchema())
+@request_schema(InvitationReceiveRequestSchema())
 async def invitation_receive(request: web.BaseRequest):
     """
     Request handler for creating a new connection invitation.

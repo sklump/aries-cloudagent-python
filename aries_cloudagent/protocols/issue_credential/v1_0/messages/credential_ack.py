@@ -1,8 +1,9 @@
 """A credential ack message."""
 
 from .....messaging.ack.message import Ack, AckSchema
-from ..message_types import CREDENTIAL_ACK, PROTOCOL_PACKAGE
+from .....messaging.models.base import SchemaMeta
 
+from ..message_types import CREDENTIAL_ACK, PROTOCOL_PACKAGE
 
 HANDLER_CLASS = (
     f"{PROTOCOL_PACKAGE}.handlers.credential_ack_handler.CredentialAckHandler"
@@ -24,10 +25,6 @@ class CredentialAck(Ack):
         super().__init__(**kwargs)
 
 
+@SchemaMeta()
 class CredentialAckSchema(AckSchema):
     """Credential ack schema."""
-
-    class Meta:
-        """Schema metadata."""
-
-        model_class = CredentialAck

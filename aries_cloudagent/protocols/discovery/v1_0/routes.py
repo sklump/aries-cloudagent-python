@@ -5,10 +5,12 @@ from aiohttp_apispec import docs, querystring_schema, response_schema
 from marshmallow import fields, Schema
 
 from ....core.protocol_registry import ProtocolRegistry
+from ....messaging.models.base import SchemaMeta
 
 from .message_types import SPEC_URI
 
 
+@SchemaMeta(model_class=None)
 class QueryResultSchema(Schema):
     """Result schema for the protocol list."""
 
@@ -19,6 +21,7 @@ class QueryResultSchema(Schema):
     )
 
 
+@SchemaMeta(model_class=None)
 class QueryFeaturesQueryStringSchema(Schema):
     """Query string parameters for feature query."""
 

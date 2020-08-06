@@ -4,6 +4,7 @@ from typing import Any
 
 from marshmallow import fields
 
+from .....messaging.models.base import SchemaMeta
 from .....messaging.models.base_record import BaseExchangeRecord, BaseExchangeSchema
 from .....messaging.valid import UUIDFour
 
@@ -58,13 +59,9 @@ class Invitation(BaseExchangeRecord):
         }
 
 
+@SchemaMeta()
 class InvitationSchema(BaseExchangeSchema):
     """Schema to allow serialization/deserialization of invitation records."""
-
-    class Meta:
-        """InvitationSchema metadata."""
-
-        model_class = Invitation
 
     invitation_id = fields.Str(
         required=False, description="Invitation identifier", example=UUIDFour.EXAMPLE,

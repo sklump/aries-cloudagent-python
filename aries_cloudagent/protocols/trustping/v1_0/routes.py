@@ -6,6 +6,7 @@ from aiohttp_apispec import docs, match_info_schema, request_schema, response_sc
 from marshmallow import fields, Schema
 
 from ....connections.models.connection_record import ConnectionRecord
+from ....messaging.models.base import SchemaMeta
 from ....messaging.valid import UUIDFour
 from ....storage.error import StorageNotFoundError
 
@@ -13,6 +14,7 @@ from .message_types import SPEC_URI
 from .messages.ping import Ping
 
 
+@SchemaMeta(model_class=None)
 class PingRequestSchema(Schema):
     """Request schema for performing a ping."""
 
@@ -21,12 +23,14 @@ class PingRequestSchema(Schema):
     )
 
 
+@SchemaMeta(model_class=None)
 class PingRequestResponseSchema(Schema):
     """Request schema for performing a ping."""
 
     thread_id = fields.Str(required=False, description="Thread ID of the ping message")
 
 
+@SchemaMeta(model_class=None)
 class ConnIdMatchInfoSchema(Schema):
     """Path parameters and validators for request taking connection id."""
 

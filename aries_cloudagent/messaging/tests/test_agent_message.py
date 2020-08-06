@@ -8,7 +8,7 @@ from ...wallet.util import bytes_to_b64
 from ..agent_message import AgentMessage, AgentMessageSchema
 from ..decorators.signature_decorator import SignatureDecorator
 from ..decorators.trace_decorator import TraceReport, TRACE_LOG_TARGET
-from ..models.base import BaseModelError
+from ..models.base import BaseModelError, SchemaMeta
 
 
 class SignedAgentMessage(AgentMessage):
@@ -26,12 +26,9 @@ class SignedAgentMessage(AgentMessage):
         self.value = value
 
 
+@SchemaMeta(signed_fields=("value",))
 class SignedAgentMessageSchema(AgentMessageSchema):
     """Utility schema"""
-
-    class Meta:
-        model_class = SignedAgentMessage
-        signed_fields = ("value",)
 
     value = fields.Str(required=True)
 

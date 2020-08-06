@@ -9,10 +9,11 @@ from .....messaging.decorators.attach_decorator import (
     AttachDecorator,
     AttachDecoratorSchema,
 )
-
-from .service import Service, ServiceSchema
+from .....messaging.models.base import SchemaMeta
 
 from ..message_types import PROTOCOL_PACKAGE, INVITATION
+
+from .service import Service, ServiceSchema
 
 HANDLER_CLASS = f"{PROTOCOL_PACKAGE}.handlers.invitation_handler.InvitationHandler"
 
@@ -76,20 +77,15 @@ class Invitation(AgentMessage):
         return AttachDecorator.from_aries_msg(message=message, ident="request-0")
 
 
+@SchemaMeta()
 class InvitationSchema(AgentMessageSchema):
     """Invitation schema."""
-
-    class Meta:
-        """Invitation schema metadata."""
-
-        model_class = Invitation
 
     label = fields.Str(required=False, description="Optional label", example="Bob")
     handshake_protocols = fields.List(fields.String, required=False, many=True)
     request_attach = fields.Nested(
         AttachDecoratorSchema, required=True, many=True, data_key="request~attach"
     )
-
     service_blocks = fields.Nested(ServiceSchema, many=True)
     service_dids = fields.List(fields.String, many=True)
 

@@ -5,7 +5,7 @@ from typing import Sequence
 
 from marshmallow import fields
 
-from ......messaging.models.base import BaseModel, BaseModelSchema
+from ......messaging.models.base import BaseModel, BaseModelSchema, SchemaMeta
 from ......wallet.util import b64_to_str
 
 from ...message_types import CREDENTIAL_PREVIEW
@@ -67,13 +67,9 @@ class CredAttrSpec(BaseModel):
         return self.b64_decoded_value() == other.b64_decoded_value()
 
 
+@SchemaMeta()
 class CredAttrSpecSchema(BaseModelSchema):
     """Attribute preview schema."""
-
-    class Meta:
-        """Attribute preview schema metadata."""
-
-        model_class = CredAttrSpec
 
     name = fields.Str(
         description="Attribute name", required=True, example="favourite_drink"
@@ -156,13 +152,9 @@ class CredentialPreview(BaseModel):
         return {attr.name: attr.mime_type for attr in self.attributes if attr.mime_type}
 
 
+@SchemaMeta()
 class CredentialPreviewSchema(BaseModelSchema):
     """Credential preview schema."""
-
-    class Meta:
-        """Credential preview schema metadata."""
-
-        model_class = CredentialPreview
 
     _type = fields.Str(
         description="Message type identifier",

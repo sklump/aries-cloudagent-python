@@ -4,7 +4,7 @@ from time import time
 
 from marshmallow import fields
 
-from ...messaging.models.base import BaseModel, BaseModelSchema
+from ...messaging.models.base import BaseModel, BaseModelSchema, SchemaMeta
 from ...messaging.valid import INT_EPOCH
 
 
@@ -46,13 +46,9 @@ class NonRevocationInterval(BaseModel):
         return self.to or self.fro or int(time())
 
 
+@SchemaMeta()
 class NonRevocationIntervalSchema(BaseModelSchema):
     """Schema to allow serialization/deserialization of non-revocation intervals."""
-
-    class Meta:
-        """NonRevocationIntervalSchema metadata."""
-
-        model_class = NonRevocationInterval
 
     fro = fields.Int(
         required=False,

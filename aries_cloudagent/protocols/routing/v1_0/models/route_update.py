@@ -2,7 +2,7 @@
 
 from marshmallow import fields
 
-from .....messaging.models.base import BaseModel, BaseModelSchema
+from .....messaging.models.base import BaseModel, BaseModelSchema, SchemaMeta
 
 
 class RouteUpdate(BaseModel):
@@ -30,13 +30,9 @@ class RouteUpdate(BaseModel):
         self.action = action
 
 
+@SchemaMeta()
 class RouteUpdateSchema(BaseModelSchema):
     """RouteUpdate schema."""
-
-    class Meta:
-        """RouteUpdateSchema metadata."""
-
-        model_class = "RouteUpdate"
 
     recipient_key = fields.Str(required=True)
     action = fields.Str(required=True)

@@ -203,6 +203,41 @@ class BaseModel(ABC):
         return "<{}({})>".format(self.__class__.__name__, ", ".join(items))
 
 
+def SchemaMeta(**kwargs):
+    """Set marshmallow schema Meta inner class with comfortable defaults."""
+
+    def meta(cls):
+        """
+        cls.Meta = type(
+            "Meta",
+            (object,),
+            {
+                **kwargs,
+                "__doc__": f"{cls.__name__} metadata.",
+                "model_class": kwargs.get("model_class", cls.__name__[:-6]),
+                "skip_values": kwargs.get("skip_values", [None]),
+                "ordered": kwargs.get("ordered", True),
+                "unknown": kwargs.get("unknown", EXCLUDE)
+            }
+        )
+        """
+        print(f"\n>> BEFORE: {cls.__name__}: {cls.Meta.__qualname__}, {vars(cls)}")
+        cls.Meta.__doc__ = f"{cls.__name__} metadata."
+        cls.skip_values = [None]
+        cls.ordered = True
+        cls.unknown = EXCLUDE
+        for k, v in kwargs.items():
+            setattr(cls, k, v)
+        if "model_class" not in kwargs:
+            setattr(cls, "model_class", cls.__name__[:-6])
+
+        print(f">> AFTER: {cls.__name__}: {cls.Meta.__qualname__}, {vars(cls)}")
+        return cls
+
+    return meta
+
+
+# @SchemaMeta()
 class BaseModelSchema(Schema):
     """BaseModel schema."""
 
@@ -222,6 +257,9 @@ class BaseModelSchema(Schema):
 
         """
         super().__init__(*args, **kwargs)
+        print(
+            f"\nDOING: {self.__class__.__name__}: {self.__class__.Meta.__qualname__}, {vars(self.Meta)}"
+        )
         if not self.Meta.model_class:
             raise TypeError(
                 "Can't instantiate abstract class {} with no model_class".format(

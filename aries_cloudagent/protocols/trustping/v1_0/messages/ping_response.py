@@ -3,6 +3,7 @@
 from marshmallow import fields
 
 from .....messaging.agent_message import AgentMessage, AgentMessageSchema
+from .....messaging.models.base import SchemaMeta
 
 from ..message_types import PING_RESPONSE, PROTOCOL_PACKAGE
 
@@ -31,13 +32,9 @@ class PingResponse(AgentMessage):
         self.comment = comment
 
 
+@SchemaMeta()
 class PingResponseSchema(AgentMessageSchema):
     """PingResponse schema."""
-
-    class Meta:
-        """PingResponseSchema metadata."""
-
-        model_class = PingResponse
 
     comment = fields.Str(
         required=False,

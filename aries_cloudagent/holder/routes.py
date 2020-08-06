@@ -6,7 +6,6 @@ from aiohttp import web
 from aiohttp_apispec import docs, match_info_schema, querystring_schema, response_schema
 from marshmallow import fields, Schema
 
-from .base import BaseHolder, HolderError
 from ..messaging.valid import (
     INDY_CRED_DEF_ID,
     INDY_REV_REG_ID,
@@ -16,13 +15,18 @@ from ..messaging.valid import (
     WHOLE_NUM,
     UUIDFour,
 )
+from ..messaging.models.base import SchemaMeta
 from ..wallet.error import WalletNotFoundError
 
+from .base import BaseHolder, HolderError
 
+
+@SchemaMeta(model_class=None)
 class AttributeMimeTypesResultSchema(Schema):
     """Result schema for credential attribute MIME type."""
 
 
+@SchemaMeta(model_class=None)
 class RawEncCredAttrSchema(Schema):
     """Credential attribute schema."""
 
@@ -33,6 +37,7 @@ class RawEncCredAttrSchema(Schema):
     )
 
 
+@SchemaMeta(model_class=None)
 class RevRegSchema(Schema):
     """Revocation registry schema."""
 
@@ -42,6 +47,7 @@ class RevRegSchema(Schema):
     )
 
 
+@SchemaMeta(model_class=None)
 class WitnessSchema(Schema):
     """Witness schema."""
 
@@ -51,6 +57,7 @@ class WitnessSchema(Schema):
     )
 
 
+@SchemaMeta(model_class=None)
 class CredentialSchema(Schema):
     """Result schema for a credential query."""
 
@@ -72,12 +79,14 @@ class CredentialSchema(Schema):
     witness = fields.Nested(WitnessSchema)
 
 
+@SchemaMeta(model_class=None)
 class CredentialsListSchema(Schema):
     """Result schema for a credential query."""
 
     results = fields.List(fields.Nested(CredentialSchema()))
 
 
+@SchemaMeta(model_class=None)
 class CredentialsListQueryStringSchema(Schema):
     """Parameters and validators for query string in credentials list query."""
 
@@ -88,6 +97,7 @@ class CredentialsListQueryStringSchema(Schema):
     wql = fields.Str(description="(JSON) WQL query", required=False, **INDY_WQL,)
 
 
+@SchemaMeta(model_class=None)
 class CredIdMatchInfoSchema(Schema):
     """Path parameters and validators for request taking credential id."""
 

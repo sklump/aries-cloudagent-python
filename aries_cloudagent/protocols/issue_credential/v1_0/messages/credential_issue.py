@@ -9,9 +9,9 @@ from .....messaging.decorators.attach_decorator import (
     AttachDecorator,
     AttachDecoratorSchema,
 )
+from .....messaging.models.base import SchemaMeta
 
 from ..message_types import ATTACH_DECO_IDS, CREDENTIAL_ISSUE, PROTOCOL_PACKAGE
-
 
 HANDLER_CLASS = (
     f"{PROTOCOL_PACKAGE}.handlers.credential_issue_handler.CredentialIssueHandler"
@@ -67,13 +67,9 @@ class CredentialIssue(AgentMessage):
         )
 
 
+@SchemaMeta()
 class CredentialIssueSchema(AgentMessageSchema):
     """Credential schema."""
-
-    class Meta:
-        """Credential schema metadata."""
-
-        model_class = CredentialIssue
 
     comment = fields.Str(
         description="Human-readable comment", required=False, allow_none=True

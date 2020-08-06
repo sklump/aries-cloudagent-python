@@ -11,7 +11,7 @@ from ....storage.base import BaseStorage, StorageRecord
 from ...responder import BaseResponder, MockResponder
 from ...util import time_now
 
-from ..base import BaseModel, BaseModelError, BaseModelSchema
+from ..base import BaseModel, BaseModelError, BaseModelSchema, SchemaMeta
 
 
 class ModelImpl(BaseModel):
@@ -22,10 +22,8 @@ class ModelImpl(BaseModel):
         self.attr = attr
 
 
+@SchemaMeta(model_class=ModelImpl)
 class SchemaImpl(BaseModelSchema):
-    class Meta:
-        model_class = ModelImpl
-
     attr = fields.String(required=True)
 
     @validates_schema

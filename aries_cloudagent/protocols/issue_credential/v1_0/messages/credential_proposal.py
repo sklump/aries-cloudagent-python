@@ -9,11 +9,11 @@ from .....messaging.valid import (
     INDY_SCHEMA_ID,
     INDY_VERSION,
 )
+from .....messaging.models.base import SchemaMeta
 
 from ..message_types import CREDENTIAL_PROPOSAL, PROTOCOL_PACKAGE
 
 from .inner.credential_preview import CredentialPreview, CredentialPreviewSchema
-
 
 HANDLER_CLASS = (
     f"{PROTOCOL_PACKAGE}.handlers."
@@ -69,13 +69,9 @@ class CredentialProposal(AgentMessage):
         self.issuer_did = issuer_did
 
 
+@SchemaMeta()
 class CredentialProposalSchema(AgentMessageSchema):
     """Credential proposal schema."""
-
-    class Meta:
-        """Credential proposal schema metadata."""
-
-        model_class = CredentialProposal
 
     comment = fields.Str(
         description="Human-readable comment", required=False, allow_none=True

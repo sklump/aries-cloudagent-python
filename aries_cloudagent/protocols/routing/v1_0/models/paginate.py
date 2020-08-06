@@ -2,7 +2,7 @@
 
 from marshmallow import fields
 
-from .....messaging.models.base import BaseModel, BaseModelSchema
+from .....messaging.models.base import BaseModel, BaseModelSchema, SchemaMeta
 
 
 class Paginate(BaseModel):
@@ -27,13 +27,9 @@ class Paginate(BaseModel):
         self.offset = offset
 
 
+@SchemaMeta()
 class PaginateSchema(BaseModelSchema):
     """Paginate schema."""
-
-    class Meta:
-        """PaginateSchema metadata."""
-
-        model_class = "Paginate"
 
     limit = fields.Int(required=False)
     offset = fields.Int(required=False)

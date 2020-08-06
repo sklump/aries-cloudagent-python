@@ -2,6 +2,7 @@
 
 from marshmallow import fields, Schema
 
+from ..models.base import SchemaMeta
 from ..valid import (
     INDY_CRED_DEF_ID,
     INDY_DID,
@@ -9,10 +10,10 @@ from ..valid import (
     INDY_VERSION,
 )
 
-
 CRED_DEF_SENT_RECORD_TYPE = "cred_def_sent"
 
 
+@SchemaMeta(model_class=None)
 class CredDefQueryStringSchema(Schema):
     """Query string parameters for credential definition searches."""
 

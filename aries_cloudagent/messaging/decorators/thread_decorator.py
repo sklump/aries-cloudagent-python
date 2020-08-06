@@ -9,7 +9,7 @@ from typing import Mapping
 
 from marshmallow import fields
 
-from ..models.base import BaseModel, BaseModelSchema
+from ..models.base import BaseModel, BaseModelSchema, SchemaMeta
 from ..valid import UUIDFour
 
 
@@ -110,13 +110,9 @@ class ThreadDecorator(BaseModel):
         return self._sender_order
 
 
+@SchemaMeta()
 class ThreadDecoratorSchema(BaseModelSchema):
     """Thread decorator schema used in serialization/deserialization."""
-
-    class Meta:
-        """ThreadDecoratorSchema metadata."""
-
-        model_class = ThreadDecorator
 
     thid = fields.Str(
         required=False,

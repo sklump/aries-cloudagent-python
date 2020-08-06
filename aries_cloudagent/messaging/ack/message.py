@@ -3,6 +3,7 @@
 from marshmallow import fields
 
 from ..agent_message import AgentMessage, AgentMessageSchema
+from ..models.base import SchemaMeta
 
 
 class Ack(AgentMessage):
@@ -29,13 +30,9 @@ class Ack(AgentMessage):
         self.status = status or "OK"
 
 
+@SchemaMeta()
 class AckSchema(AgentMessageSchema):
     """Schema for Ack base class."""
-
-    class Meta:
-        """Ack schema metadata."""
-
-        model_class = Ack
 
     status = fields.Constant(
         constant="OK",

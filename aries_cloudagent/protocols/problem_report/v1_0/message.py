@@ -5,6 +5,7 @@ from typing import Mapping, Sequence
 from marshmallow import fields, validate
 
 from ....messaging.agent_message import AgentMessage, AgentMessageSchema
+from ....messaging.models.base import SchemaMeta
 
 from .message_types import PROBLEM_REPORT, PROTOCOL_PACKAGE
 
@@ -70,13 +71,9 @@ class ProblemReport(AgentMessage):
         self.escalation_uri = escalation_uri
 
 
+@SchemaMeta()
 class ProblemReportSchema(AgentMessageSchema):
     """Schema for ProblemReport base class."""
-
-    class Meta:
-        """Problem report schema metadata."""
-
-        model_class = ProblemReport
 
     msg_catalog = fields.Str(
         data_key="@msg_catalog",

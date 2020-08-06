@@ -4,7 +4,7 @@ from typing import Sequence
 
 from marshmallow import fields
 
-from ..models.base import BaseModel, BaseModelSchema
+from ..models.base import BaseModel, BaseModelSchema, SchemaMeta
 
 
 class LocalizationDecorator(BaseModel):
@@ -37,13 +37,9 @@ class LocalizationDecorator(BaseModel):
         self.catalogs = list(catalogs) if catalogs else []
 
 
+@SchemaMeta(model_class=LocalizationDecorator)
 class LocalizationDecoratorSchema(BaseModelSchema):
     """Localization decorator schema used in serialization/deserialization."""
-
-    class Meta:
-        """LocalizationDecoratorSchema metadata."""
-
-        model_class = LocalizationDecorator
 
     locale = fields.Str(required=True, description="Locale specifier", example="en-CA",)
     localizable = fields.List(

@@ -5,6 +5,7 @@ from typing import Sequence
 from marshmallow import fields
 
 from .....messaging.agent_message import AgentMessage, AgentMessageSchema
+from .....messaging.models.base import SchemaMeta
 
 from ..message_types import MENU, PROTOCOL_PACKAGE
 from ..models.menu_option import MenuOption, MenuOptionSchema
@@ -46,13 +47,9 @@ class Menu(AgentMessage):
         self.options = list(options) if options else []
 
 
+@SchemaMeta()
 class MenuSchema(AgentMessageSchema):
     """Menu schema class."""
-
-    class Meta:
-        """Menu schema metadata."""
-
-        model_class = Menu
 
     title = fields.Str(required=False, description="Menu title", example="My Menu")
     description = fields.Str(

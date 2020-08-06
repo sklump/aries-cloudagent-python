@@ -7,6 +7,7 @@ from ...config.injection_context import InjectionContext
 from ...connections.models.connection_record import ConnectionRecord
 from ...core.protocol_registry import ProtocolRegistry
 from ...messaging.agent_message import AgentMessage, AgentMessageSchema
+from ...messaging.models.base import SchemaMeta
 from ...messaging.responder import MockResponder
 from ...messaging.util import datetime_now
 
@@ -53,9 +54,9 @@ class StubAgentMessage(AgentMessage):
         message_type = "proto-name/1.1/message-type"
 
 
+@SchemaMeta()
 class StubAgentMessageSchema(AgentMessageSchema):
-    class Meta:
-        model_class = StubAgentMessage
+    """Stub agent message schema."""
 
 
 class StubAgentMessageHandler:
@@ -70,9 +71,9 @@ class StubV1_2AgentMessage(AgentMessage):
         message_type = "proto-name/1.2/message-type"
 
 
+@SchemaMeta()
 class StubV1_2AgentMessageSchema(AgentMessageSchema):
-    class Meta:
-        model_class = StubV1_2AgentMessage
+    """Stub agent v1.2 message schema."""
 
 
 class StubV1_2AgentMessageHandler:

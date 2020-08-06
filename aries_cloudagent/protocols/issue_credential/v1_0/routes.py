@@ -17,7 +17,7 @@ from ....connections.models.connection_record import ConnectionRecord
 from ....issuer.base import IssuerError
 from ....ledger.error import LedgerError
 from ....messaging.credential_definitions.util import CRED_DEF_TAGS
-from ....messaging.models.base import BaseModelError
+from ....messaging.models.base import BaseModelError, SchemaMeta
 from ....messaging.valid import (
     INDY_CRED_DEF_ID,
     INDY_CRED_REV_ID,
@@ -34,6 +34,7 @@ from ....storage.error import StorageError, StorageNotFoundError
 from ....wallet.base import BaseWallet
 from ....wallet.error import WalletError
 from ....utils.outofband import serialize_outofband
+from ....utils.tracing import AdminAPIMessageTracingSchema, get_timer, trace_event
 
 from ...problem_report.v1_0 import internal_error
 from ...problem_report.v1_0.message import ProblemReport
@@ -51,9 +52,8 @@ from .models.credential_exchange import (
     V10CredentialExchangeSchema,
 )
 
-from ....utils.tracing import trace_event, get_timer, AdminAPIMessageTracingSchema
 
-
+@SchemaMeta(model_class=None)
 class V10CredentialExchangeListQueryStringSchema(Schema):
     """Parameters and validators for credential exchange list query."""
 
@@ -91,6 +91,7 @@ class V10CredentialExchangeListQueryStringSchema(Schema):
     )
 
 
+@SchemaMeta(model_class=None)
 class V10CredentialExchangeListResultSchema(Schema):
     """Result schema for Aries#0036 v1.0 credential exchange query."""
 
@@ -100,12 +101,14 @@ class V10CredentialExchangeListResultSchema(Schema):
     )
 
 
+@SchemaMeta(model_class=None)
 class V10CredentialStoreRequestSchema(Schema):
     """Request schema for sending a credential store admin message."""
 
     credential_id = fields.Str(required=False)
 
 
+@SchemaMeta(model_class=None)
 class V10CredentialCreateSchema(AdminAPIMessageTracingSchema):
     """Base class for request schema for sending credential proposal admin message."""
 
@@ -147,6 +150,7 @@ class V10CredentialCreateSchema(AdminAPIMessageTracingSchema):
     credential_proposal = fields.Nested(CredentialPreviewSchema, required=True)
 
 
+@SchemaMeta(model_class=None)
 class V10CredentialProposalRequestSchemaBase(AdminAPIMessageTracingSchema):
     """Base class for request schema for sending credential proposal admin message."""
 
@@ -192,18 +196,21 @@ class V10CredentialProposalRequestSchemaBase(AdminAPIMessageTracingSchema):
     )
 
 
+@SchemaMeta(model_class=None)
 class V10CredentialProposalRequestOptSchema(V10CredentialProposalRequestSchemaBase):
     """Request schema for sending credential proposal on optional proposal preview."""
 
     credential_proposal = fields.Nested(CredentialPreviewSchema, required=False)
 
 
+@SchemaMeta(model_class=None)
 class V10CredentialProposalRequestMandSchema(V10CredentialProposalRequestSchemaBase):
     """Request schema for sending credential proposal on mandatory proposal preview."""
 
     credential_proposal = fields.Nested(CredentialPreviewSchema, required=True)
 
 
+@SchemaMeta(model_class=None)
 class V10CredentialOfferRequestSchema(AdminAPIMessageTracingSchema):
     """Request schema for sending credential offer admin message."""
 
@@ -243,6 +250,7 @@ class V10CredentialOfferRequestSchema(AdminAPIMessageTracingSchema):
     )
 
 
+@SchemaMeta(model_class=None)
 class V10CredentialIssueRequestSchema(Schema):
     """Request schema for sending credential issue admin message."""
 
@@ -251,12 +259,14 @@ class V10CredentialIssueRequestSchema(Schema):
     )
 
 
+@SchemaMeta(model_class=None)
 class V10CredentialProblemReportRequestSchema(Schema):
     """Request schema for sending problem report."""
 
     explain_ltxt = fields.Str(required=True)
 
 
+@SchemaMeta(model_class=None)
 class V10PublishRevocationsSchema(Schema):
     """Request and result schema for revocation publication API call."""
 
@@ -272,6 +282,7 @@ class V10PublishRevocationsSchema(Schema):
     )
 
 
+@SchemaMeta(model_class=None)
 class V10ClearPendingRevocationsRequestSchema(Schema):
     """Request schema for clear pending revocations API call."""
 
@@ -290,6 +301,7 @@ class V10ClearPendingRevocationsRequestSchema(Schema):
     )
 
 
+@SchemaMeta(model_class=None)
 class RevokeQueryStringSchema(Schema):
     """Parameters and validators for revocation request."""
 
@@ -308,6 +320,7 @@ class RevokeQueryStringSchema(Schema):
     )
 
 
+@SchemaMeta(model_class=None)
 class CredIdMatchInfoSchema(Schema):
     """Path parameters and validators for request taking credential id."""
 
@@ -316,6 +329,7 @@ class CredIdMatchInfoSchema(Schema):
     )
 
 
+@SchemaMeta(model_class=None)
 class CredExIdMatchInfoSchema(Schema):
     """Path parameters and validators for request taking credential exchange id."""
 

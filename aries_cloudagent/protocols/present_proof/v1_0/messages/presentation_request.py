@@ -1,6 +1,5 @@
 """A presentation request content message."""
 
-
 from typing import Sequence
 
 from marshmallow import fields
@@ -10,9 +9,9 @@ from .....messaging.decorators.attach_decorator import (
     AttachDecorator,
     AttachDecoratorSchema,
 )
+from .....messaging.models.base import SchemaMeta
 
 from ..message_types import PRESENTATION_REQUEST, PROTOCOL_PACKAGE
-
 
 HANDLER_CLASS = (
     f"{PROTOCOL_PACKAGE}.handlers."
@@ -64,13 +63,9 @@ class PresentationRequest(AgentMessage):
         return self.request_presentations_attach[index].indy_dict
 
 
+@SchemaMeta()
 class PresentationRequestSchema(AgentMessageSchema):
     """Presentation request schema."""
-
-    class Meta:
-        """Presentation request schema metadata."""
-
-        model_class = PresentationRequest
 
     comment = fields.Str(
         description="Human-readable comment", required=False, allow_none=True
