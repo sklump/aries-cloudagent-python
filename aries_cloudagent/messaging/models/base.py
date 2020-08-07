@@ -221,23 +221,22 @@ def SchemaMeta(**kwargs):
             }
         )
         """
-        print(f"\n>> BEFORE: {cls.__name__}: {cls.Meta.__qualname__}, {vars(cls)}")
-        cls.Meta.__doc__ = f"{cls.__name__} metadata."
-        cls.skip_values = [None]
-        cls.ordered = True
-        cls.unknown = EXCLUDE
-        for k, v in kwargs.items():
-            setattr(cls, k, v)
-        if "model_class" not in kwargs:
-            setattr(cls, "model_class", cls.__name__[:-6])
 
-        print(f">> AFTER: {cls.__name__}: {cls.Meta.__qualname__}, {vars(cls)}")
+        cls.Meta.__doc__ = f"{cls.__name__} metadata."
+        cls.Meta.skip_values = [None]
+        cls.Meta.ordered = True
+        cls.Meta.unknown = EXCLUDE
+        for k, v in kwargs.items():
+            setattr(cls.Meta, k, v)
+        if "model_class" not in kwargs:
+            setattr(cls.Meta, "model_class", cls.__name__[:-6])
+
         return cls
 
     return meta
 
 
-# @SchemaMeta()
+@SchemaMeta()
 class BaseModelSchema(Schema):
     """BaseModel schema."""
 
@@ -258,7 +257,7 @@ class BaseModelSchema(Schema):
         """
         super().__init__(*args, **kwargs)
         print(
-            f"\nDOING: {self.__class__.__name__}: {self.__class__.Meta.__qualname__}, {vars(self.Meta)}"
+            f"\n*** DOING: {self.__class__.__name__}: {self.__class__.Meta.__qualname__}, {vars(self.Meta)}"
         )
         if not self.Meta.model_class:
             raise TypeError(
