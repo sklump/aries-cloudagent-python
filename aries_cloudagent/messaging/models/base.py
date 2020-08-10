@@ -225,15 +225,6 @@ def SchemaMeta(**kwargs):
 class BaseModelSchema(Schema):
     """BaseModel schema."""
 
-    '''
-    class Meta:
-        """BaseModelSchema metadata."""
-
-        model_class = None
-        skip_values = [None]
-        ordered = True
-    '''
-
     def __init__(self, *args, **kwargs):
         """
         Initialize BaseModelSchema.
