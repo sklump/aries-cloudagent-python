@@ -35,11 +35,12 @@ from .messages.connection_invitation import (
 )
 
 
-# @SchemaMeta(model_class=None)
+@SchemaMeta(model_class=None)
 class ConnectionListSchema(Schema):
     """Result schema for connection list."""
 
     def __init__(self):
+        """."""
         if getattr(self, "Meta"):
             print(f"\n$$ {self.__class__.__name__}: {self.Meta.__qualname__}")
         else:
@@ -51,11 +52,12 @@ class ConnectionListSchema(Schema):
     )
 
 
-# @SchemaMeta(model_class=None)
+@SchemaMeta(model_class=None)
 class ReceiveInvitationRequestSchema(ConnectionInvitationSchema):
     """Request schema for receive invitation request."""
 
     def __init__(self):
+        """."""
         if getattr(self, "Meta"):
             print(f"\n$$ {self.__class__.__name__}: {self.Meta.__qualname__}")
         else:
@@ -66,11 +68,12 @@ class ReceiveInvitationRequestSchema(ConnectionInvitationSchema):
         """Bypass middleware field validation."""
 
 
-# @SchemaMeta(model_class=None)
+@SchemaMeta(model_class=None)
 class InvitationResultSchema(Schema):
     """Result schema for a new connection invitation."""
 
     def __init__(self):
+        """."""
         if getattr(self, "Meta"):
             print(f"\n$$ {self.__class__.__name__}: {self.Meta.__qualname__}")
         else:
@@ -86,11 +89,12 @@ class InvitationResultSchema(Schema):
     )
 
 
-# @SchemaMeta(model_class=None)
+@SchemaMeta(model_class=None)
 class ConnectionStaticRequestSchema(Schema):
     """Request schema for a new static connection."""
 
     def __init__(self):
+        """."""
         if getattr(self, "Meta"):
             print(f"\n$$ {self.__class__.__name__}: {self.Meta.__qualname__}")
         else:
@@ -117,11 +121,12 @@ class ConnectionStaticRequestSchema(Schema):
     alias = fields.Str(description="Alias to assign to this connection", required=False)
 
 
-# @SchemaMeta(model_class=None)
+@SchemaMeta(model_class=None)
 class ConnectionStaticResultSchema(Schema):
     """Result schema for new static connection."""
 
     def __init__(self):
+        """."""
         if getattr(self, "Meta"):
             print(f"\n$$ {self.__class__.__name__}: {self.Meta.__qualname__}")
         else:
@@ -139,11 +144,12 @@ class ConnectionStaticResultSchema(Schema):
     record = fields.Nested(ConnectionRecordSchema, required=True)
 
 
-# @SchemaMeta(model_class=None)
+@SchemaMeta(model_class=None)
 class ConnectionsListQueryStringSchema(Schema):
     """Parameters and validators for connections list request query string."""
 
     def __init__(self):
+        """."""
         if getattr(self, "Meta"):
             print(f"\n$$ {self.__class__.__name__}: {self.Meta.__qualname__}")
         else:
@@ -178,11 +184,12 @@ class ConnectionsListQueryStringSchema(Schema):
     )
 
 
-# @SchemaMeta(model_class=None)
+@SchemaMeta(model_class=None)
 class CreateInvitationQueryStringSchema(Schema):
     """Parameters and validators for create invitation request query string."""
 
     def __init__(self):
+        """."""
         if getattr(self, "Meta"):
             print(f"\n$$ {self.__class__.__name__}: {self.Meta.__qualname__}")
         else:
@@ -201,11 +208,12 @@ class CreateInvitationQueryStringSchema(Schema):
     )
 
 
-# @SchemaMeta(model_class=None)
+@SchemaMeta(model_class=None)
 class ReceiveInvitationQueryStringSchema(Schema):
     """Parameters and validators for receive invitation request query string."""
 
     def __init__(self):
+        """."""
         if getattr(self, "Meta"):
             print(f"\n$$ {self.__class__.__name__}: {self.Meta.__qualname__}")
         else:
@@ -218,11 +226,12 @@ class ReceiveInvitationQueryStringSchema(Schema):
     )
 
 
-# @SchemaMeta(model_class=None)
+@SchemaMeta(model_class=None)
 class AcceptInvitationQueryStringSchema(Schema):
     """Parameters and validators for accept invitation request query string."""
 
     def __init__(self):
+        """."""
         if getattr(self, "Meta"):
             print(f"\n$$ {self.__class__.__name__}: {self.Meta.__qualname__}")
         else:
@@ -234,11 +243,12 @@ class AcceptInvitationQueryStringSchema(Schema):
     )
 
 
-# @SchemaMeta(model_class=None)
+@SchemaMeta(model_class=None)
 class AcceptRequestQueryStringSchema(Schema):
     """Parameters and validators for accept conn-request web-request query string."""
 
     def __init__(self):
+        """."""
         if getattr(self, "Meta"):
             print(f"\n$$ {self.__class__.__name__}: {self.Meta.__qualname__}")
         else:
@@ -247,11 +257,12 @@ class AcceptRequestQueryStringSchema(Schema):
     my_endpoint = fields.Str(description="My URL endpoint", required=False, **ENDPOINT)
 
 
-# @SchemaMeta(model_class=None)
+@SchemaMeta(model_class=None)
 class ConnIdMatchInfoSchema(Schema):
     """Path parameters and validators for request taking connection id."""
 
     def __init__(self):
+        """."""
         if getattr(self, "Meta"):
             print(f"\n$$ {self.__class__.__name__}: {self.Meta.__qualname__}")
         else:
@@ -262,11 +273,12 @@ class ConnIdMatchInfoSchema(Schema):
     )
 
 
-# @SchemaMeta(model_class=None)
+@SchemaMeta(model_class=None)
 class ConnIdRefIdMatchInfoSchema(Schema):
     """Path parameters and validators for request taking connection and ref ids."""
 
     def __init__(self):
+        """."""
         if getattr(self, "Meta"):
             print(f"\n$$ {self.__class__.__name__}: {self.Meta.__qualname__}")
         else:

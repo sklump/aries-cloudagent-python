@@ -194,11 +194,12 @@ class TestAgentMessageSchema(AsyncTestCase):
     def test_init_x(self):
         """Tests init class"""
 
-        class BadImplementationClass(AgentMessageSchema):
+        @SchemaMeta(model_class=None)
+        class BadImplSchemaClass(AgentMessageSchema):
             """Test utility class."""
 
         with self.assertRaises(TypeError) as context:
-            BadImplementationClass()
+            BadImplSchemaClass()
         assert "Can't instantiate abstract" in str(context.exception)
 
     def test_extract_decorators_x(self):

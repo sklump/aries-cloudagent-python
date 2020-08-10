@@ -12,7 +12,7 @@ from ....messaging.models.base import SchemaMeta
 from ....storage.error import StorageNotFoundError
 
 from .manager import OutOfBandManager, OutOfBandManagerError
-from .messages.invitation import InvitationSchema
+from .messages.invitation import InvitationMessage, InvitationMessageSchema
 
 
 LOGGER = logging.getLogger(__name__)
@@ -33,8 +33,8 @@ class InvitationCreateRequestSchema(Schema):
     use_public_did = fields.Boolean(default=False)
 
 
-@SchemaMeta(model_class=None)
-class InvitationReceiveRequestSchema(InvitationSchema):
+@SchemaMeta(model_class=InvitationMessage)
+class InvitationReceiveRequestSchema(InvitationMessageSchema):
     """Invitation Schema."""
 
     service = fields.Field()

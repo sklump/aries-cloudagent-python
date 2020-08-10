@@ -18,14 +18,14 @@ from .service import Service, ServiceSchema
 HANDLER_CLASS = f"{PROTOCOL_PACKAGE}.handlers.invitation_handler.InvitationHandler"
 
 
-class Invitation(AgentMessage):
+class InvitationMessage(AgentMessage):
     """Class representing an out of band invitation message."""
 
     class Meta:
-        """Invitation metadata."""
+        """Invitation message metadata."""
 
         handler_class = HANDLER_CLASS
-        schema_class = "InvitationSchema"
+        schema_class = "InvitationMessageSchema"
         message_type = INVITATION
 
     def __init__(
@@ -78,8 +78,8 @@ class Invitation(AgentMessage):
 
 
 @SchemaMeta()
-class InvitationSchema(AgentMessageSchema):
-    """Invitation schema."""
+class InvitationMessageSchema(AgentMessageSchema):
+    """Invitation message schema."""
 
     label = fields.Str(required=False, description="Optional label", example="Bob")
     handshake_protocols = fields.List(fields.String, required=False, many=True)

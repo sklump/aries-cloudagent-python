@@ -8,4 +8,6 @@ INVITATION = f"{PROTOCOL_URI}/invitation"
 
 PROTOCOL_PACKAGE = "aries_cloudagent.protocols.out_of_band.v1_0"
 
-MESSAGE_TYPES = {INVITATION: (f"{PROTOCOL_PACKAGE}.messages.invitation.Invitation")}
+MESSAGE_TYPES = {
+    INVITATION: f"{PROTOCOL_PACKAGE}.messages.invitation.InvitationMessage"
+}

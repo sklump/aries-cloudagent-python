@@ -11,7 +11,6 @@ import nacl.utils
 
 from marshmallow import fields, Schema, ValidationError
 
-from ..messaging.valid import ENDPOINT, INDY_CRED_DEF_ID, INDY_DID, INDY_RAW_PUBLIC_KEY
 from ..messaging.models.base import SchemaMeta
 
 from .error import WalletError

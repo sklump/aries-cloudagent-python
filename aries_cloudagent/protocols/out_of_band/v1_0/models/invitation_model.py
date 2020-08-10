@@ -9,13 +9,13 @@ from .....messaging.models.base_record import BaseExchangeRecord, BaseExchangeSc
 from .....messaging.valid import UUIDFour
 
 
-class Invitation(BaseExchangeRecord):
+class InvitationModel(BaseExchangeRecord):
     """Represents an out of band invitation flow."""
 
     class Meta:
-        """Invitation metadata."""
+        """Invitation model metadata."""
 
-        schema_class = "InvitationSchema"
+        schema_class = "InvitationModelSchema"
 
     RECORD_TYPE = "oob-invitation"
     RECORD_ID_NAME = "invitation_id"
@@ -60,7 +60,7 @@ class Invitation(BaseExchangeRecord):
 
 
 @SchemaMeta()
-class InvitationSchema(BaseExchangeSchema):
+class InvitationModelSchema(BaseExchangeSchema):
     """Schema to allow serialization/deserialization of invitation records."""
 
     invitation_id = fields.Str(
@@ -69,7 +69,7 @@ class InvitationSchema(BaseExchangeSchema):
     state = fields.Str(
         required=False,
         description="Out of band message exchange state",
-        example=Invitation.STATE_AWAIT_RESPONSE,
+        example=InvitationModel.STATE_AWAIT_RESPONSE,
     )
     invitation = fields.Dict(
         required=False, description="Out of band invitation object",

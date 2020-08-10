@@ -13,12 +13,11 @@ from aiohttp_apispec import (
 from marshmallow import fields, Schema, validate, validates_schema
 from marshmallow.exceptions import ValidationError
 
-from ....connections.models.base import SchemaMeta
 from ....connections.models.connection_record import ConnectionRecord
 from ....holder.base import BaseHolder, HolderError
 from ....ledger.error import LedgerError
 from ....messaging.decorators.attach_decorator import AttachDecorator
-from ....messaging.models.base import BaseModelError
+from ....messaging.models.base import BaseModelError, SchemaMeta
 from ....messaging.valid import (
     INDY_CRED_DEF_ID,
     INDY_DID,

@@ -17,8 +17,8 @@ from ....protocols.present_proof.v1_0.models.presentation_exchange import (
     V10PresentationExchange,
 )
 
-from .models.invitation import Invitation as InvitationModel
-from .messages.invitation import Invitation as InvitationMessage
+from .models.invitation_model import InvitationModel
+from .messages.invitation import InvitationMessage
 from .messages.service import Service as ServiceMessage
 
 
