@@ -4,6 +4,7 @@ ENV ENABLE_PTVSD 0
 
 ADD requirements*.txt ./
 
+RUN pip3 install --no-cache-dir "git+https://github.com/sklump/marshmallow.git@marked-up#egg=marshmallow"
 RUN pip3 install --no-cache-dir -r requirements.txt -r requirements.dev.txt
 
 ADD aries_cloudagent ./aries_cloudagent
