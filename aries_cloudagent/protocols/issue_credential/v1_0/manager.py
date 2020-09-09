@@ -3,16 +3,8 @@
 import asyncio
 import json
 import logging
-
 from typing import Mapping, Sequence, Text, Tuple
 
-from .messages.credential_ack import CredentialAck
-from .messages.credential_issue import CredentialIssue
-from .messages.credential_offer import CredentialOffer
-from .messages.credential_proposal import CredentialProposal
-from .messages.credential_request import CredentialRequest
-from .messages.inner.credential_preview import CredentialPreview
-from .models.credential_exchange import V10CredentialExchange
 from ....cache.base import BaseCache
 from ....config.injection_context import InjectionContext
 from ....core.error import BaseError
@@ -21,17 +13,23 @@ from ....issuer.base import BaseIssuer
 from ....issuer.indy import IssuerRevocationRegistryFullError
 from ....ledger.base import BaseLedger
 from ....messaging.credential_definitions.util import (
-    CRED_DEF_TAGS,
     CRED_DEF_SENT_RECORD_TYPE,
+    CRED_DEF_TAGS,
 )
+from ....messaging.util import time_now
 from ....revocation.indy import IndyRevocation
-from ....revocation.models.revocation_registry import RevocationRegistry
 from ....revocation.models.issuer_rev_reg_record import IssuerRevRegRecord
+from ....revocation.models.revocation_registry import RevocationRegistry
 from ....storage.base import BaseStorage
 from ....storage.error import StorageNotFoundError
-
-from ....messaging.util import time_now
 from ....utils.frill import Ink
+from .messages.credential_ack import CredentialAck
+from .messages.credential_issue import CredentialIssue
+from .messages.credential_offer import CredentialOffer
+from .messages.credential_proposal import CredentialProposal
+from .messages.credential_request import CredentialRequest
+from .messages.inner.credential_preview import CredentialPreview
+from .models.credential_exchange import V10CredentialExchange
 
 
 class CredentialManagerError(BaseError):
@@ -533,14 +531,26 @@ class CredentialManager:
                         cred_ex_record.credential_definition_id,
                         state=IssuerRevRegRecord.STATE_ACTIVE,
                     )
-                    if not active_rev_regs:
+                    published_rev_regs = await IssuerRevRegRecord.query_by_cred_def_id(
+                        self.context,
+                        cred_ex_record.credential_definition_id,
+                        state=IssuerRevRegRecord.STATE_PUBLISHED,
+                    )
+                    if not active_rev_regs and not published_rev_regs:
                         raise CredentialManagerError(
-                            "Cred def id {} has no active revocation registry".format(
+                            "Cred def id {} has no active or published revocation registry".format(
                                 cred_ex_record.credential_definition_id
                             )
                         )
 
-                    active_reg = active_rev_regs[0]
+                    active_reg = None
+                    if len(active_rev_regs) > 0:
+                        active_reg = active_rev_regs[0]
+                    else:
+                        active_reg = published_rev_regs[0]
+                        await active_reg.set_state(
+                            self.context, IssuerRevRegRecord.STATE_ACTIVE
+                        )
                     registry = await active_reg.get_registry()
                     cred_ex_record.revoc_reg_id = active_reg.revoc_reg_id
                     tails_path = registry.tails_local_path
@@ -632,8 +642,7 @@ class CredentialManager:
                     if pending_rev_regs:
                         pending_rev_reg = pending_rev_regs[0]
                         await pending_rev_reg.set_state(
-                            self.context,
-                            IssuerRevRegRecord.STATE_STAGED,
+                            self.context, IssuerRevRegRecord.STATE_STAGED
                         )
                         print(
                             Ink.GREEN(
@@ -657,8 +666,7 @@ class CredentialManager:
 
                     # Make the current registry full
                     await active_reg.set_state(
-                        self.context,
-                        IssuerRevRegRecord.STATE_FULL,
+                        self.context, IssuerRevRegRecord.STATE_FULL
                     )
                     print(
                         Ink.GREEN(
@@ -712,7 +720,7 @@ class CredentialManager:
                     print(
                         Ink.GREEN(
                             ".. {} Waited 1 sec and retrying issue-cred call".format(
-                                time_now(),
+                                time_now()
                             )
                         )
                     )
@@ -723,13 +731,12 @@ class CredentialManager:
                     )
                 else:
                     await active_reg.set_state(
-                        self.context,
-                        IssuerRevRegRecord.STATE_FULL,
+                        self.context, IssuerRevRegRecord.STATE_FULL
                     )
                     print(
                         Ink.GREEN(
                             ".. {} No rev regs look promising: bailing here".format(
-                                time_now(),
+                                time_now()
                             )
                         )
                     )
