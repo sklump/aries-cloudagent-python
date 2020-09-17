@@ -4,6 +4,7 @@ import asyncio
 import json
 import logging
 
+from os import getpid
 from typing import Mapping, Sequence, Text, Tuple
 
 from .messages.credential_ack import CredentialAck
@@ -577,6 +578,12 @@ class CredentialManager:
                     cred_ex_record.revoc_reg_id,
                     tails_path,
                 )
+                LOGGER.warning(
+                    "Issue-cred manager %s created (%s, %s)",
+                    getpid(),
+                    cred_ex_record.revoc_reg_id,
+                    cred_ex_record.revocation_id,
+                )
 
                 # If the rev reg is now full
                 if rev_reg and rev_reg.max_creds == int(cred_ex_record.revocation_id):
@@ -598,6 +605,11 @@ class CredentialManager:
                     )
 
             except IssuerRevocationRegistryFullError:
+                LOGGER.warning(
+                    "Issue-cred manager %s got rev reg %s full",
+                    getpid(),
+                    cred_ex_record.revoc_reg_id,
+                )
                 # unlucky: duelling instance issued last cred near same time as us
                 await active_rev_reg_rec.set_state(
                     self.context,

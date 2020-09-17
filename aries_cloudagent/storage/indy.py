@@ -3,6 +3,7 @@
 import logging
 import json
 
+from os import getpid
 from typing import Mapping, Sequence
 
 from indy import non_secrets
@@ -165,10 +166,18 @@ class IndyStorage(BaseStorage):
             await non_secrets.update_wallet_record_tags(
                 self._wallet.handle, record.type, record.id, tags_json
             )
+            LOGGER.error(
+                "STORAGE %s non-secrets updating tags: (%s, %s, %s)",
+                getpid(),
+                record.id,
+                record.type,
+                tags_json,
+            )
         except IndyError as x_indy:
             existing = await self.get_record(record.type, record.id)
             LOGGER.error(
-                "STORAGE non-secrets update tags (%s, %s, %s vs %s) failed: %s, %s",
+                "STORAGE %s non-secrets update tags (%s, %s, %s vs %s) failed: %s, %s",
+                getpid(),
                 record.id,
                 record.type,
                 tags_json,
