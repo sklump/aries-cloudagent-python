@@ -179,22 +179,7 @@ class IssuerRevRegRecord(BaseRecord):
         move(join(tails_hopper_dir, self.tails_hash), tails_path)
         self.tails_local_path = tails_path
 
-        try:
-            LOGGER.warning("About to save issuer-rr-rec %s", self.revoc_reg_id)
-            await self.save(context, reason="Generated registry")
-            LOGGER.warning("... saved record id %s OK with %s", self._id, self.tags)
-        except Exception:
-            stored_rec = await IssuerRevRegRecord.retrieve_by_id(
-                context, self._id, cached=False
-            )
-            LOGGER.error(
-                "Already in place? Tags %s on record id %s would clobber %s; %s",
-                self.tags,
-                self._id,
-                stored_rec.tags,
-                traceback.format_exc(),
-            )
-            raise
+        await self.save(context, reason="Generated registry")
 
     async def set_tails_file_public_uri(
         self, context: InjectionContext, tails_file_uri: str
@@ -393,10 +378,26 @@ class IssuerRevRegRecord(BaseRecord):
 
     async def set_state(self, context: InjectionContext, state: str = None):
         """Change the registry state (default full)."""
-        self.state = state or IssuerRevRegRecord.STATE_FULL
-        await self.save(
-            context, reason=f"Marked rev reg {self.revoc_reg_id} as {self.state}"
+        LOGGER.warning(
+            "About to save issuer-rr-rec %s state %s -> %s",
+            self.revoc_reg_id,
+            self.state,
+            state or IssuerRevRegRecord.STATE_FULL,
         )
+        self.state = state or IssuerRevRegRecord.STATE_FULL
+        try:
+            await self.save(
+                context, reason=f"Marked rev reg {self.revoc_reg_id} as {self.state}"
+            )
+            LOGGER.warning(".. saved record id %s OK with %s", self._id, self.state)
+        except Exception:
+            LOGGER.error(
+                ".. issuer-rev-reg-rec.set-state(%s, %s) failed: %s",
+                self._id,
+                self.tags,
+                traceback.format_exc(),
+            )
+            raise
 
     def __eq__(self, other: Any) -> bool:
         """Comparison between records."""

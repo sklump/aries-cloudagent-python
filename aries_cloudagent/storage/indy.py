@@ -1,6 +1,8 @@
 """Indy implementation of BaseStorage interface."""
 
+import logging
 import json
+
 from typing import Mapping, Sequence
 
 from indy import non_secrets
@@ -15,6 +17,8 @@ from .error import (
 )
 from .record import StorageRecord
 from ..wallet.indy import IndyWallet
+
+LOGGER = logging.getLogger(__name__)
 
 
 def _validate_record(record: StorageRecord):
@@ -162,8 +166,16 @@ class IndyStorage(BaseStorage):
                 self._wallet.handle, record.type, record.id, tags_json
             )
         except IndyError as x_indy:
+            LOGGER.error(
+                "STORAGE non-secrets update_wallet_record_tags(%s; %s) failed: %s, %s",
+                record.id,
+                record.type,
+                getattr(x_indy, "message", "No message"),
+                getattr(x_indy, "indy_backtrace", "No backtrace"),
+            )
             if x_indy.error_code == ErrorCode.WalletItemNotFound:
                 raise StorageNotFoundError(f"Record not found: {record.id}")
+
             raise StorageError(str(x_indy))
 
     async def delete_record_tags(
