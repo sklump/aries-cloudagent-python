@@ -166,10 +166,13 @@ class IndyStorage(BaseStorage):
                 self._wallet.handle, record.type, record.id, tags_json
             )
         except IndyError as x_indy:
+            existing = await self.get_record(record.type, record.id)
             LOGGER.error(
-                "STORAGE non-secrets update_wallet_record_tags(%s; %s) failed: %s, %s",
+                "STORAGE non-secrets update tags (%s, %s, %s vs %s) failed: %s, %s",
                 record.id,
                 record.type,
+                tags_json,
+                json.dumps(existing.tags),
                 getattr(x_indy, "message", "No message"),
                 getattr(x_indy, "indy_backtrace", "No backtrace"),
             )
