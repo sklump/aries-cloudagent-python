@@ -2,8 +2,10 @@
 
 import asyncio
 import logging
-from typing import Callable, Coroutine, Sequence, Set
+import traceback
 import uuid
+
+from typing import Callable, Coroutine, Sequence, Set
 
 from aiohttp import web
 from aiohttp_apispec import (
@@ -156,9 +158,9 @@ async def ready_middleware(request: web.BaseRequest, handler: Coroutine):
             # redirection spawns new task and cancels old
             LOGGER.debug("Task cancelled")
             raise
-        except Exception as e:
+        except Exception:
             # some other error?
-            LOGGER.error("Handler error with exception: %s", str(e))
+            LOGGER.error("Handler error with exception: %s", traceback.format_exc())
             raise
 
     raise web.HTTPServiceUnavailable(reason="Shutdown in progress")

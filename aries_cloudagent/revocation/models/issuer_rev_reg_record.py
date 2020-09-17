@@ -2,6 +2,7 @@
 
 import json
 import logging
+import traceback
 import uuid
 
 from asyncio import shield
@@ -178,7 +179,22 @@ class IssuerRevRegRecord(BaseRecord):
         move(join(tails_hopper_dir, self.tails_hash), tails_path)
         self.tails_local_path = tails_path
 
-        await self.save(context, reason="Generated registry")
+        try:
+            LOGGER.warning("About to save issuer-rr-rec %s", self.revoc_reg_id)
+            await self.save(context, reason="Generated registry")
+            LOGGER.warning("... saved record id %s OK with %s", self._id, self.tags)
+        except Exception:
+            stored_rec = await IssuerRevRegRecord.retrieve_by_id(
+                context, self._id, cached=False
+            )
+            LOGGER.error(
+                "Already in place? Tags %s on record id %s would clobber %s; %s",
+                self.tags,
+                self._id,
+                stored_rec.tags,
+                traceback.format_exc(),
+            )
+            raise
 
     async def set_tails_file_public_uri(
         self, context: InjectionContext, tails_file_uri: str
