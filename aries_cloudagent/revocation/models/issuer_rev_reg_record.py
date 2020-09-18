@@ -2,12 +2,10 @@
 
 import json
 import logging
-import traceback
 import uuid
 
 from asyncio import shield
 from functools import total_ordering
-from os import getpid
 from os.path import join
 from shutil import move
 from typing import Any, Sequence
@@ -298,14 +296,7 @@ class IssuerRevRegRecord(BaseRecord):
             self.pending_pub.append(cred_rev_id)
             self.pending_pub.sort()
 
-        LOGGER.warning(
-            "[%s] marking issuer-rev-reg-id %s, cred-rev-id %s pending",
-            getpid(),
-            self._id,
-            cred_rev_id,
-        )
         await self.save(context, reason="Marked pending revocation")
-        LOGGER.warning(".. [%s] done save OK")
 
     async def clear_pending(
         self, context: InjectionContext, cred_rev_ids: Sequence[str] = None
@@ -386,30 +377,10 @@ class IssuerRevRegRecord(BaseRecord):
 
     async def set_state(self, context: InjectionContext, state: str = None):
         """Change the registry state (default full)."""
-        LOGGER.warning(
-            "[%s] about to save issuer-rr-rec %s state %s -> %s",
-            getpid(),
-            self.revoc_reg_id,
-            self.state,
-            state or IssuerRevRegRecord.STATE_FULL,
-        )
         self.state = state or IssuerRevRegRecord.STATE_FULL
-        try:
-            await self.save(
-                context, reason=f"Marked rev reg {self.revoc_reg_id} as {self.state}"
-            )
-            LOGGER.warning(
-                ".. [%s] saved record id %s OK with %s", getpid(), self._id, self.state
-            )
-        except Exception:
-            LOGGER.error(
-                ".. [%s] issuer-rev-reg-rec.set-state(%s, %s) failed: %s",
-                getpid(),
-                self._id,
-                self.tags,
-                traceback.format_exc(),
-            )
-            raise
+        await self.save(
+            context, reason=f"Marked rev reg {self.revoc_reg_id} as {self.state}"
+        )
 
     def __eq__(self, other: Any) -> bool:
         """Comparison between records."""

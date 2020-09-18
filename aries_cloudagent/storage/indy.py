@@ -3,7 +3,6 @@
 import logging
 import json
 
-from os import getpid
 from typing import Mapping, Sequence
 
 from indy import non_secrets
@@ -163,27 +162,29 @@ class IndyStorage(BaseStorage):
         _validate_record(record)
         tags_json = json.dumps(tags) if tags else "{}"
         try:
+            LOGGER.warning(
+                "STORAGE non-secrets updating tags: (%s, %s, %s)",
+                record.id,
+                record.type,
+                tags_json,
+            )
             await non_secrets.update_wallet_record_tags(
                 self._wallet.handle, record.type, record.id, tags_json
             )
-            LOGGER.error(
-                "STORAGE %s non-secrets updating tags: (%s, %s, %s)",
-                getpid(),
+            LOGGER.warning(
+                "... STORAGE non-secrets DONE updating tags: (%s, %s, %s)",
                 record.id,
                 record.type,
                 tags_json,
             )
         except IndyError as x_indy:
-            existing = await self.get_record(record.type, record.id)
             LOGGER.error(
-                "STORAGE %s non-secrets update tags (%s, %s, %s vs %s) failed: %s, %s",
-                getpid(),
+                "STORAGE XX non-secrets update tags (%s, %s, %s) failed [%s - %s]",
                 record.id,
                 record.type,
                 tags_json,
-                json.dumps(existing.tags),
+                x_indy.error_code,
                 getattr(x_indy, "message", "No message"),
-                getattr(x_indy, "indy_backtrace", "No backtrace"),
             )
             if x_indy.error_code == ErrorCode.WalletItemNotFound:
                 raise StorageNotFoundError(f"Record not found: {record.id}")
