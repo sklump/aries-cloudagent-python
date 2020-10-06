@@ -49,6 +49,12 @@ class IndyVerifier(BaseVerifier):
 
         """
 
+        LOGGER.critical("\n\n$$ $$ VERIFIER NON-REVOC INTERVALS $$")
+        LOGGER.critical(">> input pres_req %s", json.dumps(pres_req, indent=4))
+        LOGGER.critical(
+            ">> input pres.idents %s", json.dumps(pres["identifiers"], indent=4)
+        )
+
         for (req_proof_key, pres_key) in {
             "revealed_attrs": "requested_attributes",
             "revealed_attr_groups": "requested_attributes",
@@ -81,6 +87,8 @@ class IndyVerifier(BaseVerifier):
                 pres_req["nonce"],
             )
 
+        LOGGER.critical(">> output pres_req %s", json.dumps(pres_req, indent=4))
+
     async def pre_verify(self, pres_req: dict, pres: dict) -> (PreVerifyResult, str):
         """
         Check for essential components and tampering in presentation.
@@ -97,17 +105,22 @@ class IndyVerifier(BaseVerifier):
             reason text for failure or None for OK.
 
         """
+        LOGGER.critical("\n\n$$ $$ VERIFIER PRE-VERIFY $$")
         if not (
             pres_req
             and "requested_predicates" in pres_req
             and "requested_attributes" in pres_req
         ):
+            LOGGER.critical(">> No proof req: XX")
             return (PreVerifyResult.INCOMPLETE, "Incomplete or missing proof request")
         if not pres:
+            LOGGER.critical(">> No proof: XX")
             return (PreVerifyResult.INCOMPLETE, "No proof provided")
         if "requested_proof" not in pres:
+            LOGGER.critical(">> No proof.req-proof: XX")
             return (PreVerifyResult.INCOMPLETE, "Missing 'requested_proof'")
         if "proof" not in pres:
+            LOGGER.critical(">> No proof.proof: XX")
             return (PreVerifyResult.INCOMPLETE, "Missing 'proof'")
 
         async with self.ledger:
@@ -116,12 +129,17 @@ class IndyVerifier(BaseVerifier):
                     cred_def_id = ident["cred_def_id"]
                     cred_def = await self.ledger.get_credential_definition(cred_def_id)
                     if cred_def["value"].get("revocation"):
+                        LOGGER.critical(">> No timestamp for index #%s: XX", index)
                         return (
                             PreVerifyResult.INCOMPLETE,
                             (
                                 f"Missing timestamp in presentation identifier "
                                 f"#{index} for cred def id {cred_def_id}"
                             ),
+                        )
+                    else:
+                        LOGGER.critical(
+                            "\n!! !! cred def id %s has is not revocable!", cred_def_id
                         )
 
         for (uuid, req_pred) in pres_req["requested_predicates"].items():
@@ -256,6 +274,11 @@ class IndyVerifier(BaseVerifier):
                 json.dumps(credential_definitions),
                 json.dumps(rev_reg_defs),
                 json.dumps(rev_reg_entries),
+            )
+            LOGGER.critical(
+                ">> pres_req %s, verified = %s",
+                json.dumps(presentation_request, indent=4),
+                verified,
             )
         except IndyError:
             LOGGER.exception(

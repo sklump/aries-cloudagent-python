@@ -385,6 +385,14 @@ class IndyHolder(BaseHolder):
             rev_states: Indy format revocation states JSON
 
         """
+        self.logger.critical("\n\n== == PROVER CREATING PRESENTATION ==")
+        self.logger.critical(
+            ".. pres-req %s", json.dumps(presentation_request, indent=4)
+        )
+        self.logger.critical(
+            ".. req-creds %s", json.dumps(requested_credentials, indent=4)
+        )
+        self.logger.critical(".. rev-states %s", json.dumps(rev_states, indent=4))
 
         with IndyErrorHandler("Error when constructing proof", HolderError):
             presentation_json = await indy.anoncreds.prover_create_proof(
