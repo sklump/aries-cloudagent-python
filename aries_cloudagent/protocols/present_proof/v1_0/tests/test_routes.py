@@ -609,7 +609,9 @@ class TestProofRoutes(AsyncTestCase):
 
             with async_mock.patch.object(
                 test_module.web, "json_response"
-            ) as mock_response:
+            ) as mock_response, async_mock.patch.object(
+                test_module.json, "dumps", async_mock.CoroutineMock()
+            ):
                 await test_module.presentation_exchange_send_free_request(mock)
                 mock_response.assert_called_once_with(
                     mock_presentation_exchange.serialize.return_value
@@ -696,7 +698,9 @@ class TestProofRoutes(AsyncTestCase):
         ) as mock_attach_decorator, async_mock.patch(
             "aries_cloudagent.protocols.present_proof.v1_0.models.presentation_exchange.V10PresentationExchange",
             autospec=True,
-        ) as mock_presentation_exchange:
+        ) as mock_presentation_exchange, async_mock.patch.object(
+            test_module.json, "dumps", async_mock.CoroutineMock()
+        ):
 
             # Since we are mocking import
             importlib.reload(test_module)
@@ -766,7 +770,9 @@ class TestProofRoutes(AsyncTestCase):
         ) as mock_attach_decorator, async_mock.patch(
             "aries_cloudagent.protocols.present_proof.v1_0.models.presentation_exchange.V10PresentationExchange",
             autospec=True,
-        ) as mock_presentation_exchange:
+        ) as mock_presentation_exchange, async_mock.patch.object(
+            test_module.json, "dumps", async_mock.CoroutineMock()
+        ):
 
             # Since we are mocking import
             importlib.reload(test_module)

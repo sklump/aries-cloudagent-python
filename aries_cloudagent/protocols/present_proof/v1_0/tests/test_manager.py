@@ -278,7 +278,9 @@ class TestPresentationManager(AsyncTestCase):
 
         with async_mock.patch.object(
             V10PresentationExchange, "save", autospec=True
-        ) as save_ex:
+        ) as save_ex, async_mock.patch.object(
+            test_module.json, "dumps", async_mock.CoroutineMock()
+        ):
             exchange = await self.manager.create_exchange_for_request(CONN_ID, request)
             save_ex.assert_called_once()
 

@@ -194,6 +194,12 @@ class PresentationManager:
             presentation_request_dict=presentation_request_message.serialize(),
             trace=(presentation_request_message._trace is not None),
         )
+        LOGGER.critical("\n\n** ** PRES-PROOF MANAGER Creating exchange for req**")
+        LOGGER.critical(
+            "~~ proof req %s",
+            json.dumps(presentation_exchange_record.presentation_request, indent=4),
+        )
+
         await presentation_exchange_record.save(
             self.context, reason="create (free) presentation request"
         )

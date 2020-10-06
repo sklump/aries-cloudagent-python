@@ -1,6 +1,7 @@
 """Admin routes for presentations."""
 
 import json
+import logging
 
 from aiohttp import web
 from aiohttp_apispec import (
@@ -51,6 +52,8 @@ from .models.presentation_exchange import (
     V10PresentationExchange,
     V10PresentationExchangeSchema,
 )
+
+LOGGER = logging.getLogger(__name__)
 
 
 class V10PresentationExchangeListQueryStringSchema(OpenAPISchema):
@@ -747,6 +750,10 @@ async def presentation_exchange_send_free_request(request: web.BaseRequest):
     if not indy_proof_request.get("nonce"):
         indy_proof_request["nonce"] = await generate_pr_nonce()
 
+    LOGGER.critical("\n\n** ** PRES-PROOF ROUTES Creating exchange for req**")
+    LOGGER.critical(
+        ";; form indy_proof_request %s", json.dumps(indy_proof_request, indent=4)
+    )
     presentation_request_message = PresentationRequest(
         comment=comment,
         request_presentations_attach=[
@@ -755,6 +762,10 @@ async def presentation_exchange_send_free_request(request: web.BaseRequest):
                 ident=ATTACH_DECO_IDS[PRESENTATION_REQUEST],
             )
         ],
+    )
+    LOGGER.critical(
+        ";; pres_req_msg %s",
+        json.dumps(presentation_request_message.serialize(), indent=4),
     )
     trace_msg = body.get("trace")
     presentation_request_message.assign_trace_decorator(
