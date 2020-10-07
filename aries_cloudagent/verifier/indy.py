@@ -275,8 +275,11 @@ class IndyVerifier(BaseVerifier):
                 json.dumps(rev_reg_defs),
                 json.dumps(rev_reg_entries),
             )
+            abridged = json.loads(json.dumps(presentation))
+            abridged["proof"] = "..."
             LOGGER.critical(
-                ">> pres_req %s, verified = %s",
+                ">> abridged %s, pres_req %s, verified = %s",
+                json.dumps(abridged, indent=4),
                 json.dumps(presentation_request, indent=4),
                 verified,
             )

@@ -321,7 +321,7 @@ class TestIndyVerifier(AsyncTestCase):
             mock_pre_verify.return_value = (PreVerifyResult.OK, None)
             verified = await self.verifier.verify_presentation(
                 "presentation_request",
-                "presentation",
+                {"dummy": "pres"},
                 "schemas",
                 "credential_definitions",
                 "rev_reg_defs",
@@ -330,7 +330,7 @@ class TestIndyVerifier(AsyncTestCase):
 
         mock_verify.assert_called_once_with(
             json.dumps("presentation_request"),
-            json.dumps("presentation"),
+            json.dumps({"dummy": "pres"}),
             json.dumps("schemas"),
             json.dumps("credential_definitions"),
             json.dumps("rev_reg_defs"),
@@ -351,7 +351,7 @@ class TestIndyVerifier(AsyncTestCase):
             mock_pre_verify.return_value = (PreVerifyResult.OK, None)
             verified = await self.verifier.verify_presentation(
                 {"nonce": "1234567890"},
-                "presentation",
+                {"dummy": "pres"},
                 "schemas",
                 "credential_definitions",
                 "rev_reg_defs",
@@ -360,7 +360,7 @@ class TestIndyVerifier(AsyncTestCase):
 
         mock_verify.assert_called_once_with(
             json.dumps({"nonce": "1234567890"}),
-            json.dumps("presentation"),
+            json.dumps({"dummy": "pres"}),
             json.dumps("schemas"),
             json.dumps("credential_definitions"),
             json.dumps("rev_reg_defs"),
