@@ -23,8 +23,10 @@ from ..messaging.valid import (
     INDY_DID,
     INDY_RAW_PUBLIC_KEY,
 )
+from ..storage.error import StorageError
 
 from .base import DIDInfo, BaseWallet
+from .indy import IndyWallet
 from .did_posture import DIDPosture
 from .error import WalletError, WalletNotFoundError
 
@@ -414,6 +416,29 @@ async def wallet_rotate_did_keypair(request: web.BaseRequest):
 
     return web.json_response({})
 
+@docs(tags=["wallet"], summary="Build DID/verkey mapping records for all local DIDs")
+async def wallet_rebuild_did_verkey_records(request: web.BaseRequest):
+    """
+    Request handler for building DID/verkey mapping records for all local DIDs.
+
+    Args:
+        request: aiohttp request object
+
+    Returns:
+        An empty JSON response
+
+    """
+    context = request.app["request_context"]
+    wallet: BaseWallet = await context.inject(BaseWallet, required=False)
+    if not wallet:
+        raise web.HTTPForbidden(reason="No wallet available")
+    if wallet.type != IndyWallet.WALLET_TYPE:
+        raise web.HTTPForbidden(reason="Operation only applicable for indy wallet")
+
+    try:
+        await build_did_verkey_records(self) -> None:
+    except StorageError as err:
+        raise web.HTTPBadRequest(reason=err.roll_up) from err
 
 async def register(app: web.Application):
     """Register routes."""
@@ -429,6 +454,10 @@ async def register(app: web.Application):
                 "/wallet/get-did-endpoint", wallet_get_did_endpoint, allow_head=False
             ),
             web.patch("/wallet/did/local/rotate-keypair", wallet_rotate_did_keypair),
+            web.patch(
+                "/wallet/did/local/did-verkey-records",
+                wallet_rebuild_did_verkey_records
+            ),
         ]
     )
 

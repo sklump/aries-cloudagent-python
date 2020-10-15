@@ -12,6 +12,7 @@ import indy.wallet
 
 from indy.error import IndyError, ErrorCode
 
+from ..config.injection_context import InjectionContext
 from ..indy.error import IndyErrorHandler
 from ..ledger.base import BaseLedger
 from ..ledger.endpoint_type import EndpointType
@@ -20,6 +21,7 @@ from ..ledger.error import LedgerConfigError
 from .base import BaseWallet, KeyInfo, DIDInfo
 from .crypto import validate_seed
 from .error import WalletError, WalletDuplicateError, WalletNotFoundError
+from .models.did_verkey_record import DidVerkeyRecord
 from .plugin import load_postgres_plugin
 from .util import bytes_to_b64
 
@@ -71,6 +73,9 @@ class IndyWallet(BaseWallet):
 
         if self._storage_type == "postgres_storage":
             load_postgres_plugin(self._storage_config, self._storage_creds)
+
+        self.context = InjectionContext(enforce_typing=False)  # for did/verkey records
+        self.context.injector.bind_instance(BaseWallet, self)
 
     @property
     def type(self) -> str:
@@ -464,6 +469,10 @@ class IndyWallet(BaseWallet):
             await self.replace_local_did_metadata(did, metadata)
         else:
             metadata = {}
+
+        did_verkey_record = DidVerkeyRecord(did=did, verkey=verkey)
+        await did_verkey_record.save(self.context)
+
         return DIDInfo(did, verkey, metadata)
 
     async def get_local_dids(self) -> Sequence[DIDInfo]:
@@ -518,6 +527,16 @@ class IndyWallet(BaseWallet):
             metadata=json.loads(info["metadata"]) if info["metadata"] else {},
         )
 
+    async def build_did_verkey_records(self) -> None:
+        """Rebuild DID/verkey records from existing local DIDs."""
+
+        for record in await DidVerkeyRecord.query(self.context):
+            await record.delete_record(self.context)
+
+        for didinfo in await self.get_local_dids():
+            record = DidVerkeyRecord(did=didinfo.did, verkey=didinfo.verkey)
+            await record.save(self.context)
+
     async def get_local_did_for_verkey(self, verkey: str) -> DIDInfo:
         """
         Resolve a local DID from a verkey.
@@ -533,9 +552,19 @@ class IndyWallet(BaseWallet):
 
         """
 
+        try:  # first check non-secrets records
+            did_verkey_record = await DidVerkeyRecord.retrieve_by_did_verkey(
+                verkey=verkey
+            )
+            return await get_local_did(did=did_verkey_record.did)
+        except StorageNotFoundError:
+            pass
+
         dids = await self.get_local_dids()
         for info in dids:
             if info.verkey == verkey:
+                did_verkey_record = DidVerkeyRecord(did=info.did, verkey=info.verkey)
+                await did_verkey_record.save(self.context)  # save for next time
                 return info
         raise WalletNotFoundError("No DID defined for verkey: {}".format(verkey))
 

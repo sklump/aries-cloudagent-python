@@ -12,7 +12,9 @@ from marshmallow import fields
 from ...cache.base import BaseCache
 from ...config.injection_context import InjectionContext
 from ...storage.base import BaseStorage, StorageDuplicateError, StorageNotFoundError
+from ...storage.indy import IndyStorage
 from ...storage.record import StorageRecord
+from ...storage.wallet import BaseWallet
 
 from .base import BaseModel, BaseModelSchema
 from ..responder import BaseResponder
@@ -208,7 +210,7 @@ class BaseRecord(BaseModel):
             vals = await cls.get_cached_key(context, cache_key)
 
         if not vals:
-            storage: BaseStorage = await context.inject(BaseStorage)
+            storage: BaseStorage = await self._storage(context)
             result = await storage.get_record(
                 cls.RECORD_TYPE, record_id, {"retrieveTags": False}
             )
@@ -229,7 +231,7 @@ class BaseRecord(BaseModel):
             tag_filter: The filter dictionary to apply
             post_filter: Additional value filters to apply after retrieval
         """
-        storage: BaseStorage = await context.inject(BaseStorage)
+        storage: BaseStorage = await self._storage(context)
         query = storage.search_records(
             cls.RECORD_TYPE,
             cls.prefix_tag_filter(tag_filter),
@@ -273,7 +275,7 @@ class BaseRecord(BaseModel):
             post_filter_positive: Additional value filters to apply matching positively
             post_filter_negative: Additional value filters to apply matching negatively
         """
-        storage: BaseStorage = await context.inject(BaseStorage)
+        storage: BaseStorage = await self._storage(context)
         query = storage.search_records(
             cls.RECORD_TYPE,
             cls.prefix_tag_filter(tag_filter),
@@ -288,6 +290,21 @@ class BaseRecord(BaseModel):
             ) and match_post_filter(vals, post_filter_negative, False):
                 result.append(cls.from_storage(record.id, vals))
         return result
+
+    async def _storage(self, context: InjectionContext) -> BaseStorage:
+        """
+        Retrieve storage, possibly via indy wallet.
+
+        Args:
+            context: The injection context to use
+        """
+        storage: BaseStorage = await context.inject(BaseStorage, required=False)
+        if not storage:
+            wallet: BaseWallet = await context.inject(BaseWallet)
+            assert wallet.type == IndyWallet.WALLET_TYPE
+            storage = IndyStorage(wallet)
+
+        return storage
 
     async def save(
         self,
@@ -310,7 +327,7 @@ class BaseRecord(BaseModel):
         log_reason = reason or ("Updated record" if self._id else "Created record")
         try:
             self.updated_at = time_now()
-            storage: BaseStorage = await context.inject(BaseStorage)
+            storage: BaseStorage = await self._storage(context)
             if self._id:
                 record = self.storage_record
                 await storage.update_record_value(record, record.value)
@@ -366,7 +383,7 @@ class BaseRecord(BaseModel):
             context: The injection context to use
         """
         if self._id:
-            storage: BaseStorage = await context.inject(BaseStorage)
+            storage: BaseStorage = await self._storage(context)
             await storage.delete_record(self.storage_record)
         # FIXME - update state and send webhook?
 
