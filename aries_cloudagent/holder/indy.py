@@ -15,6 +15,7 @@ from ..ledger.base import BaseLedger
 from ..storage.indy import IndyStorage
 from ..storage.error import StorageError, StorageNotFoundError
 from ..storage.record import StorageRecord
+from ..utils.frill import Ink, ppjson
 from ..wallet.error import WalletNotFoundError
 
 from .base import BaseHolder, HolderError
@@ -386,6 +387,11 @@ class IndyHolder(BaseHolder):
 
         """
 
+        print(Ink.GREEN("\n\n== HOLDER creating presentation"))
+        print(Ink.GREEN(f"  .. proof-req {ppjson(presentation_request)}"))
+        print(Ink.GREEN(f"  .. req-creds {ppjson(requested_credentials, 128)}"))
+        print(Ink.GREEN(f"  .. cred-defs {ppjson(credential_definitions, 128)}"))
+        print(Ink.GREEN(f"  .. rev-states {ppjson(rev_states)}"))
         with IndyErrorHandler("Error when constructing proof", HolderError):
             presentation_json = await indy.anoncreds.prover_create_proof(
                 self.wallet.handle,
@@ -396,6 +402,7 @@ class IndyHolder(BaseHolder):
                 json.dumps(credential_definitions),
                 json.dumps(rev_states) if rev_states else "{}",
             )
+        print(Ink.GREEN(f"  .. proof {ppjson(presentation_json, 128)}"))
 
         return presentation_json
 

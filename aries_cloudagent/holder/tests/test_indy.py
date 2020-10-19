@@ -490,19 +490,19 @@ class TestIndyHolder(AsyncTestCase):
         holder = test_module.IndyHolder(mock_wallet)
 
         presentation_json = await holder.create_presentation(
-            "presentation_request",
-            "requested_credentials",
-            "schemas",
-            "credential_definitions",
+            {"presentation": "request"},
+            {"requested": "credentials"},
+            {"schemas": "..."},
+            {"credential": "definitions"},
         )
 
         mock_create_proof.assert_called_once_with(
             mock_wallet.handle,
-            json.dumps("presentation_request"),
-            json.dumps("requested_credentials"),
+            json.dumps({"presentation": "request"}),
+            json.dumps({"requested": "credentials"}),
             mock_wallet.master_secret_id,
-            json.dumps("schemas"),
-            json.dumps("credential_definitions"),
+            json.dumps({"schemas": "..."}),
+            json.dumps({"credential": "definitions"}),
             json.dumps({}),
         )
 

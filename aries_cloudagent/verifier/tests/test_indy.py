@@ -320,21 +320,21 @@ class TestIndyVerifier(AsyncTestCase):
         ) as mock_non_revox:
             mock_pre_verify.return_value = (PreVerifyResult.OK, None)
             verified = await self.verifier.verify_presentation(
-                "presentation_request",
-                "presentation",
-                "schemas",
-                "credential_definitions",
-                "rev_reg_defs",
-                "rev_reg_entries",
+                {"presentation": "request"},
+                {"presentation": "..."},
+                {"schemas": "..."},
+                {"credential": "definitions"},
+                {"rev_reg": "defs"},
+                {"rev_reg": "entries"},
             )
 
         mock_verify.assert_called_once_with(
-            json.dumps("presentation_request"),
-            json.dumps("presentation"),
-            json.dumps("schemas"),
-            json.dumps("credential_definitions"),
-            json.dumps("rev_reg_defs"),
-            json.dumps("rev_reg_entries"),
+            json.dumps({"presentation": "request"}),
+            json.dumps({"presentation": "..."}),
+            json.dumps({"schemas": "..."}),
+            json.dumps({"credential": "definitions"}),
+            json.dumps({"rev_reg": "defs"}),
+            json.dumps({"rev_reg": "entries"}),
         )
 
         assert verified == "val"
