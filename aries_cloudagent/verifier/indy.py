@@ -259,7 +259,7 @@ class IndyVerifier(BaseVerifier):
 
         print(Ink.CYAN(f"\n\n$$ $$ VERIFIER verifying pres"))
         print(Ink.CYAN(f".. pres req {ppjson(presentation_request)}"))
-        print(Ink.CYAN(f".. pres {ppjson(presentation_request, 256)}"))
+        print(Ink.CYAN(f".. pres {ppjson(presentation, 256)}"))
         self.non_revoc_intervals(presentation_request, presentation)
 
         (pv_result, pv_msg) = await self.pre_verify(presentation_request, presentation)
