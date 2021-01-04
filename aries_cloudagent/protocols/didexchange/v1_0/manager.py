@@ -537,6 +537,7 @@ class DIDXManager:
 
         conn_rec.their_did = their_did
         conn_rec.state = ConnRecord.State.RESPONSE.rfc23
+        print(f'\n\n-- REQUESTER accepted response; SAVING: {conn_rec.serialize()}')
         await conn_rec.save(self._session, reason="Accepted connection response")
 
         # create and send connection-complete message
