@@ -294,6 +294,7 @@ class OutOfBandManager(BaseConnectionManager):
     ) -> dict:
         """Receive an out of band invitation message."""
 
+        print(f'>> >> OOBManager receive-invitation {auto_accept}')
         ledger: BaseLedger = self._session.inject(BaseLedger)
 
         # There must be exactly 1 service entry
@@ -425,6 +426,7 @@ class OutOfBandManager(BaseConnectionManager):
             for proto in unq_handshake_protos:
                 if proto == DIDX_PROTO:
                     didx_mgr = DIDXManager(self._session)
+                    print(f'  .. OOB calling DIDXManager recv-invi(auto={auto_accept})')
                     conn_rec = await didx_mgr.receive_invitation(
                         invitation=invi_msg,
                         their_public_did=public_did,
@@ -448,6 +450,7 @@ class OutOfBandManager(BaseConnectionManager):
                         }
                     )
                     conn_mgr = ConnectionManager(self._session)
+                    print(f'  .. OOB calling ConnManager recv-invi(auto={auto_accept})')
                     conn_rec = await conn_mgr.receive_invitation(
                         invitation=connection_invitation,
                         their_public_did=public_did,

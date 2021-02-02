@@ -113,6 +113,17 @@ class DIDXManager(BaseConnectionManager):
             )
             else ConnRecord.ACCEPT_MANUAL
         )
+        print(f'\n\n$$ DIDXManager recv-invi auto_accept {auto_accept}')
+        print(
+            '  .. cfg-auto-accept-req-public: '
+            f'{self._session.settings.get("debug.auto_accept_requests_public")}'
+        )
+        print(
+            '  .. cfg-auto-accept-req-peer: '
+            f'{self._session.settings.get("debug.auto_accept_requests_peer")}'
+        )
+        print(f' .. invitation.service_dids {bool(invitation.service_dids)}')
+        print(f' .. -> accept = {accept}')
 
         # Create connection record
         conn_rec = ConnRecord(
@@ -144,6 +155,7 @@ class DIDXManager(BaseConnectionManager):
         await conn_rec.attach_invitation(self._session, invitation)
 
         if conn_rec.accept == ConnRecord.ACCEPT_AUTO:
+            print(f' .. creating request and sending it')
             request = await self.create_request(conn_rec)
             responder = self._session.inject(BaseResponder, required=False)
             if responder:
@@ -155,6 +167,7 @@ class DIDXManager(BaseConnectionManager):
                 conn_rec.state = ConnRecord.State.REQUEST.rfc23
                 await conn_rec.save(self._session, reason="Sent connection request")
         else:
+            print(f' .. awaiting acceptance')
             self._logger.debug("Connection invitation will await acceptance")
 
         return conn_rec
