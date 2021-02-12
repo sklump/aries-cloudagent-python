@@ -269,6 +269,11 @@ class DIDXManager(BaseConnectionManager):
             settings=self._session.settings,
         )
 
+        print(f"\n\nDIDXManager.receive-request()")
+        print(f".. request: {request.serialize(as_string=True)}")
+        print(f".. receipt: {str(receipt)}")
+        print(f".. mediation-id: {mediation_id}")
+        print()
         mediation_mgr = MediationManager(self._session.profile)
         keylist_updates = None
         conn_rec = None
@@ -282,6 +287,7 @@ class DIDXManager(BaseConnectionManager):
 
         # Determine what key will need to sign the response
         if receipt.recipient_did_public:
+            print(f".. recipient-did is PUBLIC")
             if not self._session.settings.get("public_invites"):
                 raise DIDXManagerError(
                     "Public invitations are not enabled: connection request refused"
@@ -289,6 +295,7 @@ class DIDXManager(BaseConnectionManager):
             my_info = await wallet.get_local_did(receipt.recipient_did)
             connection_key = my_info.verkey
         else:
+            print(f".. recipient-did is PEER")
             connection_key = receipt.recipient_verkey
 
         try:
@@ -304,8 +311,10 @@ class DIDXManager(BaseConnectionManager):
                 )
 
         if conn_rec:  # invitation was explicit
+            print(f".. invitation was EXPLICIT")
             connection_key = conn_rec.invitation_key
             if conn_rec.is_multiuse_invitation:
+                print(f".. invitation was MULTI-USE")
                 wallet = self._session.inject(BaseWallet)
                 my_info = await wallet.create_local_did()
                 keylist_updates = await mediation_mgr.add_key(
@@ -338,11 +347,15 @@ class DIDXManager(BaseConnectionManager):
                 if multitenant_mgr and wallet_id:
                     await multitenant_mgr.add_key(wallet_id, my_info.verkey)
             else:
+                print(f".. invitation was SINGLE-USE")
                 keylist_updates = await mediation_mgr.remove_key(
                     connection_key, keylist_updates
                 )
 
         # request DID doc describes requester DID
+        print()
+        print(f".. request.did_doc_attach: {request.did_doc_attach}")
+        print(f".. request.did_doc_attach.data: {request.did_doc_attach.data}")
         if not (request.did_doc_attach and request.did_doc_attach.data):
             raise DIDXManagerError(
                 "DID Doc attachment missing or has no data: "
