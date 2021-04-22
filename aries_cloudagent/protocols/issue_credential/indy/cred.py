@@ -82,7 +82,7 @@ class IndyCredentialSchema(BaseModelSchema):
     """Indy credential schema."""
 
     class Meta:
-        """Indy credential schemametadata."""
+        """Indy credential schema metadata."""
 
         model_class = IndyCredential
         unknown = EXCLUDE

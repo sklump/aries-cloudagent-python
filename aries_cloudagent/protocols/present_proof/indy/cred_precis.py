@@ -1,7 +1,10 @@
 """Admin routes for presentations."""
 
+from typing import Mapping
+
 from marshmallow import fields
 
+from ....messaging.models.base import BaseModel
 from ....messaging.models.openapi import OpenAPISchema
 from ....messaging.valid import (
     INDY_CRED_DEF_ID,
@@ -11,7 +14,35 @@ from ....messaging.valid import (
     UUIDFour,
 )
 
-from ..indy.proof_request import IndyProofReqNonRevokedSchema
+from .proof_request import IndyProofReqNonRevokedSchema
+
+
+class IndyCredInfo(BaseModel):
+    """Indy cred info as holder returns it, via indy-sdk."""
+
+    class Meta:
+        """IndyCredInfo metadata."""
+
+        schema_class = "IndyCredInfoSchema"
+
+    def __init__(
+        self,
+        referent: str = None,
+        attrs: Mapping = None,
+        schema_id: str = None,
+        cred_def_id: str = None,
+        rev_reg_id: str = None,
+        cred_rev_id: str = None,
+    ):
+        """Initialize the indy cred info object."""
+        super().init__(**kwargs)
+
+        self.referent = referent
+        self.attrs = attrs
+        self.schema_id = schema_id
+        self.cred_def_id = cred_def_id
+        self.rev_reg_id = rev_reg_id
+        self.cred_rev_id = cred_rev_id
 
 
 class IndyCredInfoSchema(OpenAPISchema):
@@ -38,7 +69,7 @@ class IndyCredInfoSchema(OpenAPISchema):
         description="Revocation registry identifier",
         **INDY_REV_REG_ID,
     )
-    cred_rev = fields.Str(
+    cred_rev_id = fields.Str(
         description="Credential revocation identifier",
         **INDY_CRED_REV_ID,
     )

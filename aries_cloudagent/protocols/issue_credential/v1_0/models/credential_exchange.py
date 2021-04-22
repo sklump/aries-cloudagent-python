@@ -1,13 +1,28 @@
 """Aries#0036 v1.0 credential exchange information with non-secrets storage."""
 
 from os import environ
-from typing import Any
+from typing import Any, Mapping, Union
 
 from marshmallow import fields, validate
 
 from .....core.profile import ProfileSession
 from .....messaging.models.base_record import BaseExchangeRecord, BaseExchangeSchema
-from .....messaging.valid import INDY_CRED_DEF_ID, INDY_SCHEMA_ID, UUIDFour
+from .....messaging.valid import (
+    INDY_CRED_DEF_ID,
+    INDY_CRED_REV_ID,
+    INDY_REV_REG_ID,
+    INDY_SCHEMA_ID,
+    UUIDFour,
+)
+
+from ....present_proof.indy.cred_precis import IndyCredInfo, IndyCredInfoSchema
+
+from ...indy.cred import IndyCredential, IndyCredentialSchema
+from ...indy.cred_abstract import IndyCredAbstract, IndyCredAbstractSchema
+from ...indy.cred_request import IndyCredRequest, IndyCredRequestSchema
+
+from ..messages.credential_offer import CredentialOffer, CredentialOfferSchema
+from ..messages.credential_proposal import CredentialProposal, CredentialProposalSchema
 
 unencrypted_tags = environ.get("EXCH_UNENCRYPTED_TAGS", "False").upper() == "TRUE"
 
@@ -52,14 +67,16 @@ class V10CredentialExchange(BaseExchangeRecord):
         state: str = None,
         credential_definition_id: str = None,
         schema_id: str = None,
-        credential_proposal_dict: dict = None,  # serialized credential proposal message
-        credential_offer_dict: dict = None,  # serialized credential offer message
-        credential_offer: dict = None,  # indy credential offer
-        credential_request: dict = None,  # indy credential request
+
+        # credential proposal message (_dict for backward compatibility)
+        credential_proposal_dict: Union[CredentialProposal, Mapping] = None,
+        credential_offer_dict: Union[CredentialOffer, Mapping] = None,  # message
+        credential_offer: Union[IndyCredAbstract, Mapping] = None,  # indy cred offer
+        credential_request: Union[IndyCredRequest, Mapping] = None,  # indy cred request
         credential_request_metadata: dict = None,
         credential_id: str = None,
-        raw_credential: dict = None,  # indy credential as received
-        credential: dict = None,  # indy credential as stored
+        raw_credential: Union[IndyCredential, Mapping] = None,  # indy cred as received
+        credential: Union[IndyCredInfo, Mapping] = None,  # indy cred as stored
         revoc_reg_id: str = None,
         revocation_id: str = None,
         auto_offer: bool = False,
@@ -80,9 +97,19 @@ class V10CredentialExchange(BaseExchangeRecord):
         self.state = state
         self.credential_definition_id = credential_definition_id
         self.schema_id = schema_id
-        self.credential_proposal_dict = credential_proposal_dict
+        self.credential_proposal_dict = (
+            credential_proposal_dict
+            if credential_proposal_dict is None or isinstance(
+                credential_proposal_dict, Mapping
+            )
+            else credential_proposal_dict.serialize()
+        )
         self.credential_offer_dict = credential_offer_dict
-        self.credential_offer = credential_offer
+        self.credential_offer = (
+            credential_offer
+            if credential_offer is None or isinstance(credential_offer, Mapping)
+            else credential_offer.serialize()
+        )
         self.credential_request = credential_request
         self.credential_request_metadata = credential_request_metadata
         self.credential_id = credential_id
@@ -202,29 +229,44 @@ class V10CredentialExchangeSchema(BaseExchangeSchema):
     schema_id = fields.Str(
         required=False, description="Schema identifier", **INDY_SCHEMA_ID
     )
-    credential_proposal_dict = fields.Dict(
-        required=False, description="Serialized credential proposal message"
+    credential_proposal_dict = fields.Nested(
+        CredentialProposalSchema(),
+        required=False,
+        description="Credential proposal message",
     )
-    credential_offer_dict = fields.Dict(
-        required=False, description="Serialized credential offer message"
+    credential_offer_dict = fields.Nested(
+        CredentialOfferSchema(),
+        required=False,
+        description="Credential offer message",
     )
-    credential_offer = fields.Dict(
-        required=False, description="(Indy) credential offer"
+    credential_offer = fields.Nested(
+        IndyCredAbstractSchema(),
+        required=False,
+        description="(Indy) credential offer",
     )
-    credential_request = fields.Dict(
-        required=False, description="(Indy) credential request"
+    credential_request = fields.Nested(
+        IndyCredRequestSchema(),
+        required=False,
+        description="(Indy) credential request",
     )
     credential_request_metadata = fields.Dict(
-        required=False, description="(Indy) credential request metadata"
+        required=False,
+        keys=fields.Str(),
+        description="(Indy) credential request metadata",
     )
     credential_id = fields.Str(
         required=False, description="Credential identifier", example=UUIDFour.EXAMPLE
     )
-    raw_credential = fields.Dict(
+    raw_credential = fields.Nested(
+        IndyCredentialSchema(),
         required=False,
         description="Credential as received, prior to storage in holder wallet",
     )
-    credential = fields.Dict(required=False, description="Credential as stored")
+    credential = fields.Nested(
+        IndyCredInfoSchema(),
+        required=False,
+        description="Credential as stored",
+    )
     auto_offer = fields.Bool(
         required=False,
         description="Holder choice to accept offer in this credential exchange",
@@ -249,8 +291,12 @@ class V10CredentialExchangeSchema(BaseExchangeSchema):
         example="credential definition identifier is not set in proposal",
     )
     revoc_reg_id = fields.Str(
-        required=False, description="Revocation registry identifier"
+        required=False,
+        description="Revocation registry identifier",
+        **INDY_REV_REG_ID,
     )
     revocation_id = fields.Str(
-        required=False, description="Credential identifier within revocation registry"
+        required=False,
+        description="Credential identifier within revocation registry",
+        **INDY_CRED_REV_ID,
     )
