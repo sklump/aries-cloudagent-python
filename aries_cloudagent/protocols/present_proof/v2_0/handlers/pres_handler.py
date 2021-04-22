@@ -5,11 +5,10 @@ from .....messaging.base_handler import (
     BaseResponder,
     RequestContext,
 )
+from .....utils.tracing import trace_event, get_timer
 
 from ..manager import V20PresManager
 from ..messages.pres import V20Pres
-
-from .....utils.tracing import trace_event, get_timer
 
 
 class V20PresHandler(BaseHandler):

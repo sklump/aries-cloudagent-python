@@ -2,7 +2,7 @@
 
 from typing import Mapping
 
-from marshmallow import fields
+from marshmallow import EXCLUDE, fields
 
 from ....messaging.models.base import BaseModel
 from ....messaging.models.openapi import OpenAPISchema
@@ -18,11 +18,12 @@ from .proof_request import IndyProofReqNonRevokedSchema
 
 
 class IndyCredInfo(BaseModel):
-    """Indy cred info as holder returns it, via indy-sdk."""
+    """Indy cred info, as holder gets via indy-sdk."""
 
     class Meta:
         """IndyCredInfo metadata."""
 
+        unknown = EXCLUDE
         schema_class = "IndyCredInfoSchema"
 
     def __init__(
@@ -34,9 +35,7 @@ class IndyCredInfo(BaseModel):
         rev_reg_id: str = None,
         cred_rev_id: str = None,
     ):
-        """Initialize the indy cred info object."""
-        super().init__(**kwargs)
-
+        """Initialize indy cred info."""
         self.referent = referent
         self.attrs = attrs
         self.schema_id = schema_id

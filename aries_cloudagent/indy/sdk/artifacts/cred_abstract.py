@@ -127,5 +127,4 @@ class IndyCredAbstractSchema(BaseModelSchema):
         IndyKeyCorrectnessProofSchema(),
         required=True,
         description="Key correctness proof",
-        example="remainder",
     )

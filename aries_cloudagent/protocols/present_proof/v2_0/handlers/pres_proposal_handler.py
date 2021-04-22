@@ -6,11 +6,10 @@ from .....messaging.base_handler import (
     HandlerException,
     RequestContext,
 )
+from .....utils.tracing import trace_event, get_timer
 
 from ..manager import V20PresManager
 from ..messages.pres_proposal import V20PresProposal
-
-from .....utils.tracing import trace_event, get_timer
 
 
 class V20PresProposalHandler(BaseHandler):

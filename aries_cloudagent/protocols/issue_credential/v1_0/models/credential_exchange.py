@@ -6,6 +6,13 @@ from typing import Any, Mapping, Union
 from marshmallow import fields, validate
 
 from .....core.profile import ProfileSession
+from .....indy.sdk.artifacts.cred_precis import IndyCredInfo, IndyCredInfoSchema
+from .....indy.sdk.artifacts.cred import IndyCredential, IndyCredentialSchema
+from .....indy.sdk.artifacts.cred_abstract import (
+    IndyCredAbstract,
+    IndyCredAbstractSchema,
+)
+from .....indy.sdk.artifacts.cred_request import IndyCredRequest, IndyCredRequestSchema
 from .....messaging.models.base_record import BaseExchangeRecord, BaseExchangeSchema
 from .....messaging.valid import (
     INDY_CRED_DEF_ID,
@@ -15,11 +22,6 @@ from .....messaging.valid import (
     UUIDFour,
 )
 
-from ....present_proof.indy.cred_precis import IndyCredInfo, IndyCredInfoSchema
-
-from ...indy.cred import IndyCredential, IndyCredentialSchema
-from ...indy.cred_abstract import IndyCredAbstract, IndyCredAbstractSchema
-from ...indy.cred_request import IndyCredRequest, IndyCredRequestSchema
 
 from ..messages.credential_offer import CredentialOffer, CredentialOfferSchema
 from ..messages.credential_proposal import CredentialProposal, CredentialProposalSchema
@@ -67,7 +69,6 @@ class V10CredentialExchange(BaseExchangeRecord):
         state: str = None,
         credential_definition_id: str = None,
         schema_id: str = None,
-
         # credential proposal message (_dict for backward compatibility)
         credential_proposal_dict: Union[CredentialProposal, Mapping] = None,
         credential_offer_dict: Union[CredentialOffer, Mapping] = None,  # message
@@ -99,9 +100,8 @@ class V10CredentialExchange(BaseExchangeRecord):
         self.schema_id = schema_id
         self.credential_proposal_dict = (
             credential_proposal_dict
-            if credential_proposal_dict is None or isinstance(
-                credential_proposal_dict, Mapping
-            )
+            if credential_proposal_dict is None
+            or isinstance(credential_proposal_dict, Mapping)
             else credential_proposal_dict.serialize()
         )
         self.credential_offer_dict = credential_offer_dict

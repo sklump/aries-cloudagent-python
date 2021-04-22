@@ -17,6 +17,9 @@ from marshmallow import fields, validate, validates_schema, ValidationError
 from ....admin.request_context import AdminRequestContext
 from ....connections.models.conn_record import ConnRecord
 from ....indy.holder import IndyHolder, IndyHolderError
+from ....indy.sdk.artifacts.cred_precis import IndyCredPrecisSchema
+from ....indy.sdk.artifacts.proof import IndyPresSpecSchema
+from ....indy.sdk.artifacts.proof_request import IndyProofRequestSchema
 from ....indy.util import generate_pr_nonce
 from ....ledger.error import LedgerError
 from ....messaging.decorators.attach_decorator import AttachDecorator
@@ -35,10 +38,6 @@ from ....wallet.error import WalletNotFoundError
 
 from ...problem_report.v1_0 import internal_error
 from ...problem_report.v1_0.message import ProblemReport
-
-from ..indy.cred_precis import IndyCredPrecisSchema
-from ..indy.proof import IndyPresSpecSchema
-from ..indy.proof_request import IndyProofRequestSchema
 
 from .manager import V20PresManager
 from .message_types import (

@@ -4,14 +4,13 @@ from typing import Sequence
 
 from marshmallow import EXCLUDE, fields, RAISE, validates_schema, ValidationError
 
+from .....indy.sdk.artifacts.cred import IndyCredentialSchema
 from .....messaging.agent_message import AgentMessage, AgentMessageSchema
 from .....messaging.decorators.attach_decorator import (
     AttachDecorator,
     AttachDecoratorSchema,
 )
 from .....messaging.valid import UUIDFour
-
-from ...indy.cred import IndyCredentialSchema
 
 from ..message_types import CRED_20_ISSUE, PROTOCOL_PACKAGE
 
