@@ -26,7 +26,7 @@ from .....messaging.valid import (
 from ..messages.credential_offer import CredentialOffer, CredentialOfferSchema
 from ..messages.credential_proposal import CredentialProposal, CredentialProposalSchema
 
-unencrypted_tags = environ.get("EXCH_UNENCRYPTED_TAGS", "False").upper() == "TRUE"
+from . import UNENCRYPTED_TAGS
 
 
 class V10CredentialExchange(BaseExchangeRecord):
@@ -40,7 +40,7 @@ class V10CredentialExchange(BaseExchangeRecord):
     RECORD_TYPE = "credential_exchange_v10"
     RECORD_ID_NAME = "credential_exchange_id"
     WEBHOOK_TOPIC = "issue_credential"
-    TAG_NAMES = {"~thread_id"} if unencrypted_tags else {"thread_id"}
+    TAG_NAMES = {"~thread_id"} if UNENCRYPTED_TAGS else {"thread_id"}
 
     INITIATOR_SELF = "self"
     INITIATOR_EXTERNAL = "external"
@@ -74,7 +74,7 @@ class V10CredentialExchange(BaseExchangeRecord):
         credential_offer_dict: Union[CredentialOffer, Mapping] = None,  # message
         credential_offer: Union[IndyCredAbstract, Mapping] = None,  # indy cred offer
         credential_request: Union[IndyCredRequest, Mapping] = None,  # indy cred request
-        credential_request_metadata: dict = None,
+        credential_request_metadata: Mapping = None,
         credential_id: str = None,
         raw_credential: Union[IndyCredential, Mapping] = None,  # indy cred as received
         credential: Union[IndyCredInfo, Mapping] = None,  # indy cred as stored

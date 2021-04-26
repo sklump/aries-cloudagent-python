@@ -1,6 +1,6 @@
 """Aries#0036 v1.0 credential exchange information with non-secrets storage."""
 
-from typing import Any, Mapping
+from typing import Any, Mapping, Union
 
 from marshmallow import fields, validate
 
@@ -55,9 +55,9 @@ class V20CredExRecord(BaseExchangeRecord):
         initiator: str = None,
         role: str = None,
         state: str = None,
-        cred_proposal: Mapping = None,  # serialized cred proposal message
-        cred_offer: Mapping = None,  # serialized cred offer message
-        cred_request: Mapping = None,  # serialized cred request message
+        cred_proposal: Union[V20CredProposal, Mapping] = None,  # cred proposal message
+        cred_offer: Union[V20CredOffer, Mapping] = None,  # cred offer message
+        cred_request: Union[V20CredRequest, Mapping] = None,  # cred request message
         cred_request_metadata: Mapping = None,  # credential request metadata
         cred_issue: Mapping = None,  # serialized cred issue message
         cred_id_stored: str = None,
