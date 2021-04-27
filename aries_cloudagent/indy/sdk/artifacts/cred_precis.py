@@ -14,7 +14,7 @@ from ....messaging.valid import (
     UUIDFour,
 )
 
-from .proof_request import IndyProofReqNonRevokedSchema
+from .non_rev_interval import IndyNonRevocationIntervalSchema
 
 
 class IndyCredInfo(BaseModel):
@@ -82,7 +82,7 @@ class IndyCredPrecisSchema(OpenAPISchema):
         description="Credential info",
     )
     interval = fields.Nested(
-        IndyProofReqNonRevokedSchema(),
+        IndyNonRevocationIntervalSchema(),
         description="Non-revocation interval from presentation request",
     )
     pres_referents = fields.List(  # aca-py augments with pres_referents

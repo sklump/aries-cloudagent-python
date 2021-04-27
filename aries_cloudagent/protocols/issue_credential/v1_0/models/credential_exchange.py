@@ -1,11 +1,11 @@
 """Aries#0036 v1.0 credential exchange information with non-secrets storage."""
 
-from os import environ
 from typing import Any, Mapping, Union
 
 from marshmallow import fields, validate
 
 from .....core.profile import ProfileSession
+from .....indy.sdk.artifacts import UNENCRYPTED_TAGS
 from .....indy.sdk.artifacts.cred_precis import IndyCredInfo, IndyCredInfoSchema
 from .....indy.sdk.artifacts.cred import IndyCredential, IndyCredentialSchema
 from .....indy.sdk.artifacts.cred_abstract import (
@@ -13,6 +13,7 @@ from .....indy.sdk.artifacts.cred_abstract import (
     IndyCredAbstractSchema,
 )
 from .....indy.sdk.artifacts.cred_request import IndyCredRequest, IndyCredRequestSchema
+from .....messaging.models import serial
 from .....messaging.models.base_record import BaseExchangeRecord, BaseExchangeSchema
 from .....messaging.valid import (
     INDY_CRED_DEF_ID,
@@ -25,8 +26,6 @@ from .....messaging.valid import (
 
 from ..messages.credential_offer import CredentialOffer, CredentialOfferSchema
 from ..messages.credential_proposal import CredentialProposal, CredentialProposalSchema
-
-from . import UNENCRYPTED_TAGS
 
 
 class V10CredentialExchange(BaseExchangeRecord):
@@ -98,23 +97,14 @@ class V10CredentialExchange(BaseExchangeRecord):
         self.state = state
         self.credential_definition_id = credential_definition_id
         self.schema_id = schema_id
-        self.credential_proposal_dict = (
-            credential_proposal_dict
-            if credential_proposal_dict is None
-            or isinstance(credential_proposal_dict, Mapping)
-            else credential_proposal_dict.serialize()
-        )
-        self.credential_offer_dict = credential_offer_dict
-        self.credential_offer = (
-            credential_offer
-            if credential_offer is None or isinstance(credential_offer, Mapping)
-            else credential_offer.serialize()
-        )
-        self.credential_request = credential_request
+        self.credential_proposal_dict = serial(credential_proposal_dict)
+        self.credential_offer_dict = serial(credential_offer_dict)
+        self.credential_offer = serial(credential_offer)
+        self.credential_request = serial(credential_request)
         self.credential_request_metadata = credential_request_metadata
         self.credential_id = credential_id
-        self.raw_credential = raw_credential
-        self.credential = credential
+        self.raw_credential = serial(raw_credential)
+        self.credential = serial(credential)
         self.revoc_reg_id = revoc_reg_id
         self.revocation_id = revocation_id
         self.auto_offer = auto_offer

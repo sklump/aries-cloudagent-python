@@ -1,20 +1,20 @@
-"""Indy utilities for revocation."""
+"""Indy non-revocation interval."""
 
 from time import time
 
 from marshmallow import fields
 
-from ...messaging.models.base import BaseModel, BaseModelSchema
-from ...messaging.valid import INT_EPOCH
+from ....messaging.models.base import BaseModel, BaseModelSchema
+from ....messaging.valid import INT_EPOCH
 
 
-class NonRevocationInterval(BaseModel):
+class IndyNonRevocationInterval(BaseModel):
     """Indy non-revocation interval."""
 
     class Meta:
         """NonRevocationInterval metadata."""
 
-        schema_class = "NonRevocationIntervalSchema"
+        schema_class = "IndyNonRevocationIntervalSchema"
 
     def __init__(self, fro: int = None, to: int = None, **kwargs):
         """Initialize non-revocation interval.
@@ -46,13 +46,13 @@ class NonRevocationInterval(BaseModel):
         return self.to or self.fro or int(time())
 
 
-class NonRevocationIntervalSchema(BaseModelSchema):
+class IndyNonRevocationIntervalSchema(BaseModelSchema):
     """Schema to allow serialization/deserialization of non-revocation intervals."""
 
     class Meta:
-        """NonRevocationIntervalSchema metadata."""
+        """IndyNonRevocationIntervalSchema metadata."""
 
-        model_class = NonRevocationInterval
+        model_class = IndyNonRevocationInterval
 
     fro = fields.Int(
         required=False,

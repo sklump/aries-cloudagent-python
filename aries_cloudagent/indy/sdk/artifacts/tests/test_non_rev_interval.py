@@ -5,14 +5,14 @@ from asynctest import mock as async_mock
 
 import pytest
 
-from ..indy import NonRevocationInterval
+from ..non_rev_interval import IndyNonRevocationInterval
 
 FROM = 1000000000
 TO = 1234567890
 
-INTERVAL_FROM = NonRevocationInterval(fro=FROM)
-INTERVAL_TO = NonRevocationInterval(to=TO)
-INTERVAL = NonRevocationInterval(fro=FROM, to=TO)
+INTERVAL_FROM = IndyNonRevocationInterval(fro=FROM)
+INTERVAL_TO = IndyNonRevocationInterval(to=TO)
+INTERVAL = IndyNonRevocationInterval(fro=FROM, to=TO)
 
 
 class TestInterval(TestCase):
@@ -25,7 +25,7 @@ class TestInterval(TestCase):
             assert non_revo_dict.get("from") == interval.fro
             assert non_revo_dict.get("to") == interval.to
 
-            model = NonRevocationInterval.deserialize(non_revo_dict)
+            model = IndyNonRevocationInterval.deserialize(non_revo_dict)
             assert model.fro == interval.fro and model.to == interval.to
             assert model.timestamp()
 

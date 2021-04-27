@@ -5,16 +5,17 @@ from typing import Any, Mapping, Union
 from marshmallow import fields, validate
 
 from .....core.profile import ProfileSession
+from .....indy.sdk.artifacts import UNENCRYPTED_TAGS
+from .....messaging.models import serial
 from .....messaging.models.base_record import BaseExchangeRecord, BaseExchangeSchema
 from .....messaging.valid import UUIDFour
 
 from ..messages.cred_format import V20CredFormat
-from ..messages.cred_issue import V20CredIssue
-from ..messages.cred_proposal import V20CredProposal
-from ..messages.cred_offer import V20CredOffer
-from ..messages.cred_request import V20CredRequest
-
-from . import UNENCRYPTED_TAGS
+from ..messages.cred_issue import V20CredIssue, V20CredIssueSchema
+from ..messages.cred_proposal import V20CredProposal, V20CredProposalSchema
+from ..messages.inner.cred_preview import V20CredPreview, V20CredPreviewSchema
+from ..messages.cred_offer import V20CredOffer, V20CredOfferSchema
+from ..messages.cred_request import V20CredRequest, V20CredRequestSchema
 
 
 class V20CredExRecord(BaseExchangeRecord):
@@ -59,7 +60,7 @@ class V20CredExRecord(BaseExchangeRecord):
         cred_offer: Union[V20CredOffer, Mapping] = None,  # cred offer message
         cred_request: Union[V20CredRequest, Mapping] = None,  # cred request message
         cred_request_metadata: Mapping = None,  # credential request metadata
-        cred_issue: Mapping = None,  # serialized cred issue message
+        cred_issue: Union[V20CredIssue, Mapping] = None,  # cred issue message
         cred_id_stored: str = None,
         auto_offer: bool = False,
         auto_issue: bool = False,
@@ -79,11 +80,11 @@ class V20CredExRecord(BaseExchangeRecord):
         self.initiator = initiator
         self.role = role
         self.state = state
-        self.cred_proposal = cred_proposal
-        self.cred_offer = cred_offer
-        self.cred_request = cred_request
+        self.cred_proposal = serial(cred_proposal)
+        self.cred_offer = serial(cred_offer)
+        self.cred_request = serial(cred_request)
         self.cred_request_metadata = cred_request_metadata
-        self.cred_issue = cred_issue
+        self.cred_issue = serial(cred_issue)
         self.cred_id_stored = cred_id_stored
         self.auto_offer = auto_offer
         self.auto_issue = auto_issue
@@ -97,7 +98,7 @@ class V20CredExRecord(BaseExchangeRecord):
         return self._id
 
     @property
-    def cred_preview(self) -> Mapping:
+    def cred_preview(self) -> V20CredPreview:
         """Credential preview from credential proposal."""
         return (
             self.cred_proposal and self.cred_proposal.get("credential_preview") or None
@@ -235,25 +236,35 @@ class V20CredExRecordSchema(BaseExchangeSchema):
             ]
         ),
     )
-    cred_preview = fields.Dict(
+    cred_preview = fields.Nested(
+        V20CredPreviewSchema(),
         required=False,
         dump_only=True,
-        description="Serialized credential preview from credential proposal",
+        description="Credential preview from credential proposal",
     )
-    cred_proposal = fields.Dict(
-        required=False, description="Serialized credential proposal message"
+    cred_proposal = fields.Nested(
+        V20CredProposalSchema(),
+        required=False,
+        description="Serialized credential proposal message",
     )
-    cred_offer = fields.Dict(
-        required=False, description="Serialized credential offer message"
+    cred_offer = fields.Nested(
+        V20CredOfferSchema(),
+        required=False,
+        description="Serialized credential offer message",
     )
-    cred_request = fields.Dict(
-        required=False, description="Serialized credential request message"
+    cred_request = fields.Nested(
+        V20CredRequestSchema(),
+        required=False,
+        description="Serialized credential request message",
     )
     cred_request_metadata = fields.Dict(
-        required=False, description="(Indy) credential request metadata"
+        required=False,
+        description="(Indy) credential request metadata",
     )
-    cred_issue = fields.Dict(
-        required=False, description="Serialized credential issue message"
+    cred_issue = fields.Nested(
+        V20CredIssueSchema(),
+        required=False,
+        description="Serialized credential issue message",
     )
     by_format = fields.Dict(
         required=False,

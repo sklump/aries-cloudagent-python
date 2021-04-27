@@ -1,19 +1,18 @@
 """Presentation exchange record."""
 
-from os import environ
-from typing import Any, Mapping
+from typing import Any, Mapping, Union
 
 from marshmallow import fields, validate
 
+from .....indy.sdk.artifacts import UNENCRYPTED_TAGS
+from .....messaging.models import serial
 from .....messaging.models.base_record import BaseExchangeRecord, BaseExchangeSchema
 from .....messaging.valid import UUIDFour
 
-from ..messages.pres import V20Pres
+from ..messages.pres import V20Pres, V20PresSchema
 from ..messages.pres_format import V20PresFormat
-from ..messages.pres_proposal import V20PresProposal
-from ..messages.pres_request import V20PresRequest
-
-unencrypted_tags = environ.get("EXCH_UNENCRYPTED_TAGS", "False").upper() == "TRUE"
+from ..messages.pres_proposal import V20PresProposal, V20PresProposalSchema
+from ..messages.pres_request import V20PresRequest, V20PresRequestSchema
 
 
 class V20PresExRecord(BaseExchangeRecord):
@@ -27,7 +26,7 @@ class V20PresExRecord(BaseExchangeRecord):
     RECORD_TYPE = "pres_ex_v20"
     RECORD_ID_NAME = "pres_ex_id"
     WEBHOOK_TOPIC = "present_proof_v2_0"
-    TAG_NAMES = {"~thread_id"} if unencrypted_tags else {"thread_id"}
+    TAG_NAMES = {"~thread_id"} if UNENCRYPTED_TAGS else {"thread_id"}
 
     INITIATOR_SELF = "self"
     INITIATOR_EXTERNAL = "external"
@@ -53,9 +52,9 @@ class V20PresExRecord(BaseExchangeRecord):
         initiator: str = None,
         role: str = None,
         state: str = None,
-        pres_proposal: Mapping = None,  # serialized pres proposal message
-        pres_request: Mapping = None,  # serialized pres proposal message
-        pres: Mapping = None,  # serialized pres message
+        pres_proposal: Union[V20PresProposal, Mapping] = None,  # pres proposal message
+        pres_request: Union[V20PresRequest, Mapping] = None,  # pres request message
+        pres: Union[V20Pres, Mapping] = None,  # pres message
         verified: str = None,
         auto_present: bool = False,
         error_msg: str = None,
@@ -70,9 +69,9 @@ class V20PresExRecord(BaseExchangeRecord):
         self.initiator = initiator
         self.role = role
         self.state = state
-        self.pres_proposal = pres_proposal
-        self.pres_request = pres_request
-        self.pres = pres
+        self.pres_proposal = serial(pres_proposal)
+        self.pres_request = serial(pres_request)
+        self.pres = serial(pres)
         self.verified = verified
         self.auto_present = auto_present
         self.error_msg = error_msg
@@ -191,15 +190,20 @@ class V20PresExRecordSchema(BaseExchangeSchema):
             ]
         ),
     )
-    pres_proposal = fields.Dict(
-        required=False, description="Serialized presentation proposal message"
-    )
-    pres_request = fields.Dict(
-        required=False, description="Serialized presentation request message"
-    )
-    pres = fields.Dict(
+    pres_proposal = fields.Nested(
+        V20PresProposalSchema(),
         required=False,
-        description="Serialized presentation message",
+        description="Presentation proposal message",
+    )
+    pres_request = fields.Nested(
+        V20PresRequestSchema(),
+        required=False,
+        description="Presentation request message",
+    )
+    pres = fields.Nested(
+        V20PresSchema(),
+        required=False,
+        description="Presentation message",
     )
     by_format = fields.Dict(
         required=False,

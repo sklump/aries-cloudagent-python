@@ -27,7 +27,7 @@ class SchemaImpl(BaseModelSchema):
         model_class = ModelImpl
         unknown = EXCLUDE
 
-    attr = fields.String(required=True)
+    attr = fields.Str(required=True)
 
     @validates_schema
     def validate_fields(self, data, **kwargs):

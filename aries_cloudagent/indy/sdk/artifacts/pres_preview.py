@@ -11,11 +11,11 @@ from ....messaging.models.base import BaseModel, BaseModelSchema
 from ....messaging.util import canon
 from ....messaging.valid import INDY_CRED_DEF_ID, INDY_PREDICATE
 from ....protocols.didcomm_prefix import DIDCommPrefix
-from ....revocation.models.indy import NonRevocationInterval
 from ....wallet.util import b64_to_str
 
 from ...util import generate_pr_nonce
 
+from .non_rev_interval import IndyNonRevocationInterval
 from .predicate import Predicate
 
 PRESENTATION_PREVIEW = "present-proof/1.0/presentation-preview"  # message type
@@ -293,7 +293,7 @@ class IndyPresPreview(BaseModel):
         version: str = None,
         nonce: str = None,
         ledger: IndySdkLedger = None,
-        non_revoc_intervals: Mapping[str, NonRevocationInterval] = None,
+        non_revoc_intervals: Mapping[str, IndyNonRevocationInterval] = None,
     ) -> dict:
         """
         Return indy proof request corresponding to presentation preview.
@@ -313,14 +313,14 @@ class IndyPresPreview(BaseModel):
 
         """
 
-        def non_revoc(cred_def_id: str) -> NonRevocationInterval:
+        def non_revoc(cred_def_id: str) -> IndyNonRevocationInterval:
             """Non-revocation interval to use for input cred def id."""
 
             nonlocal epoch_now
             nonlocal non_revoc_intervals
 
             return (non_revoc_intervals or {}).get(
-                cred_def_id, NonRevocationInterval(epoch_now, epoch_now)
+                cred_def_id, IndyNonRevocationInterval(epoch_now, epoch_now)
             )
 
         epoch_now = int(time())
