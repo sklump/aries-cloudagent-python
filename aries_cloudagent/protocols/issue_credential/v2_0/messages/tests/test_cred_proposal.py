@@ -66,7 +66,7 @@ class TestV20CredProposal(AsyncTestCase):
 
     async def test_deserialize(self):
         """Test deserialization."""
-        obj = {
+        ser = {
             "@type": "https://didcomm.org/issue-credential/2.0/propose-credential",
             "@id": "56dfd607-e03b-4175-8e36-c49329da891b",
             "comment": "Hello World",
@@ -101,18 +101,18 @@ class TestV20CredProposal(AsyncTestCase):
                 }
             ],
         }
-        cred_proposal = V20CredProposal.deserialize(obj)
+        cred_proposal = V20CredProposal.deserialize(ser)
         assert type(cred_proposal) == V20CredProposal
 
-        obj["filters~attach"][0]["data"]["base64"] = "eyJub3QiOiAiaW5keSJ9"  # not indy
+        ser["filters~attach"][0]["data"]["base64"] = "eyJub3QiOiAiaW5keSJ9"  # not indy
         with self.assertRaises(BaseModelError):
-            V20CredProposal.deserialize(obj)
+            V20CredProposal.deserialize(ser)
 
-        obj["filters~attach"][0]["@id"] = "xxx"
+        ser["filters~attach"][0]["@id"] = "xxx"
         with self.assertRaises(BaseModelError):
-            V20CredProposal.deserialize(obj)
+            V20CredProposal.deserialize(ser)
 
-        obj["filters~attach"].append(  # more attachments than formats
+        ser["filters~attach"].append(  # more attachments than formats
             {
                 "@id": "def",
                 "mime-type": "application/json",
@@ -120,7 +120,7 @@ class TestV20CredProposal(AsyncTestCase):
             }
         )
         with self.assertRaises(BaseModelError):
-            V20CredProposal.deserialize(obj)
+            V20CredProposal.deserialize(ser)
 
         cred_proposal.formats.append(  # unknown format: no validation
             V20CredFormat(
@@ -128,15 +128,15 @@ class TestV20CredProposal(AsyncTestCase):
                 format_="not_indy",
             )
         )
-        obj = cred_proposal.serialize()
-        obj["filters~attach"].append(
+        ser = cred_proposal.serialize()
+        ser["filters~attach"].append(
             {
                 "@id": "not_indy",
                 "mime-type": "application/json",
                 "data": {"base64": "eyJub3QiOiAiaW5keSJ9"},
             }
         )
-        V20CredProposal.deserialize(obj)
+        V20CredProposal.deserialize(ser)
 
     async def test_serialize(self):
         """Test serialization."""

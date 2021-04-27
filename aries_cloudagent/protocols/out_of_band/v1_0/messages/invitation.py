@@ -97,7 +97,6 @@ class InvitationMessage(AgentMessage):
 
     def __init__(
         self,
-        # _id: str = None,
         *,
         comment: str = None,
         label: str = None,
@@ -116,7 +115,6 @@ class InvitationMessage(AgentMessage):
             requests_attach: request attachments
 
         """
-        # super().__init__(_id=_id, **kwargs)
         super().__init__(**kwargs)
         self.label = label
         self.handshake_protocols = (

@@ -4,7 +4,6 @@ from typing import Mapping, Union
 
 from marshmallow import fields, validate, validates_schema, ValidationError
 
-from ....messaging.models import serial
 from ....messaging.models.base import BaseModel
 from ....messaging.models.openapi import OpenAPISchema
 from ....messaging.valid import (
@@ -167,7 +166,7 @@ class IndyProofRequest(BaseModel):
         self.version = version
         self.requested_attributes = requested_attributes
         self.requested_predicates = requested_predicates
-        self.non_revoked = serial(non_revoked)
+        self.non_revoked = IndyNonRevocationInterval.deserialize(non_revoked)
 
 
 class IndyProofRequestSchema(OpenAPISchema):

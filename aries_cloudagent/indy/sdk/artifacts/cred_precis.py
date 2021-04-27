@@ -4,7 +4,7 @@ from typing import Mapping
 
 from marshmallow import EXCLUDE, fields
 
-from ....messaging.models.base import BaseModel
+from ....messaging.models.base import BaseModel, BaseModelSchema
 from ....messaging.models.openapi import OpenAPISchema
 from ....messaging.valid import (
     INDY_CRED_DEF_ID,
@@ -44,8 +44,13 @@ class IndyCredInfo(BaseModel):
         self.cred_rev_id = cred_rev_id
 
 
-class IndyCredInfoSchema(OpenAPISchema):
+class IndyCredInfoSchema(BaseModelSchema):
     """Schema for indy cred-info."""
+
+    class Meta:
+        """IndyCredInfoSchema metadata."""
+
+        model_class = "IndyCredInfo"
 
     referent = fields.Str(
         description="Wallet referent",
@@ -67,10 +72,12 @@ class IndyCredInfoSchema(OpenAPISchema):
     rev_reg_id = fields.Str(
         description="Revocation registry identifier",
         **INDY_REV_REG_ID,
+        allow_none=True,
     )
     cred_rev_id = fields.Str(
         description="Credential revocation identifier",
         **INDY_CRED_REV_ID,
+        allow_none=True,
     )
 
 

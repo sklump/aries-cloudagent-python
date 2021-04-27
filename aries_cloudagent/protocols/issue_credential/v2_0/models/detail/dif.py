@@ -5,10 +5,9 @@ from typing import Any, Sequence
 from marshmallow import EXCLUDE, fields
 
 from ......core.profile import ProfileSession
+from ......indy.sdk.artifacts import UNENCRYPTED_TAGS
 from ......messaging.models.base_record import BaseRecord, BaseRecordSchema
 from ......messaging.valid import UUIDFour
-
-from .. import UNENCRYPTED_TAGS
 
 
 class V20CredExRecordDIF(BaseRecord):

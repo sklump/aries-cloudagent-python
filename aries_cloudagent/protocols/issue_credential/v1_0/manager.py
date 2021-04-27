@@ -98,7 +98,7 @@ class CredentialManager:
             connection_id=connection_id,
             initiator=V10CredentialExchange.INITIATOR_SELF,
             role=V10CredentialExchange.ROLE_ISSUER,
-            credential_proposal_dict=credential_proposal.serialize(),
+            credential_proposal_dict=credential_proposal,
             auto_issue=True,
             auto_remove=auto_remove,
             trace=(credential_proposal._trace is not None),
@@ -170,7 +170,7 @@ class CredentialManager:
             initiator=V10CredentialExchange.INITIATOR_SELF,
             role=V10CredentialExchange.ROLE_HOLDER,
             state=V10CredentialExchange.STATE_PROPOSAL_SENT,
-            credential_proposal_dict=credential_proposal_message.serialize(),
+            credential_proposal_dict=credential_proposal_message,
             auto_offer=auto_offer,
             auto_remove=auto_remove,
             trace=trace,
@@ -196,7 +196,7 @@ class CredentialManager:
             initiator=V10CredentialExchange.INITIATOR_EXTERNAL,
             role=V10CredentialExchange.ROLE_ISSUER,
             state=V10CredentialExchange.STATE_PROPOSAL_RECEIVED,
-            credential_proposal_dict=message.serialize(),
+            credential_proposal_dict=message,
             auto_offer=self._profile.settings.get(
                 "debug.auto_respond_credential_proposal"
             ),
@@ -237,7 +237,7 @@ class CredentialManager:
         credential_proposal_message = (
             counter_proposal
             if counter_proposal
-            else CredentialProposal.deserialize(cred_ex_record.credential_proposal_dict)
+            else cred_ex_record.credential_proposal_dict
         )
         credential_proposal_message.assign_trace_decorator(
             self._profile.settings, cred_ex_record.trace
@@ -294,11 +294,10 @@ class CredentialManager:
         cred_ex_record.credential_definition_id = credential_offer["cred_def_id"]
         cred_ex_record.state = V10CredentialExchange.STATE_OFFER_SENT
         cred_ex_record.credential_proposal_dict = (  # any counter replaces original
-            credential_proposal_message.serialize()
+            credential_proposal_message
         )
         cred_ex_record.credential_offer = credential_offer
-
-        cred_ex_record.credential_offer_dict = credential_offer_message.serialize()
+        cred_ex_record.credential_offer_dict = credential_offer_message
 
         async with self._profile.session() as session:
             await cred_ex_record.save(session, reason="create credential offer")
@@ -325,7 +324,7 @@ class CredentialManager:
             credential_proposal=credential_preview,
             schema_id=schema_id,
             cred_def_id=cred_def_id,
-        ).serialize()
+        )
 
         async with self._profile.session() as session:
             # Get credential exchange record (holder sent proposal first)
@@ -393,7 +392,7 @@ class CredentialManager:
 
             holder = self._profile.inject(IndyHolder)
             request_json, metadata_json = await holder.create_credential_request(
-                credential_offer, credential_definition, holder_did
+                credential_offer.serialize(), credential_definition, holder_did
             )
             return {
                 "request": json.loads(request_json),
@@ -406,9 +405,7 @@ class CredentialManager:
                 cred_ex_record.credential_exchange_id,
             )
         else:
-            if "nonce" not in credential_offer:
-                raise CredentialManagerError("Missing nonce in credential offer")
-            nonce = credential_offer["nonce"]
+            nonce = credential_offer.nonce
             cache_key = (
                 f"credential_request::{credential_definition_id}::{holder_did}::{nonce}"
             )
@@ -424,14 +421,17 @@ class CredentialManager:
             if not cred_req_result:
                 cred_req_result = await _create()
 
-            (
-                cred_ex_record.credential_request,
-                cred_ex_record.credential_request_metadata,
-            ) = (cred_req_result["request"], cred_req_result["metadata"])
+            (cred_req, cred_ex_record.credential_request_metadata) = (
+                cred_req_result["request"],
+                cred_req_result["metadata"],
+            )
+            cred_ex_record.credential_request = cred_req
 
         credential_request_message = CredentialRequest(
             requests_attach=[
-                CredentialRequest.wrap_indy_cred_req(cred_ex_record.credential_request)
+                CredentialRequest.wrap_indy_cred_req(
+                    cred_ex_record.credential_request.serialize()
+                )
             ]
         )
         credential_request_message._thread = {"thid": cred_ex_record.thread_id}
@@ -582,9 +582,11 @@ class CredentialManager:
                     )
                 del revoc
 
-            credential_values = CredentialProposal.deserialize(
-                cred_ex_record.credential_proposal_dict
-            ).credential_proposal.attr_dict(decode=False)
+            credential_values = (
+                cred_ex_record.credential_proposal_dict.credential_proposal.attr_dict(
+                    decode=False
+                )
+            )
             issuer = self._profile.inject(IndyIssuer)
             try:
                 (
@@ -592,8 +594,8 @@ class CredentialManager:
                     cred_ex_record.revocation_id,
                 ) = await issuer.create_credential(
                     schema,
-                    credential_offer,
-                    credential_request,
+                    credential_offer.serialize(),
+                    credential_request.serialize(),
                     credential_values,
                     cred_ex_record.credential_exchange_id,
                     cred_ex_record.revoc_reg_id,
@@ -654,7 +656,9 @@ class CredentialManager:
         credential_message = CredentialIssue(
             comment=comment,
             credentials_attach=[
-                CredentialIssue.wrap_indy_credential(cred_ex_record.credential)
+                CredentialIssue.wrap_indy_credential(
+                    cred_ex_record.credential.serialize()
+                )
             ],
         )
         credential_message._thread = {"thid": cred_ex_record.thread_id}
@@ -722,24 +726,21 @@ class CredentialManager:
         ledger = self._profile.inject(BaseLedger)
         async with ledger:
             credential_definition = await ledger.get_credential_definition(
-                raw_credential["cred_def_id"]
+                raw_credential.cred_def_id
             )
-            if (
-                "rev_reg_id" in raw_credential
-                and raw_credential["rev_reg_id"] is not None
-            ):
+            if raw_credential.rev_reg_id:
                 revoc_reg_def = await ledger.get_revoc_reg_def(
-                    raw_credential["rev_reg_id"]
+                    raw_credential.rev_reg_id
                 )
 
         holder = self._profile.inject(IndyHolder)
         if (
             cred_ex_record.credential_proposal_dict
-            and "credential_proposal" in cred_ex_record.credential_proposal_dict
+            and cred_ex_record.credential_proposal_dict.credential_proposal
         ):
-            mime_types = CredentialPreview.deserialize(
-                cred_ex_record.credential_proposal_dict["credential_proposal"]
-            ).mime_types()
+            mime_types = (
+                cred_ex_record.credential_proposal_dict.credential_proposal.mime_types()
+            )
         else:
             mime_types = None
 

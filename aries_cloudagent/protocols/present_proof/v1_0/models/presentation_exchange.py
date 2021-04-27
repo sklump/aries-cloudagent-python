@@ -10,7 +10,6 @@ from .....indy.sdk.artifacts.proof_request import (
     IndyProofRequest,
     IndyProofRequestSchema,
 )
-from .....messaging.models import serial
 from .....messaging.models.base_record import BaseExchangeRecord, BaseExchangeSchema
 from .....messaging.valid import UUIDFour
 
@@ -79,10 +78,14 @@ class V10PresentationExchange(BaseExchangeRecord):
         self.initiator = initiator
         self.role = role
         self.state = state
-        self.presentation_proposal_dict = serial(presentation_proposal_dict)
-        self.presentation_request = serial(presentation_request)
-        self.presentation_request_dict = serial(presentation_request_dict)
-        self.presentation = serial(presentation)
+        self.presentation_proposal_dict = PresentationProposal.deserialize(
+            presentation_proposal_dict
+        )
+        self.presentation_request = IndyProofRequest.deserialize(presentation_request)
+        self.presentation_request_dict = PresentationRequest.deserialize(
+            presentation_request_dict
+        )
+        self.presentation = IndyProof.deserialize(presentation)
         self.verified = verified
         self.auto_present = auto_present
         self.error_msg = error_msg

@@ -1,7 +1,8 @@
 """Base classes for Models and Schemas."""
 import logging
-from abc import ABC
 import json
+
+from abc import ABC
 from typing import Union
 
 from marshmallow import Schema, post_dump, pre_load, post_load, ValidationError, EXCLUDE
@@ -122,6 +123,9 @@ class BaseModel(ABC):
             A model instance for this data
 
         """
+        if isinstance(obj, cls) or obj is None:
+            return obj
+
         schema = cls._get_schema_class()(unknown=EXCLUDE)
         try:
             return schema.loads(obj) if isinstance(obj, str) else schema.load(obj)

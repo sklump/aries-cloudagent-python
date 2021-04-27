@@ -66,14 +66,18 @@ class TestEndorsedTransactionResponse(TestCase, TestConfig):
         Test deserialization.
         """
         obj = self.endorsed_transaction_response
+        ser = obj.serialize()
 
-        endorsed_transaction_response = EndorsedTransactionResponse.deserialize(obj)
-        mock_endorsed_transaction_response_schema_load.assert_called_once_with(obj)
+        endorsed_transaction_response = EndorsedTransactionResponse.deserialize(ser)
+        mock_endorsed_transaction_response_schema_load.assert_called_once_with(ser)
 
         assert (
             endorsed_transaction_response
             is mock_endorsed_transaction_response_schema_load.return_value
         )
+
+        EndorsedTransactionResponse.deserialize(obj)
+        mock_endorsed_transaction_response_schema_load.assert_called_once_with(ser)
 
     @mock.patch(
         "aries_cloudagent.protocols.endorse_transaction.v1_0.messages."

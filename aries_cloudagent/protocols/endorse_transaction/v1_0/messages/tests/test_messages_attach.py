@@ -73,11 +73,15 @@ class TestMessagesAttach(TestCase, TestConfig):
         Test deserialization.
         """
         obj = self.messages_attach
+        ser = obj.serialize()
 
-        messages_attach = MessagesAttach.deserialize(obj)
-        mock_messages_attach_schema_load.assert_called_once_with(obj)
+        messages_attach = MessagesAttach.deserialize(ser)
+        mock_messages_attach_schema_load.assert_called_once_with(ser)
 
         assert messages_attach is mock_messages_attach_schema_load.return_value
+
+        MessagesAttach.deserialize(obj)
+        mock_messages_attach_schema_load.assert_called_once_with(ser)
 
     @mock.patch(
         "aries_cloudagent.protocols.endorse_transaction.v1_0.messages."

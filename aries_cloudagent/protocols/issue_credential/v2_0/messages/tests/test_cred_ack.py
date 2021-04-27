@@ -20,14 +20,18 @@ class TestV20CredAck(AsyncTestCase):
     async def test_deserialize(self):
         """Test deserialization."""
         obj = V20CredAck()
+        ser = obj.serialize()
 
         with async_mock.patch.object(
             test_module.V20CredAckSchema, "load", async_mock.MagicMock()
         ) as mock_load:
-            cred_ack = V20CredAck.deserialize(obj)
-            mock_load.assert_called_once_with(obj)
+            cred_ack = V20CredAck.deserialize(ser)
+            mock_load.assert_called_once_with(ser)
 
             assert cred_ack is mock_load.return_value
+
+        cred_ack = V20CredAck.deserialize(obj)
+        mock_load.assert_called_once_with(obj)
 
     async def test_serialize(self):
         """Test serialization."""

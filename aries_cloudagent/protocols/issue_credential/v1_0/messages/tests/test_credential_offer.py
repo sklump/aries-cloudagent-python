@@ -58,14 +58,16 @@ class TestCredentialOffer(TestCase):
             credential_preview=self.preview,
             offers_attach=[
                 AttachDecorator.data_base64(
-                    mapping=self.indy_offer,
+                    mapping=TestCredentialOffer.indy_offer,
                     ident=ATTACH_DECO_IDS[CREDENTIAL_OFFER],
                 )
             ],
         )
         assert credential_offer.credential_preview == self.preview
-        assert credential_offer.offers_attach[0].content == self.indy_offer
-        assert credential_offer.indy_offer(0) == self.indy_offer
+        assert (
+            credential_offer.offers_attach[0].content == TestCredentialOffer.indy_offer
+        )
+        assert credential_offer.indy_offer(0) == TestCredentialOffer.indy_offer
 
     def test_type(self):
         """Test type"""
@@ -74,7 +76,7 @@ class TestCredentialOffer(TestCase):
             credential_preview=self.preview,
             offers_attach=[
                 AttachDecorator.data_base64(
-                    mapping=self.indy_offer,
+                    mapping=TestCredentialOffer.indy_offer,
                     ident=ATTACH_DECO_IDS[CREDENTIAL_OFFER],
                 )
             ],
@@ -89,12 +91,16 @@ class TestCredentialOffer(TestCase):
         """
         Test deserialize
         """
-        obj = self.indy_offer
+        obj = TestCredentialOffer.offer
+        ser = obj.serialize()
 
-        credential_offer = CredentialOffer.deserialize(obj)
-        mock_credential_offer_schema_load.assert_called_once_with(obj)
+        credential_offer = CredentialOffer.deserialize(ser)
+        mock_credential_offer_schema_load.assert_called_once_with(ser)
 
         assert credential_offer is mock_credential_offer_schema_load.return_value
+
+        CredentialOffer.deserialize(obj)
+        mock_credential_offer_schema_load.assert_called_once_with(ser)
 
     @mock.patch(
         f"{PROTOCOL_PACKAGE}.messages.credential_offer.CredentialOfferSchema.dump"
@@ -108,7 +114,7 @@ class TestCredentialOffer(TestCase):
             credential_preview=self.preview,
             offers_attach=[
                 AttachDecorator.data_base64(
-                    mapping=self.indy_offer,
+                    mapping=TestCredentialOffer.indy_offer,
                     ident=ATTACH_DECO_IDS[CREDENTIAL_OFFER],
                 )
             ],

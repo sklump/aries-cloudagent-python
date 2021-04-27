@@ -6,7 +6,6 @@ from marshmallow import fields, validate
 
 from .....core.profile import ProfileSession
 from .....indy.sdk.artifacts import UNENCRYPTED_TAGS
-from .....messaging.models import serial
 from .....messaging.models.base_record import BaseExchangeRecord, BaseExchangeSchema
 from .....messaging.valid import UUIDFour
 
@@ -59,7 +58,6 @@ class V20CredExRecord(BaseExchangeRecord):
         cred_proposal: Union[V20CredProposal, Mapping] = None,  # cred proposal message
         cred_offer: Union[V20CredOffer, Mapping] = None,  # cred offer message
         cred_request: Union[V20CredRequest, Mapping] = None,  # cred request message
-        cred_request_metadata: Mapping = None,  # credential request metadata
         cred_issue: Union[V20CredIssue, Mapping] = None,  # cred issue message
         cred_id_stored: str = None,
         auto_offer: bool = False,
@@ -68,6 +66,7 @@ class V20CredExRecord(BaseExchangeRecord):
         error_msg: str = None,
         trace: bool = False,
         conn_id: str = None,  # for backward compatibility to restore from storage
+        cred_request_metadata: Mapping = None,  # backward compat: now in indy detail
         by_format: Mapping = None,  # formalism for base_record.from_storage()
         **kwargs,
     ):
@@ -80,11 +79,10 @@ class V20CredExRecord(BaseExchangeRecord):
         self.initiator = initiator
         self.role = role
         self.state = state
-        self.cred_proposal = serial(cred_proposal)
-        self.cred_offer = serial(cred_offer)
-        self.cred_request = serial(cred_request)
-        self.cred_request_metadata = cred_request_metadata
-        self.cred_issue = serial(cred_issue)
+        self.cred_proposal = V20CredProposal.deserialize(cred_proposal)
+        self.cred_offer = V20CredOffer.deserialize(cred_offer)
+        self.cred_request = V20CredRequest.deserialize(cred_request)
+        self.cred_issue = V20CredIssue.deserialize(cred_issue)
         self.cred_id_stored = cred_id_stored
         self.auto_offer = auto_offer
         self.auto_issue = auto_issue
@@ -245,26 +243,22 @@ class V20CredExRecordSchema(BaseExchangeSchema):
     cred_proposal = fields.Nested(
         V20CredProposalSchema(),
         required=False,
-        description="Serialized credential proposal message",
+        description="Credential proposal message",
     )
     cred_offer = fields.Nested(
         V20CredOfferSchema(),
         required=False,
-        description="Serialized credential offer message",
+        description="Credential offer message",
     )
     cred_request = fields.Nested(
         V20CredRequestSchema(),
         required=False,
-        description="Serialized credential request message",
-    )
-    cred_request_metadata = fields.Dict(
-        required=False,
-        description="(Indy) credential request metadata",
+        description="Credential request message",
     )
     cred_issue = fields.Nested(
         V20CredIssueSchema(),
         required=False,
-        description="Serialized credential issue message",
+        description="Credential issue message",
     )
     by_format = fields.Dict(
         required=False,

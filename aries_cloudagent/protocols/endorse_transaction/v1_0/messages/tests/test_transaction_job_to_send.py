@@ -36,14 +36,18 @@ class TestTransactionJobToSend(TestCase, TestConfig):
         Test deserialization.
         """
         obj = self.transaction_job_to_send
+        ser = obj.serialize()
 
-        transaction_job_to_send = TransactionJobToSend.deserialize(obj)
-        mock_transaction_job_to_send_schema_load.assert_called_once_with(obj)
+        transaction_job_to_send = TransactionJobToSend.deserialize(ser)
+        mock_transaction_job_to_send_schema_load.assert_called_once_with(ser)
 
         assert (
             transaction_job_to_send
             is mock_transaction_job_to_send_schema_load.return_value
         )
+
+        TransactionJobToSend.deserialize(obj)
+        mock_transaction_job_to_send_schema_load.assert_called_once_with(ser)
 
     @mock.patch(
         "aries_cloudagent.protocols.endorse_transaction.v1_0.messages."

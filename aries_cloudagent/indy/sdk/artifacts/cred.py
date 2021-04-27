@@ -1,4 +1,4 @@
-"""Cred artifacts to attach to RFC 453 messages."""
+"""Credential artifacts."""
 
 from typing import Mapping
 

@@ -48,13 +48,18 @@ class TestCredentialRequest(TestCase):
             comment="Test",
             requests_attach=[
                 AttachDecorator.data_base64(
-                    mapping=self.indy_cred_req,
+                    mapping=TestCredentialRequest.indy_cred_req,
                     ident=ATTACH_DECO_IDS[CREDENTIAL_REQUEST],
                 )
             ],
         )
-        assert credential_request.requests_attach[0].content == self.indy_cred_req
-        assert credential_request.indy_cred_req(0) == self.indy_cred_req
+        assert (
+            credential_request.requests_attach[0].content
+            == TestCredentialRequest.indy_cred_req
+        )
+        assert (
+            credential_request.indy_cred_req(0) == TestCredentialRequest.indy_cred_req
+        )
 
     def test_type(self):
         """Test type"""
@@ -62,7 +67,7 @@ class TestCredentialRequest(TestCase):
             comment="Test",
             requests_attach=[
                 AttachDecorator.data_base64(
-                    mapping=self.indy_cred_req,
+                    mapping=TestCredentialRequest.indy_cred_req,
                     ident=ATTACH_DECO_IDS[CREDENTIAL_REQUEST],
                 )
             ],
@@ -80,12 +85,16 @@ class TestCredentialRequest(TestCase):
         """
         Test deserialize
         """
-        obj = self.indy_cred_req
+        obj = TestCredentialRequest.cred_req
+        ser = obj.serialize()
 
-        credential_request = CredentialRequest.deserialize(obj)
-        mock_credential_request_schema_load.assert_called_once_with(obj)
+        credential_request = CredentialRequest.deserialize(ser)
+        mock_credential_request_schema_load.assert_called_once_with(ser)
 
         assert credential_request is mock_credential_request_schema_load.return_value
+
+        CredentialRequest.deserialize(obj)
+        mock_credential_request_schema_load.assert_called_once_with(ser)
 
     @mock.patch(
         f"{PROTOCOL_PACKAGE}.messages."
@@ -99,7 +108,7 @@ class TestCredentialRequest(TestCase):
             comment="Test",
             requests_attach=[
                 AttachDecorator.data_base64(
-                    mapping=self.indy_cred_req,
+                    mapping=TestCredentialRequest.indy_cred_req,
                     ident=ATTACH_DECO_IDS[CREDENTIAL_REQUEST],
                 )
             ],

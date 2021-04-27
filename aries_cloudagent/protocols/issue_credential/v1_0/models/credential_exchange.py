@@ -13,7 +13,6 @@ from .....indy.sdk.artifacts.cred_abstract import (
     IndyCredAbstractSchema,
 )
 from .....indy.sdk.artifacts.cred_request import IndyCredRequest, IndyCredRequestSchema
-from .....messaging.models import serial
 from .....messaging.models.base_record import BaseExchangeRecord, BaseExchangeSchema
 from .....messaging.valid import (
     INDY_CRED_DEF_ID,
@@ -96,14 +95,16 @@ class V10CredentialExchange(BaseExchangeRecord):
         self.state = state
         self.credential_definition_id = credential_definition_id
         self.schema_id = schema_id
-        self.credential_proposal_dict = serial(credential_proposal_dict)
-        self.credential_offer_dict = serial(credential_offer_dict)
-        self.credential_offer = serial(credential_offer)
-        self.credential_request = serial(credential_request)
+        self._credential_proposal_dict = CredentialProposal.deserialize(
+            credential_proposal_dict
+        )
+        self._credential_offer_dict = CredentialOffer.deserialize(credential_offer_dict)
+        self._credential_offer = IndyCredAbstract.deserialize(credential_offer)
+        self._credential_request = IndyCredRequest.deserialize(credential_request)
         self.credential_request_metadata = credential_request_metadata
         self.credential_id = credential_id
-        self.raw_credential = serial(raw_credential)
-        self.credential = serial(credential)
+        self._raw_credential = IndyCredential.deserialize(raw_credential)
+        self._credential = IndyCredInfo.deserialize(credential)
         self.revoc_reg_id = revoc_reg_id
         self.revocation_id = revocation_id
         self.auto_offer = auto_offer
@@ -116,6 +117,66 @@ class V10CredentialExchange(BaseExchangeRecord):
     def credential_exchange_id(self) -> str:
         """Accessor for the ID associated with this exchange."""
         return self._id
+
+    @property
+    def credential_proposal_dict(self) -> CredentialProposal:
+        """Accessor for credential proposal message."""
+        return self._credential_proposal_dict
+
+    @credential_proposal_dict.setter
+    def credential_proposal_dict(self, value: Union[CredentialProposal, Mapping]):
+        """Credential proposal message setter."""
+        self._credential_proposal_dict = CredentialProposal.deserialize(value)
+
+    @property
+    def credential_offer_dict(self) -> CredentialOffer:
+        """Accessor for credential offer message."""
+        return self._credential_offer_dict
+
+    @credential_offer_dict.setter
+    def credential_offer_dict(self, value: Union[CredentialOffer, Mapping]):
+        """Credential offer message setter."""
+        self._credential_offer_dict = CredentialOffer.deserialize(value)
+
+    @property
+    def credential_offer(self) -> IndyCredAbstract:
+        """Accessor for indy credential offer model."""
+        return self._credential_offer
+
+    @credential_offer.setter
+    def credential_offer(self, value: Union[IndyCredAbstract, Mapping]):
+        """Indy credential offer model setter."""
+        self._credential_offer = IndyCredAbstract.deserialize(value)
+
+    @property
+    def credential_request(self) -> IndyCredRequest:
+        """Accessor for indy credential request model."""
+        return self._credential_request
+
+    @credential_request.setter
+    def credential_request(self, value: Union[IndyCredRequest, Mapping]):
+        """Indy credential request model setter."""
+        self._credential_request = IndyCredRequest.deserialize(value)
+
+    @property
+    def raw_credential(self) -> IndyCredential:
+        """Accessor for indy (raw) credential model."""
+        return self._raw_credential
+
+    @raw_credential.setter
+    def raw_credential(self, value: Union[IndyCredential, Mapping]):
+        """Indy (raw) credential model setter."""
+        self._raw_credential = IndyCredential.deserialize(value)
+
+    @property
+    def credential(self) -> IndyCredInfo:
+        """Accessor for indy (stored) credential info model."""
+        return self._credential
+
+    @credential.setter
+    def credential(self, value: Union[IndyCredInfo, Mapping]):
+        """Indy (stored) credential info model setter."""
+        self._credential = IndyCredInfo.deserialize(value)
 
     @property
     def record_value(self) -> dict:

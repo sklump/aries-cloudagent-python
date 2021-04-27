@@ -5,7 +5,6 @@ from typing import Any, Mapping, Union
 from marshmallow import fields, validate
 
 from .....indy.sdk.artifacts import UNENCRYPTED_TAGS
-from .....messaging.models import serial
 from .....messaging.models.base_record import BaseExchangeRecord, BaseExchangeSchema
 from .....messaging.valid import UUIDFour
 
@@ -69,9 +68,9 @@ class V20PresExRecord(BaseExchangeRecord):
         self.initiator = initiator
         self.role = role
         self.state = state
-        self.pres_proposal = serial(pres_proposal)
-        self.pres_request = serial(pres_request)
-        self.pres = serial(pres)
+        self.pres_proposal = V20PresProposal.deserialize(pres_proposal)
+        self.pres_request = V20PresRequest.deserialize(pres_request)
+        self.pres = V20Pres.deserialize(pres)
         self.verified = verified
         self.auto_present = auto_present
         self.error_msg = error_msg

@@ -117,20 +117,20 @@ class TestV20CredIssue(AsyncTestCase):
 
     async def test_deserialize(self):
         """Test deserialization."""
-        obj = TestV20CredIssue.CRED_ISSUE.serialize()
+        ser = TestV20CredIssue.CRED_ISSUE.serialize()
 
-        cred_issue = V20CredIssue.deserialize(obj)
+        cred_issue = V20CredIssue.deserialize(ser)
         assert type(cred_issue) == V20CredIssue
 
-        obj["credentials~attach"][0]["data"]["base64"] = "eyJub3QiOiAiaW5keSJ9"
+        ser["credentials~attach"][0]["data"]["base64"] = "eyJub3QiOiAiaW5keSJ9"
         with self.assertRaises(BaseModelError):
-            V20CredIssue.deserialize(obj)
+            V20CredIssue.deserialize(ser)
 
-        obj["credentials~attach"][0]["@id"] = "xxx"
+        ser["credentials~attach"][0]["@id"] = "xxx"
         with self.assertRaises(BaseModelError):
-            V20CredIssue.deserialize(obj)
+            V20CredIssue.deserialize(ser)
 
-        obj["credentials~attach"].append(  # more attachments than formats
+        ser["credentials~attach"].append(  # more attachments than formats
             {
                 "@id": "not_indy",
                 "mime-type": "application/json",
@@ -138,7 +138,7 @@ class TestV20CredIssue(AsyncTestCase):
             }
         )
         with self.assertRaises(BaseModelError):
-            V20CredIssue.deserialize(obj)
+            V20CredIssue.deserialize(ser)
 
         cred_issue.formats.append(  # unknown format: no validation
             V20CredFormat(
@@ -146,15 +146,15 @@ class TestV20CredIssue(AsyncTestCase):
                 format_="not_indy",
             )
         )
-        obj = cred_issue.serialize()
-        obj["credentials~attach"].append(
+        ser = cred_issue.serialize()
+        ser["credentials~attach"].append(
             {
                 "@id": "not_indy",
                 "mime-type": "application/json",
                 "data": {"base64": "eyJub3QiOiAiaW5keSJ9"},
             }
         )
-        V20CredIssue.deserialize(obj)
+        V20CredIssue.deserialize(ser)
 
     async def test_serialize(self):
         """Test serialization."""

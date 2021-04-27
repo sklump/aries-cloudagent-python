@@ -176,9 +176,7 @@ class OutOfBandManager(BaseConnectionManager):
                         a_id,
                     )
                     message_attachments.append(
-                        InvitationMessage.wrap_message(
-                            V20CredOffer.deserialize(cred_ex_rec.cred_offer).offer()
-                        )
+                        InvitationMessage.wrap_message(cred_ex_rec.cred_offer.offer())
                     )
             elif a_type == "present-proof":
                 try:
@@ -198,9 +196,7 @@ class OutOfBandManager(BaseConnectionManager):
                     )
                     message_attachments.append(
                         InvitationMessage.wrap_message(
-                            V20PresRequest.deserialize(
-                                pres_ex_rec.pres_request
-                            ).attachment()
+                            pres_ex_rec.pres_request.attachment()
                         )
                     )
             else:
@@ -343,7 +339,7 @@ class OutOfBandManager(BaseConnectionManager):
         return InvitationRecord(  # for return via admin API, not storage
             state=InvitationRecord.STATE_INITIAL,
             invi_msg_id=invi_msg._id,
-            invitation=invi_msg.serialize(),
+            invitation=invi_msg,
             invitation_url=invi_url,
         )
 
@@ -690,9 +686,7 @@ class OutOfBandManager(BaseConnectionManager):
 
         pres_ex_record = await pres_mgr.receive_pres_request(pres_ex_record)
         if pres_ex_record.auto_present:
-            indy_proof_request = V20PresRequest.deserialize(
-                pres_request_msg
-            ).attachment(
+            indy_proof_request = pres_request_msg.attachment(
                 V20PresFormat.Format.INDY
             )  # assumption will change for DIF
             try:

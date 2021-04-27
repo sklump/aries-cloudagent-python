@@ -94,20 +94,20 @@ class TestV20CredRequest(AsyncTestCase):
 
     async def test_serde(self):
         """Test de/serialization."""
-        obj = TestV20CredRequest.CRED_REQUEST.serialize()
+        ser = TestV20CredRequest.CRED_REQUEST.serialize()
 
-        cred_request = V20CredRequest.deserialize(obj)
+        cred_request = V20CredRequest.deserialize(ser)
         assert type(cred_request) == V20CredRequest
 
-        obj["requests~attach"][0]["data"]["base64"] = "eyJub3QiOiAiaW5keSJ9"
+        ser["requests~attach"][0]["data"]["base64"] = "eyJub3QiOiAiaW5keSJ9"
         with self.assertRaises(BaseModelError):
-            V20CredRequest.deserialize(obj)
+            V20CredRequest.deserialize(ser)
 
-        obj["requests~attach"][0]["@id"] = "xxx"
+        ser["requests~attach"][0]["@id"] = "xxx"
         with self.assertRaises(BaseModelError):
-            V20CredRequest.deserialize(obj)
+            V20CredRequest.deserialize(ser)
 
-        obj["requests~attach"].append(  # more attachments than formats
+        ser["requests~attach"].append(  # more attachments than formats
             {
                 "@id": "def",
                 "mime-type": "application/json",
@@ -115,7 +115,7 @@ class TestV20CredRequest(AsyncTestCase):
             }
         )
         with self.assertRaises(BaseModelError):
-            V20CredRequest.deserialize(obj)
+            V20CredRequest.deserialize(ser)
 
         cred_request.formats.append(  # unknown format: no validation
             V20CredFormat(
@@ -123,15 +123,15 @@ class TestV20CredRequest(AsyncTestCase):
                 format_="not_indy",
             )
         )
-        obj = cred_request.serialize()
-        obj["requests~attach"].append(
+        ser = cred_request.serialize()
+        ser["requests~attach"].append(
             {
                 "@id": "not_indy",
                 "mime-type": "application/json",
                 "data": {"base64": "eyJub3QiOiAiaW5keSJ9"},
             }
         )
-        V20CredRequest.deserialize(obj)
+        V20CredRequest.deserialize(ser)
 
 
 class TestV20CredRequestSchema(AsyncTestCase):

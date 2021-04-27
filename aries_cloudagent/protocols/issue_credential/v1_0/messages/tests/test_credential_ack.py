@@ -25,11 +25,15 @@ class TestCredentialAck(TestCase):
         Test deserialize
         """
         obj = CredentialAck()
+        ser = obj.serialize()
 
-        credential_ack = CredentialAck.deserialize(obj)
-        mock_credential_ack_schema_load.assert_called_once_with(obj)
+        credential_ack = CredentialAck.deserialize(ser)
+        mock_credential_ack_schema_load.assert_called_once_with(ser)
 
         assert credential_ack is mock_credential_ack_schema_load.return_value
+
+        CredentialAck.deserialize(obj)
+        mock_credential_ack_schema_load.assert_called_once_with(ser)
 
     @mock.patch(f"{PROTOCOL_PACKAGE}.messages.credential_ack.CredentialAckSchema.dump")
     def test_serialize(self, mock_credential_ack_schema_dump):

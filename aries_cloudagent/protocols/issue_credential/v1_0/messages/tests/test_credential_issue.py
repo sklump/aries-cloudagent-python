@@ -114,11 +114,15 @@ class TestCredentialIssue(TestCase):
         Test deserialize
         """
         obj = self.cred_issue
+        ser = obj.serialize()
 
-        credential_issue = CredentialIssue.deserialize(obj)
-        mock_credential_issue_schema_load.assert_called_once_with(obj)
+        credential_issue = CredentialIssue.deserialize(ser)
+        mock_credential_issue_schema_load.assert_called_once_with(ser)
 
         assert credential_issue is mock_credential_issue_schema_load.return_value
+
+        CredentialIssue.deserialize(obj)
+        mock_credential_issue_schema_load.assert_called_once_with(ser)
 
     @mock.patch(
         f"{PROTOCOL_PACKAGE}.messages.credential_issue.CredentialIssueSchema.dump"

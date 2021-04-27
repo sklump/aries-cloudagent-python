@@ -60,14 +60,18 @@ class TestRefusedTransactionResponse(TestCase, TestConfig):
         Test deserialization.
         """
         obj = self.refused_transaction_response
+        ser = obj.serialize()
 
-        refused_transaction_response = RefusedTransactionResponse.deserialize(obj)
-        mock_refused_transaction_response_schema_load.assert_called_once_with(obj)
+        refused_transaction_response = RefusedTransactionResponse.deserialize(ser)
+        mock_refused_transaction_response_schema_load.assert_called_once_with(ser)
 
         assert (
             refused_transaction_response
             is mock_refused_transaction_response_schema_load.return_value
         )
+
+        refused_transaction_response = RefusedTransactionResponse.deserialize(obj)
+        mock_refused_transaction_response_schema_load.assert_called_once_with(ser)
 
     @mock.patch(
         "aries_cloudagent.protocols.endorse_transaction.v1_0.messages."

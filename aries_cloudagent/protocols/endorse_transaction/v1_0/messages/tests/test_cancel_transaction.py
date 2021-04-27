@@ -40,11 +40,15 @@ class TestCancelTransaction(TestCase, TestConfig):
         Test deserialization.
         """
         obj = self.cancel_transaction
+        ser = obj.serialize()
 
-        cancel_transaction = CancelTransaction.deserialize(obj)
-        mock_cancel_transaction_schema_load.assert_called_once_with(obj)
+        cancel_transaction = CancelTransaction.deserialize(ser)
+        mock_cancel_transaction_schema_load.assert_called_once_with(ser)
 
         assert cancel_transaction is mock_cancel_transaction_schema_load.return_value
+
+        CancelTransaction.deserialize(obj)
+        mock_cancel_transaction_schema_load.assert_called_once_with(ser)
 
     @mock.patch(
         "aries_cloudagent.protocols.endorse_transaction.v1_0.messages."

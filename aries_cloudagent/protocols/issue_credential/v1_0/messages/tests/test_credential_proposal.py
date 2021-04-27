@@ -44,7 +44,7 @@ class TestCredentialProposal(TestCase):
 
     def test_deserialize(self):
         """Test deserialize."""
-        obj = {
+        ser = {
             "comment": "Hello World",
             "credential_proposal": {
                 "@type": DIDCommPrefix.qualify_current(CREDENTIAL_PREVIEW),
@@ -57,7 +57,7 @@ class TestCredentialProposal(TestCase):
             "cred_def_id": "GMm4vMw8LLrLJjp81kRRLp:3:CL:12:tag",
         }
 
-        cred_proposal = CredentialProposal.deserialize(obj)
+        cred_proposal = CredentialProposal.deserialize(ser)
         assert type(cred_proposal) == CredentialProposal
 
     def test_serialize(self):

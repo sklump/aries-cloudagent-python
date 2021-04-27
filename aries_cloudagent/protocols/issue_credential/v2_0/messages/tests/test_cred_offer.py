@@ -93,20 +93,20 @@ class TestV20CredOffer(AsyncTestCase):
 
     async def test_serde(self):
         """Test de/serialization."""
-        obj = TestV20CredOffer.CRED_OFFER.serialize()
+        ser = TestV20CredOffer.CRED_OFFER.serialize()
 
-        cred_offer = V20CredOffer.deserialize(obj)
+        cred_offer = V20CredOffer.deserialize(ser)
         assert type(cred_offer) == V20CredOffer
 
-        obj["offers~attach"][0]["data"]["base64"] = "eyJub3QiOiAiaW5keSJ9"
+        ser["offers~attach"][0]["data"]["base64"] = "eyJub3QiOiAiaW5keSJ9"
         with self.assertRaises(BaseModelError):
-            V20CredOffer.deserialize(obj)
+            V20CredOffer.deserialize(ser)
 
-        obj["offers~attach"][0]["@id"] = "xxx"
+        ser["offers~attach"][0]["@id"] = "xxx"
         with self.assertRaises(BaseModelError):
-            V20CredOffer.deserialize(obj)
+            V20CredOffer.deserialize(ser)
 
-        obj["offers~attach"].append(  # more attachments than formats
+        ser["offers~attach"].append(  # more attachments than formats
             {
                 "@id": "not_indy",
                 "mime-type": "application/json",
@@ -114,7 +114,7 @@ class TestV20CredOffer(AsyncTestCase):
             }
         )
         with self.assertRaises(BaseModelError):
-            V20CredOffer.deserialize(obj)
+            V20CredOffer.deserialize(ser)
 
         cred_offer.formats.append(  # unknown format: no validation
             V20CredFormat(
@@ -122,15 +122,15 @@ class TestV20CredOffer(AsyncTestCase):
                 format_="not_indy",
             )
         )
-        obj = cred_offer.serialize()
-        obj["offers~attach"].append(
+        ser = cred_offer.serialize()
+        ser["offers~attach"].append(
             {
                 "@id": "not_indy",
                 "mime-type": "application/json",
                 "data": {"base64": "eyJub3QiOiAiaW5keSJ9"},
             }
         )
-        V20CredOffer.deserialize(obj)
+        V20CredOffer.deserialize(ser)
 
 
 class TestCredentialOfferSchema(AsyncTestCase):

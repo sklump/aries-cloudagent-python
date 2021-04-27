@@ -125,7 +125,7 @@ class V20CredManager:
             connection_id=connection_id,
             initiator=V20CredExRecord.INITIATOR_SELF,
             role=V20CredExRecord.ROLE_ISSUER,
-            cred_proposal=cred_proposal.serialize(),
+            cred_proposal=cred_proposal,
             auto_issue=True,
             auto_remove=auto_remove,
             trace=(cred_proposal._trace is not None),
@@ -190,7 +190,7 @@ class V20CredManager:
             initiator=V20CredExRecord.INITIATOR_SELF,
             role=V20CredExRecord.ROLE_HOLDER,
             state=V20CredExRecord.STATE_PROPOSAL_SENT,
-            cred_proposal=cred_proposal_message.serialize(),
+            cred_proposal=cred_proposal_message,
             auto_remove=auto_remove,
             trace=trace,
         )
@@ -220,7 +220,7 @@ class V20CredManager:
             initiator=V20CredExRecord.INITIATOR_EXTERNAL,
             role=V20CredExRecord.ROLE_ISSUER,
             state=V20CredExRecord.STATE_PROPOSAL_RECEIVED,
-            cred_proposal=cred_proposal_message.serialize(),
+            cred_proposal=cred_proposal_message,
             auto_offer=self._profile.settings.get(
                 "debug.auto_respond_credential_proposal"
             ),
@@ -264,9 +264,7 @@ class V20CredManager:
             return json.loads(offer_json)
 
         cred_proposal_message = (
-            counter_proposal
-            if counter_proposal
-            else V20CredProposal.deserialize(cred_ex_record.cred_proposal)
+            counter_proposal if counter_proposal else cred_ex_record.cred_proposal
         )
         cred_proposal_message.assign_trace_decorator(
             self._profile.settings, cred_ex_record.trace
@@ -333,9 +331,9 @@ class V20CredManager:
         cred_ex_record.thread_id = cred_offer_message._thread_id
         cred_ex_record.state = V20CredExRecord.STATE_OFFER_SENT
         cred_ex_record.cred_proposal = (  # any counter replaces original
-            cred_proposal_message.serialize()
+            cred_proposal_message
         )
-        cred_ex_record.cred_offer = cred_offer_message.serialize()
+        cred_ex_record.cred_offer = cred_offer_message
 
         async with self._profile.session() as session:
             await cred_ex_record.save(session, reason="create v2.0 credential offer")
@@ -368,7 +366,7 @@ class V20CredManager:
         schema_id = offer["schema_id"]
         cred_def_id = offer["cred_def_id"]
 
-        cred_proposal_ser = V20CredProposal(
+        cred_proposal = V20CredProposal(
             comment=cred_offer_message.comment,
             credential_preview=cred_offer_message.credential_preview,
             formats=[
@@ -388,7 +386,7 @@ class V20CredManager:
                     ident="0",
                 )
             ],
-        ).serialize()  # proposal houses filters, preview (possibly with MIME types)
+        )  # proposal houses filters, preview (possibly with MIME types)
 
         async with self._profile.session() as session:
             # Get credential exchange record (holder sent proposal first)
@@ -399,21 +397,21 @@ class V20CredManager:
                         session, connection_id, cred_offer_message._thread_id
                     )
                 )
-                cred_ex_record.cred_proposal = cred_proposal_ser
+                cred_ex_record.cred_proposal = cred_proposal
             except StorageNotFoundError:  # issuer sent this offer free of any proposal
                 cred_ex_record = V20CredExRecord(
                     connection_id=connection_id,
                     thread_id=cred_offer_message._thread_id,
                     initiator=V20CredExRecord.INITIATOR_EXTERNAL,
                     role=V20CredExRecord.ROLE_HOLDER,
-                    cred_proposal=cred_proposal_ser,
+                    cred_proposal=cred_proposal,
                     auto_remove=not self._profile.settings.get(
                         "preserve_exchange_records"
                     ),
                     trace=(cred_offer_message._trace is not None),
                 )
 
-            cred_ex_record.cred_offer = cred_offer_message.serialize()
+            cred_ex_record.cred_offer = cred_offer_message
             cred_ex_record.state = V20CredExRecord.STATE_OFFER_RECEIVED
 
             await cred_ex_record.save(session, reason="receive v2.0 credential offer")
@@ -452,7 +450,7 @@ class V20CredManager:
                 f"(must be {V20CredExRecord.STATE_OFFER_RECEIVED})"
             )
 
-        cred_offer_message = V20CredOffer.deserialize(cred_ex_record.cred_offer)
+        cred_offer_message = cred_ex_record.cred_offer
         cred_offer = cred_offer_message.attachment(
             V20CredFormat.Format.INDY
         )  # will change for DIF
@@ -547,7 +545,7 @@ class V20CredManager:
                     session, connection_id, cred_request_message._thread_id
                 )
             )
-            cred_ex_record.cred_request = cred_request_message.serialize()
+            cred_ex_record.cred_request = cred_request_message
             cred_ex_record.state = V20CredExRecord.STATE_REQUEST_RECEIVED
             await cred_ex_record.save(session, reason="receive v2.0 credential request")
 
@@ -580,15 +578,13 @@ class V20CredManager:
                 f"(must be {V20CredExRecord.STATE_REQUEST_RECEIVED})"
             )
 
-        cred_offer_message = V20CredOffer.deserialize(cred_ex_record.cred_offer)
+        cred_offer_message = cred_ex_record.cred_offer
         replacement_id = cred_offer_message.replacement_id
         cred_offer = cred_offer_message.attachment(V20CredFormat.Format.INDY)
         schema_id = cred_offer["schema_id"]
         cred_def_id = cred_offer["cred_def_id"]
 
-        cred_request = V20CredRequest.deserialize(
-            cred_ex_record.cred_request
-        ).attachment(
+        cred_request = cred_ex_record.cred_request.attachment(
             V20CredFormat.Format.INDY
         )  # will change for DIF
 
@@ -667,9 +663,9 @@ class V20CredManager:
                 )
             del revoc
 
-        cred_values = V20CredProposal.deserialize(
-            cred_ex_record.cred_proposal
-        ).credential_preview.attr_dict(decode=False)
+        cred_values = cred_ex_record.cred_proposal.credential_preview.attr_dict(
+            decode=False
+        )
         issuer = self._profile.inject(IndyIssuer)
         try:
             (cred_json, cred_rev_id,) = await issuer.create_credential(
@@ -749,7 +745,7 @@ class V20CredManager:
         )
 
         cred_ex_record.state = V20CredExRecord.STATE_ISSUED
-        cred_ex_record.cred_issue = cred_issue_message.serialize()
+        cred_ex_record.cred_issue = cred_issue_message
         async with self._profile.session() as session:
             # FIXME - re-fetch record to check state, apply transactional update
             await cred_ex_record.save(session, reason="v2.0 issue credential")
@@ -786,7 +782,7 @@ class V20CredManager:
                 )
             )
 
-            cred_ex_record.cred_issue = cred_issue_message.serialize()
+            cred_ex_record.cred_issue = cred_issue_message
             cred_ex_record.state = V20CredExRecord.STATE_CREDENTIAL_RECEIVED
 
             await cred_ex_record.save(session, reason="receive v2.0 credential issue")
@@ -813,9 +809,9 @@ class V20CredManager:
                 f"(must be {V20CredExRecord.STATE_CREDENTIAL_RECEIVED})"
             )
 
-        cred = V20CredIssue.deserialize(cred_ex_record.cred_issue).attachment(
+        cred = cred_ex_record.cred_issue.attachment(
             V20CredFormat.Format.INDY
-        )
+        )  # will change for DIF
 
         rev_reg_def = None
         ledger = self._profile.inject(BaseLedger)
@@ -825,9 +821,7 @@ class V20CredManager:
                 rev_reg_def = await ledger.get_revoc_reg_def(cred["rev_reg_id"])
 
         holder = self._profile.inject(IndyHolder)
-        cred_proposal_message = V20CredProposal.deserialize(
-            cred_ex_record.cred_proposal
-        )
+        cred_proposal_message = cred_ex_record.cred_proposal
         mime_types = None
         if cred_proposal_message and cred_proposal_message.credential_preview:
             mime_types = cred_proposal_message.credential_preview.mime_types() or None
