@@ -23,7 +23,6 @@ from .....messaging.valid import (
     UUIDFour,
 )
 
-
 from ..messages.credential_offer import CredentialOffer, CredentialOfferSchema
 from ..messages.credential_proposal import CredentialProposal, CredentialProposalSchema
 
@@ -38,7 +37,7 @@ class V10CredentialExchange(BaseExchangeRecord):
 
     RECORD_TYPE = "credential_exchange_v10"
     RECORD_ID_NAME = "credential_exchange_id"
-    WEBHOOK_TOPIC = "issue_credential"
+    RECORD_TOPIC = "issue_credential"
     TAG_NAMES = {"~thread_id"} if UNENCRYPTED_TAGS else {"thread_id"}
 
     INITIATOR_SELF = "self"

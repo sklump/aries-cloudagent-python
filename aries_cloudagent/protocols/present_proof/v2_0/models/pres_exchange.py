@@ -25,7 +25,7 @@ class V20PresExRecord(BaseExchangeRecord):
 
     RECORD_TYPE = "pres_ex_v20"
     RECORD_ID_NAME = "pres_ex_id"
-    WEBHOOK_TOPIC = "present_proof_v2_0"
+    RECORD_TOPIC = "present_proof_v2_0"
     TAG_NAMES = {"~thread_id"} if UNENCRYPTED_TAGS else {"thread_id"}
 
     INITIATOR_SELF = "self"
