@@ -35,8 +35,8 @@ class InvitationRecord(BaseExchangeRecord):
         invi_msg_id: str = None,
         invitation: Union[InvitationMessage, Mapping] = None,  # invitation message
         invitation_url: str = None,
-        public_did: str = None,  # public DID in invitation; none if peer DID
         trace: bool = False,
+        public_did: str = None,  # For backward compatibility, BaseRecord.from_storage()
         **kwargs,
     ):
         """Initialize a new InvitationRecord."""
@@ -44,7 +44,12 @@ class InvitationRecord(BaseExchangeRecord):
         self._id = invitation_id
         self.state = state
         self.invi_msg_id = invi_msg_id
-        self.invitation = InvitationMessage.deserialize(invitation)
+        # self.invitation = InvitationMessage.deserialize(invitation)
+        self.invitation = (
+            invitation.serialize()
+            if isinstance(invitation, InvitationMessage)
+            else invitation
+        )
         self.invitation_url = invitation_url
         self.trace = trace
 
@@ -65,6 +70,31 @@ class InvitationRecord(BaseExchangeRecord):
                 "trace",
             )
         }
+
+    def serialize(self, as_string=False) -> dict:
+        """
+        Create a JSON-compatible dict representation of the model instance.
+
+        Args:
+            as_string: Return a string of JSON instead of a dict
+
+        Returns:
+            A dict representation of this model, or a JSON string if as_string is True
+
+        """
+        copy = InvitationRecord(
+            invitation_id=self.invitation_id,
+            state=self.state,
+            invi_msg_id=self.invi_msg_id,
+            invitation=None,
+            invitation_url=self.invitation_url,
+            public_did=None,
+            trace=self.trace,
+        )
+        copy.invitation = InvitationMessage.deserialize(
+            self.invitation
+        )
+        return super(self.__class__, copy).serialize(as_string)
 
     def __eq__(self, other: Any) -> bool:
         """Comparison between records."""
