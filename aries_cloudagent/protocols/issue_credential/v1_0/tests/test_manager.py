@@ -120,7 +120,7 @@ INDY_OFFER = {
 INDY_CRED_REQ = {
     "nonce": "1017762706737386703693758",
     "prover_did": TEST_DID,
-    "cred_def_id":  CRED_DEF_ID,
+    "cred_def_id": CRED_DEF_ID,
     "blinded_ms": {
         "u": "83907504917598709544715660183444547664806528194879236493704185267249518487609477830252206438464922282419526404954032744426656836343614241707982523911337758117991524606767981934822739259321023980818911648706424625657217291525111737996606024710795596961607334766957629765398381678917329471919374676824400143394472619220909211861028497009707890651887260349590274729523062264675018736459760546731362496666872299645586181905130659944070279943157241097916683504866583173110187429797028853314290183583689656212022982000994142291014801654456172923356395840313420880588404326139944888917762604275764474396403919497783080752861",
         "ur": "1 2422A7A25A9AB730F3399C77C28E1F6E02BB94A2C07D245B28DC4EE33E33DE49 1 1EF3FBD36FBA7510BDA79386508C0A84A33DF4171107C22895ACAE4FA4499F02 2 095E45DDF417D05FB10933FFC63D474548B7FFFF7888802F07FFFFFF7D07A8A8",
@@ -866,7 +866,7 @@ class TestCredentialManager(AsyncTestCase):
             "referent": "12345",
             "attrs": cred_values,
             "schema_id": SCHEMA_ID,
-            "cred_def_id": CRED_DEF_ID
+            "cred_def_id": CRED_DEF_ID,
         }
         cred_rev_id = "1000"
         issuer.create_credential = async_mock.CoroutineMock(
@@ -961,7 +961,7 @@ class TestCredentialManager(AsyncTestCase):
             "referent": "12345",
             "attrs": cred_values,
             "schema_id": SCHEMA_ID,
-            "cred_def_id": CRED_DEF_ID
+            "cred_def_id": CRED_DEF_ID,
         }
         issuer.create_credential = async_mock.CoroutineMock(
             return_value=(json.dumps(cred), None)
@@ -1033,7 +1033,7 @@ class TestCredentialManager(AsyncTestCase):
             "referent": "12345",
             "attrs": cred_values,
             "schema_id": SCHEMA_ID,
-            "cred_def_id": CRED_DEF_ID
+            "cred_def_id": CRED_DEF_ID,
         }
         issuer.create_credential = async_mock.CoroutineMock(
             return_value=(json.dumps(cred), stored_exchange.revocation_id)
@@ -1291,15 +1291,10 @@ class TestCredentialManager(AsyncTestCase):
         indy_cred = {
             "schema_id": SCHEMA_ID,
             "cred_def_id": CRED_DEF_ID,
-            "values": {
-                "a": {
-                    "raw": "1",
-                    "encoded": "1"
-                }
-            },
+            "values": {"a": {"raw": "1", "encoded": "1"}},
             "signature": {"...": "..."},
             "signature_correctness_proof": {"...": "..."},
-            "witness": {"...": "..."}
+            "witness": {"...": "..."},
         }
 
         stored_exchange = V10CredentialExchange(
@@ -1335,15 +1330,10 @@ class TestCredentialManager(AsyncTestCase):
         indy_cred = {
             "schema_id": SCHEMA_ID,
             "cred_def_id": CRED_DEF_ID,
-            "values": {
-                "a": {
-                    "raw": "1",
-                    "encoded": "1"
-                }
-            },
+            "values": {"a": {"raw": "1", "encoded": "1"}},
             "signature": {"...": "..."},
             "signature_correctness_proof": {"...": "..."},
-            "witness": {"...": "..."}
+            "witness": {"...": "..."},
         }
         cred_req_meta = {"req": "meta"}
         thread_id = "thread-id"
@@ -1380,17 +1370,12 @@ class TestCredentialManager(AsyncTestCase):
             "referent": cred_id,
             "attrs": cred_values,
             "schema_id": SCHEMA_ID,
-            "cred_def_id": CRED_DEF_ID
+            "cred_def_id": CRED_DEF_ID,
         }
         indy_cred = {
             "schema_id": SCHEMA_ID,
             "cred_def_id": CRED_DEF_ID,
-            "values": {
-                "a": {
-                    "raw": "1",
-                    "encoded": "1"
-                }
-            },
+            "values": {"a": {"raw": "1", "encoded": "1"}},
             "signature": {"...": "..."},
             "signature_correctness_proof": {"...": "..."},
             "witness": {"...": "..."},
